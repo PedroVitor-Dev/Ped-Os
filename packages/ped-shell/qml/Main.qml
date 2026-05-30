@@ -1,11 +1,66 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
+import QtQuick.Controls 2.15
 
 Window {
     id: root
     visible: true
-    width: 1920
-    height: 1080
+    width: 1280
+    height: 720
     title: "PED OS Shell"
     color: "#0a0a0a"
+
+    // Wallpaper gradient
+    Rectangle {
+        anchors.fill: parent
+        gradient: Gradient {
+            orientation: Gradient.Vertical
+            GradientStop { position: 0.0; color: "#0a0a0a" }
+            GradientStop { position: 1.0; color: "#0d1117" }
+        }
+    }
+
+    // Top bar
+    Rectangle {
+        id: topBar
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 32
+        color: "#111111"
+        opacity: 0.9
+
+        Text {
+            anchors.centerIn: parent
+            text: "PED OS"
+            color: "#ffffff"
+            font.pixelSize: 13
+            font.letterSpacing: 4
+            opacity: 0.7
+        }
+    }
+
+    // Center logo
+    Column {
+        anchors.centerIn: parent
+        spacing: 12
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "PED OS"
+            color: "#ffffff"
+            font.pixelSize: 48
+            font.letterSpacing: 8
+            opacity: 0.9
+        }
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "the OS should disappear."
+            color: "#4d9eff"
+            font.pixelSize: 14
+            font.letterSpacing: 2
+            opacity: 0.7
+        }
+    }
 }
