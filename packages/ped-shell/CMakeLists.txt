@@ -10,6 +10,7 @@ find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
 
 qt_add_executable(ped-shell
     src/main.cpp
+    src/systeminfo.cpp
 )
 
 qt_add_qml_module(ped-shell
@@ -22,6 +23,7 @@ qt_add_qml_module(ped-shell
         qml/ContextMenu.qml
         qml/NotificationCenter.qml
 )
+
 target_include_directories(ped-shell PRIVATE include)
 
 target_link_libraries(ped-shell PRIVATE

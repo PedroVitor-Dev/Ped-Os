@@ -145,23 +145,50 @@ Window {
             Component.onCompleted: text = Qt.formatDateTime(new Date(), "hh:mm:ss")
         }
 
-        Text {
-            id: dateText
+        Row {
             anchors.right: parent.right
             anchors.rightMargin: 16
             anchors.verticalCenter: parent.verticalCenter
-            color: "#ffffff"
-            font.pixelSize: 12
-            opacity: 0.5
+            spacing: 10
 
-            Timer {
-                interval: 60000
-                running: true
-                repeat: true
-                onTriggered: dateText.text = Qt.formatDateTime(new Date(), "dd/MM/yyyy")
+            Text {
+                text: systemInfo.networkConnected ? "🌐" : "🚫"
+                color: systemInfo.networkConnected ? "#4d9eff" : "#ff4d4d"
+                font.pixelSize: 13
+                opacity: 0.8
+                anchors.verticalCenter: parent.verticalCenter
             }
 
-            Component.onCompleted: text = Qt.formatDateTime(new Date(), "dd/MM/yyyy")
+            Text {
+                text: systemInfo.batteryCharging ? "⚡" : (systemInfo.batteryLevel < 20 ? "🪫" : "🔋")
+                font.pixelSize: 13
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Text {
+                text: systemInfo.batteryLevel + "%"
+                color: systemInfo.batteryLevel < 20 ? "#ff4d4d" : "#ffffff"
+                font.pixelSize: 12
+                opacity: 0.7
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Text {
+                id: dateText
+                color: "#ffffff"
+                font.pixelSize: 12
+                opacity: 0.5
+                anchors.verticalCenter: parent.verticalCenter
+
+                Timer {
+                    interval: 60000
+                    running: true
+                    repeat: true
+                    onTriggered: dateText.text = Qt.formatDateTime(new Date(), "dd/MM/yyyy")
+                }
+
+                Component.onCompleted: text = Qt.formatDateTime(new Date(), "dd/MM/yyyy")
+            }
         }
 
         NumberAnimation on opacity {
@@ -356,12 +383,8 @@ Window {
         anchors.fill: parent
         z: 100
     }
-    LoginScreen {
-        id: loginScreen
-        anchors.fill: parent
-        z: 200
-        onLoginSuccess: loginScreen.destroy()
-    }
+
+    // Context menu
     ContextMenu {
         id: contextMenu
         anchors.fill: parent
@@ -377,16 +400,21 @@ Window {
                 contextMenu.show(mouse.x, mouse.y)
         }
     }
+
+    // Notifications
     NotificationCenter {
         id: notifCenter
         anchors.fill: parent
         z: 120
     }
 
-    // Teste — notificação ao fazer login
-    Connections {
-        target: loginScreen
-        function onLoginSuccess() {
+    // Login screen
+    LoginScreen {
+        id: loginScreen
+        anchors.fill: parent
+        z: 200
+        onLoginSuccess: {
+            loginScreen.destroy()
             notifCenter.send("Welcome back!", "PED OS is ready.", "👋")
         }
     }
