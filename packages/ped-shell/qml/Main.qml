@@ -356,4 +356,10 @@ Window {
         anchors.fill: parent
         z: 100
     }
+    LoginScreen {
+        id: loginScreen
+        anchors.fill: parent
+        z: 200
+        onLoginSuccess: loginScreen.destroy()
+    }
 }
