@@ -5,6 +5,14 @@
   ![Status](https://img.shields.io/badge/status-in%20development-blue)
   ![License](https://img.shields.io/badge/license-GPL--3.0-white)
   ![Platform](https://img.shields.io/badge/platform-Linux-black)
+
+  <br/>
+
+  <img src="assets/screenshots/Front_PedOs.png" width="800" alt="PED OS Screenshot"/>
+
+  <br/><br/>
+
+  <img src="assets/demo/MP4PEDOS.gif" width="800" alt="PED OS Demo"/>
 </div>
 
 ---
@@ -14,6 +22,19 @@
 > "The operating system should disappear so the user can focus only on what matters."
 
 PED OS is built around four principles: **elegant**, **fast**, **silent**, **focused**.
+
+---
+
+## What's working now
+
+| Feature | Status |
+|---|---|
+| Top bar with clock & date | ✅ |
+| Minimalist dock | ✅ |
+| Dock hover zoom | ✅ |
+| Dock tooltip | ✅ |
+| Dock bounce on click | ✅ |
+| Entrance animations | ✅ |
 
 ---
 
@@ -59,5 +80,5 @@ See [docs/contributing.md](docs/contributing.md).
 ---
 
 <div align="center">
-  <sub>Built with focus.</sub>
+  <sub>Built with focus. Designed to disappear.</sub>
 </div>
