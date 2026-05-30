@@ -19,76 +19,65 @@ Window {
         }
     }
 
-    // Top bar
-    Rectangle {
-        id: topBar
-        anchors.top: parent.top
+ // Top bar
+Rectangle {
+    id: topBar
+    anchors.top: parent.top
+    anchors.left: parent.left
+    anchors.right: parent.right
+    height: 32
+    color: "#111111"
+    opacity: 0.0
+
+    // Logo esquerda
+    Text {
         anchors.left: parent.left
-        anchors.right: parent.right
-        height: 32
-        color: "#111111"
-        opacity: 0.0
-
-        Text {
-            anchors.centerIn: parent
-            text: "PED OS"
-            color: "#ffffff"
-            font.pixelSize: 13
-            font.letterSpacing: 4
-            opacity: 0.7
-        }
-
-        NumberAnimation on opacity {
-            from: 0.0
-            to: 0.9
-            duration: 800
-            easing.type: Easing.OutCubic
-            running: true
-        }
+        anchors.leftMargin: 16
+        anchors.verticalCenter: parent.verticalCenter
+        text: "PED OS"
+        color: "#ffffff"
+        font.pixelSize: 12
+        font.letterSpacing: 4
+        opacity: 0.7
     }
 
-    // Center logo
-    Column {
-        id: centerLogo
+    // Relógio centro
+    Text {
+        id: clockText
         anchors.centerIn: parent
-        spacing: 12
-        opacity: 0.0
-        anchors.verticalCenterOffset: 20
+        color: "#ffffff"
+        font.pixelSize: 13
+        opacity: 0.8
 
-        Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: "PED OS"
-            color: "#ffffff"
-            font.pixelSize: 48
-            font.letterSpacing: 8
-            opacity: 0.9
-        }
-
-        Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: "the OS should disappear."
-            color: "#4d9eff"
-            font.pixelSize: 14
-            font.letterSpacing: 2
-            opacity: 0.7
-        }
-
-        NumberAnimation on opacity {
-            from: 0.0
-            to: 1.0
-            duration: 1000
-            easing.type: Easing.OutCubic
+        Timer {
+            interval: 1000
             running: true
+            repeat: true
+            onTriggered: clockText.text = Qt.formatDateTime(new Date(), "hh:mm:ss")
         }
 
-        NumberAnimation on anchors.verticalCenterOffset {
-            from: 20
-            to: 0
-            duration: 1000
-            easing.type: Easing.OutCubic
-            running: true
-        }
+        Component.onCompleted: text = Qt.formatDateTime(new Date(), "hh:mm:ss")
     }
+
+    // Data direita
+    Text {
+        anchors.right: parent.right
+        anchors.rightMargin: 16
+        anchors.verticalCenter: parent.verticalCenter
+        text: Qt.formatDateTime(new Date(), "dd/MM/yyyy")
+        color: "#ffffff"
+        font.pixelSize: 12
+        opacity: 0.5
+    }
+
+    NumberAnimation on opacity {
+        from: 0.0
+        to: 0.9
+        duration: 800
+        easing.type: Easing.OutCubic
+        running: true
+    }
+}
 
     // Dock
     Rectangle {
