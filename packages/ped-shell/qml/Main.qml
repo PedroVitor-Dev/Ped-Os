@@ -292,20 +292,20 @@ Window {
         }
     }
 
-    // Indicador de app ativo
-    Rectangle {
-        width: dockItem.active ? 6 : 0
-        height: 4
-        radius: 2
-        color: "#4d9eff"
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: -6
+// Indicador de app ativo
+Rectangle {
+    width: dockItem.active ? 6 : 0
+    height: 3
+    radius: 2
+    color: "#4d9eff"
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.bottom: parent.bottom
+    anchors.bottomMargin: 3
 
-        Behavior on width {
-            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
-        }
+    Behavior on width {
+        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
     }
+}
 
     MouseArea {
         id: dockItemMouse
