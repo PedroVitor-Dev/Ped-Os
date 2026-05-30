@@ -95,7 +95,6 @@ Window {
         id: dock
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottomMargin: 12
         width: dockRow.width + 24
         height: 56
         radius: 16
