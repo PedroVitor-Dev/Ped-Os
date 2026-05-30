@@ -3,44 +3,41 @@
 ---
 
 ## Phase 1 — Foundation
-> 
 
-- [ ] Configure Linux development environment
-- [ ] Create GitHub organization
+- [x] Configure Linux development environment
+- [x] Create GitHub organization
+- [x] Create first interfaces
+- [x] First fluid animation
 - [ ] Create PED OS logo
-- [ ] Create first interfaces
 - [ ] Create mockups in Figma
-- [ ] Learn Wayland architecture
-- [ ] Learn Qt/QML basics
 
 **Milestones:**
-- First PED OS window
-- First launcher prototype
-- First official wallpaper
-- First fluid animation
+- ✅ First PED OS window running
+- ✅ First launcher prototype
+- ✅ First fluid animations
+- ⬜ First official wallpaper
 
 ---
 
 ## Phase 2 — Real Interface
-> 
 
-- [ ] PED Dock
+- [x] PED Dock (embedded in ped-shell)
+- [ ] PED Dock (standalone component)
 - [ ] PED Launcher
 - [ ] Theme system
 - [ ] Login screen
 - [ ] Notification center
 - [ ] Workspace management
-- [ ] Top panel
+- [ ] Top panel (advanced)
 
 **Milestones:**
-- Interface looks like a real OS
-- First demo video (YouTube / X)
-- First internal ISO
+- ✅ Interface looks like a real OS
+- ⬜ First demo video (YouTube / X)
+- ⬜ First internal ISO
 
 ---
 
 ## Phase 3 — Public Alpha
-> 
 
 - [ ] Bootable ISO
 - [ ] Working installer
@@ -49,14 +46,13 @@
 - [ ] Organized GitHub
 
 **Milestones:**
-- First external testers
-- Discord community
-- Viral screenshots
+- ⬜ First external testers
+- ⬜ Discord community
+- ⬜ Viral screenshots
 
 ---
 
 ## Phase 4 — Extreme Polish
-> 
 
 - [ ] Ultra fluid animation system
 - [ ] Refined UX
@@ -67,9 +63,9 @@
 - [ ] Extensions
 
 **Milestones:**
-- Real active users
-- External contributors
-- Open source recognition
+- ⬜ Real active users
+- ⬜ External contributors
+- ⬜ Open source recognition
 
 ---
 
