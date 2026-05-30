@@ -150,35 +150,67 @@ Window {
                     { icon: "🏪", label: "Store" }
                 ]
 
-                delegate: Rectangle {
-                    id: dockItem
-                    width: dockItemMouse.containsMouse ? 52 : 44
-                    height: dockItemMouse.containsMouse ? 52 : 44
-                    radius: 12
-                    color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
+                delegate: Item {
+                    width: 52
+                    height: 60
                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
 
-                    Behavior on width {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                    }
-                    Behavior on height {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                    }
+                    Rectangle {
+                        id: dockItem
+                        width: dockItemMouse.containsMouse ? 52 : 44
+                        height: dockItemMouse.containsMouse ? 52 : 44
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: tooltip.top
+                        anchors.bottomMargin: 4
+                        radius: 12
+                        color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: modelData.icon
-                        font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
-
-                        Behavior on font.pixelSize {
+                        Behavior on width {
                             NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                        }
+                        Behavior on height {
+                            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                        }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData.icon
+                            font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
+
+                            Behavior on font.pixelSize {
+                                NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                            }
+                        }
+
+                        MouseArea {
+                            id: dockItemMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
                         }
                     }
 
-                    MouseArea {
-                        id: dockItemMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
+                    Rectangle {
+                        id: tooltip
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.bottom
+                        height: 18
+                        width: tooltipText.width + 12
+                        radius: 6
+                        color: "#222222"
+                        opacity: dockItemMouse.containsMouse ? 1.0 : 0.0
+
+                        Behavior on opacity {
+                            NumberAnimation { duration: 150 }
+                        }
+
+                        Text {
+                            id: tooltipText
+                            anchors.centerIn: parent
+                            text: modelData.label
+                            color: "#ffffff"
+                            font.pixelSize: 11
+                            opacity: 0.8
+                        }
                     }
                 }
             }
