@@ -253,63 +253,81 @@ Window {
                 ]
 
                 delegate: Rectangle {
-                    id: dockItem
-                    width: dockItemMouse.containsMouse ? 52 : 44
-                    height: dockItemMouse.containsMouse ? 52 : 44
-                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                    radius: 12
-                    color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
+    id: dockItem
+    width: dockItemMouse.containsMouse ? 52 : 44
+    height: dockItemMouse.containsMouse ? 52 : 44
+    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+    radius: 12
+    color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
 
-                    property bool bouncing: false
+    property bool active: false
 
-                    Behavior on width {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                    }
-                    Behavior on height {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                    }
+    Behavior on width {
+        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+    }
+    Behavior on height {
+        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+    }
 
-                    transform: Translate {
-                        id: bounceTranslate
-                        y: 0
-                    }
+    transform: Translate {
+        id: bounceTranslate
+        y: 0
+    }
 
-                    SequentialAnimation {
-                        id: bounceAnim
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: -16; duration: 120; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: 0;   duration: 120; easing.type: Easing.InBounce }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: -8;  duration: 80;  easing.type: Easing.OutCubic }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: 0;   duration: 80;  easing.type: Easing.InBounce }
-                    }
+    SequentialAnimation {
+        id: bounceAnim
+        NumberAnimation { target: bounceTranslate; property: "y"; to: -16; duration: 120; easing.type: Easing.OutCubic }
+        NumberAnimation { target: bounceTranslate; property: "y"; to: 0;   duration: 120; easing.type: Easing.InBounce }
+        NumberAnimation { target: bounceTranslate; property: "y"; to: -8;  duration: 80;  easing.type: Easing.OutCubic }
+        NumberAnimation { target: bounceTranslate; property: "y"; to: 0;   duration: 80;  easing.type: Easing.InBounce }
+    }
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: modelData.icon
-                        font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
+    Text {
+        anchors.centerIn: parent
+        text: modelData.icon
+        font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
 
-                        Behavior on font.pixelSize {
-                            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                        }
-                    }
+        Behavior on font.pixelSize {
+            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+        }
+    }
 
-                    MouseArea {
-                        id: dockItemMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        acceptedButtons: Qt.LeftButton
+    // Indicador de app ativo
+    Rectangle {
+        width: dockItem.active ? 6 : 0
+        height: 4
+        radius: 2
+        color: "#4d9eff"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: -6
 
-                        onClicked: bounceAnim.start()
+        Behavior on width {
+            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+        }
+    }
 
-                        onContainsMouseChanged: {
-                            if (containsMouse) {
-                                globalTooltipText.text = modelData.label
-                                globalTooltip.opacity = 1.0
-                            } else {
-                                globalTooltip.opacity = 0.0
-                            }
-                        }
-                    }
-                }
+    MouseArea {
+        id: dockItemMouse
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.LeftButton
+
+        onClicked: {
+            dockItem.active = !dockItem.active
+            bounceAnim.start()
+        }
+
+        onContainsMouseChanged: {
+            if (containsMouse) {
+                globalTooltipText.text = modelData.label
+                globalTooltip.opacity = 1.0
+            } else {
+                globalTooltip.opacity = 0.0
+            }
+        }
+    }
+}
             }
         }
     }
