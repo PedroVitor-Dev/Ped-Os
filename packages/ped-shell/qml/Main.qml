@@ -113,32 +113,64 @@ Window {
         }
     }
 
-    Rectangle {
-        id: dock
+    // Dock container — flutua acima do fundo
+    Item {
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: 12
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottomMargin: 40
         width: dockRow.width + 24
-        height: 60
-        radius: 16
-        color: "#1a1a1a"
-        opacity: 0.0
+        height: 90
 
-        SequentialAnimation on opacity {
-            running: true
-            PauseAnimation { duration: 400 }
-            NumberAnimation { from: 0.0; to: 0.85; duration: 1000; easing.type: Easing.OutCubic }
+        // Tooltip global — aparece acima do dock
+        Rectangle {
+            id: globalTooltip
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: dockBg.top
+            anchors.bottomMargin: 8
+            height: 22
+            width: globalTooltipText.width + 16
+            radius: 8
+            color: "#1e1e1e"
+            opacity: 0.0
+            visible: opacity > 0
+
+            Behavior on opacity {
+                NumberAnimation { duration: 150 }
+            }
+
+            Text {
+                id: globalTooltipText
+                anchors.centerIn: parent
+                text: ""
+                color: "#ffffff"
+                font.pixelSize: 12
+                opacity: 0.9
+            }
         }
 
-        SequentialAnimation on anchors.bottomMargin {
-            running: true
-            PauseAnimation { duration: 400 }
-            NumberAnimation { from: 40; to: 12; duration: 1000; easing.type: Easing.OutCubic }
+        // Dock background
+        Rectangle {
+            id: dockBg
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width
+            height: 60
+            radius: 16
+            color: "#1a1a1a"
+            opacity: 0.0
+
+            SequentialAnimation on opacity {
+                running: true
+                PauseAnimation { duration: 400 }
+                NumberAnimation { from: 0.0; to: 0.85; duration: 1000; easing.type: Easing.OutCubic }
+            }
         }
 
         Row {
             id: dockRow
-            anchors.centerIn: parent
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 8
+            anchors.horizontalCenter: parent.horizontalCenter
             spacing: 8
 
             Repeater {
@@ -150,67 +182,44 @@ Window {
                     { icon: "🏪", label: "Store" }
                 ]
 
-                delegate: Item {
-                    width: 52
-                    height: 60
+                delegate: Rectangle {
+                    id: dockItem
+                    width: dockItemMouse.containsMouse ? 52 : 44
+                    height: dockItemMouse.containsMouse ? 52 : 44
                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+                    radius: 12
+                    color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
 
-                    Rectangle {
-                        id: dockItem
-                        width: dockItemMouse.containsMouse ? 52 : 44
-                        height: dockItemMouse.containsMouse ? 52 : 44
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.bottom: tooltip.top
-                        anchors.bottomMargin: 4
-                        radius: 12
-                        color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
+                    Behavior on width {
+                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    }
+                    Behavior on height {
+                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    }
 
-                        Behavior on width {
+                    Text {
+                        anchors.centerIn: parent
+                        text: modelData.icon
+                        font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
+
+                        Behavior on font.pixelSize {
                             NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                        }
-                        Behavior on height {
-                            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                        }
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: modelData.icon
-                            font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
-
-                            Behavior on font.pixelSize {
-                                NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                            }
-                        }
-
-                        MouseArea {
-                            id: dockItemMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            acceptedButtons: Qt.NoButton
                         }
                     }
 
-                    Rectangle {
-                        id: tooltip
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.bottom: parent.bottom
-                        height: 68
-                        width: tooltipText.width + 12
-                        radius: 6
-                        color: "#222222"
-                        opacity: dockItemMouse.containsMouse ? 1.0 : 0.0
+                    MouseArea {
+                        id: dockItemMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        acceptedButtons: Qt.NoButton
 
-                        Behavior on opacity {
-                            NumberAnimation { duration: 150 }
-                        }
-
-                        Text {
-                            id: tooltipText
-                            anchors.centerIn: parent
-                            text: modelData.label
-                            color: "#ffffff"
-                            font.pixelSize: 11
-                            opacity: 0.8
+                        onContainsMouseChanged: {
+                            if (containsMouse) {
+                                globalTooltipText.text = modelData.label
+                                globalTooltip.opacity = 1.0
+                            } else {
+                                globalTooltip.opacity = 0.0
+                            }
                         }
                     }
                 }
