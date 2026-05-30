@@ -7,23 +7,34 @@ Item {
     visible: false
     opacity: 0.0
 
-    property var apps: [
-        { icon: "🗂", name: "Files" },
-        { icon: "🌐", name: "Browser" },
-        { icon: "⚙️", name: "Settings" },
-        { icon: "🖥", name: "Terminal" },
-        { icon: "🏪", name: "Store" },
-        { icon: "🎵", name: "Music" },
-        { icon: "📷", name: "Camera" },
-        { icon: "📝", name: "Notes" }
+    property var allApps: [
+        { icon: "🗂", name: "Files",    category: "System" },
+        { icon: "⚙️", name: "Settings", category: "System" },
+        { icon: "🖥", name: "Terminal", category: "System" },
+        { icon: "🏪", name: "Store",    category: "System" },
+        { icon: "🌐", name: "Browser",  category: "Media" },
+        { icon: "🎵", name: "Music",    category: "Media" },
+        { icon: "📷", name: "Camera",   category: "Media" },
+        { icon: "📝", name: "Notes",    category: "Media" }
     ]
 
     property string searchText: ""
+    property string activeCategory: "All"
+
+    function filteredApps() {
+        return allApps.filter(function(a) {
+            var matchCategory = activeCategory === "All" || a.category === activeCategory
+            var matchSearch = searchText.length === 0 ||
+                              a.name.toLowerCase().indexOf(searchText.toLowerCase()) !== -1
+            return matchCategory && matchSearch
+        })
+    }
 
     function show() {
         launcher.visible = true
         searchInput.text = ""
         searchText = ""
+        activeCategory = "All"
         searchInput.forceActiveFocus()
         showAnim.start()
     }
@@ -68,12 +79,33 @@ Item {
         width: 600
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: 120
-        height: filteredColumn.height + searchBox.height + 48
+        anchors.topMargin: 100
+        height: categoryRow.height + searchBox.height + resultsList.height + 56
         radius: 16
-        color: "#111520"
-        border.color: "#1e2d45"
+        color: "#0e1520"
+        border.color: "#4d9eff"
         border.width: 1
+
+        // Glow azul na borda
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -2
+            radius: parent.radius + 2
+            color: "transparent"
+            border.color: "#4d9eff"
+            border.width: 1
+            opacity: 0.15
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -4
+            radius: parent.radius + 4
+            color: "transparent"
+            border.color: "#4d9eff"
+            border.width: 1
+            opacity: 0.07
+        }
 
         // Campo de busca
         Rectangle {
@@ -123,25 +155,59 @@ Item {
             }
         }
 
+        // Categorias
+        Row {
+            id: categoryRow
+            anchors.top: searchBox.bottom
+            anchors.left: parent.left
+            anchors.leftMargin: 16
+            anchors.topMargin: 8
+            spacing: 8
+
+            Repeater {
+                model: ["All", "System", "Media"]
+
+                delegate: Rectangle {
+                    width: catText.width + 20
+                    height: 28
+                    radius: 8
+                    color: launcher.activeCategory === modelData ? "#4d9eff" : "#1a2030"
+
+                    Behavior on color {
+                        ColorAnimation { duration: 150 }
+                    }
+
+                    Text {
+                        id: catText
+                        anchors.centerIn: parent
+                        text: modelData
+                        color: launcher.activeCategory === modelData ? "#ffffff" : "#aaaaaa"
+                        font.pixelSize: 12
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: launcher.activeCategory = modelData
+                    }
+                }
+            }
+        }
+
         // Lista de resultados
         Column {
-            id: filteredColumn
-            anchors.top: searchBox.bottom
+            id: resultsList
+            anchors.top: categoryRow.bottom
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.topMargin: 8
-            anchors.bottomMargin: 16
-            spacing: 2
             padding: 8
+            spacing: 2
 
             Repeater {
-                model: launcher.apps.filter(function(a) {
-                    return launcher.searchText.length === 0 ||
-                           a.name.toLowerCase().indexOf(launcher.searchText.toLowerCase()) !== -1
-                })
+                model: launcher.filteredApps()
 
                 delegate: Rectangle {
-                    width: filteredColumn.width - 16
+                    width: resultsList.width - 16
                     height: 48
                     radius: 8
                     color: itemMouse.containsMouse ? "#1e2d45" : "transparent"
@@ -169,6 +235,16 @@ Item {
                             opacity: 0.9
                             anchors.verticalCenter: parent.verticalCenter
                         }
+                    }
+
+                    Text {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 16
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: modelData.category
+                        color: "#4d9eff"
+                        font.pixelSize: 11
+                        opacity: 0.6
                     }
 
                     MouseArea {
