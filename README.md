@@ -6,16 +6,13 @@
   ![License](https://img.shields.io/badge/license-GPL--3.0-white)
   ![Platform](https://img.shields.io/badge/platform-Linux-black)
 
-  <br/>
-
-  <img src="assets/screenshots/Front_PedOs.png" width="800" alt="PED OS Screenshot"/>
-
   <br/><br/>
 
   <img src="assets/demo/MP4PEDOS.gif" width="800" alt="PED OS Demo"/>
 </div>
 
 ---
+<br/><br/>
 
 ## Philosophy
 
@@ -72,6 +69,24 @@ PED OS is built around four principles: **elegant**, **fast**, **silent**, **foc
 - [ ] Phase 4 — Extreme Polish
 
 ---
+
+## Screenshots
+
+<div align="center">
+
+### Login Screen
+<img src="assets/screenshots/tela_de_login.png" width="800" alt="PED OS Login Screen"/>
+
+### Desktop
+<img src="assets/screenshots/desktop.png" width="800" alt="PED OS Desktop"/>
+
+### Launcher
+<img src="assets/screenshots/laucher.png" width="800" alt="PED OS Launcher"/>
+
+### Context Menu
+<img src="assets/screenshots/menu_de_contexto.png" width="800" alt="PED OS Context Menu"/>
+
+</div>
 
 ## Contributing
 
