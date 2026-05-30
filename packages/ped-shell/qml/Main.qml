@@ -1,6 +1,5 @@
 import QtQuick 2.15
 import QtQuick.Window 2.15
-import QtQuick.Controls 2.15
 
 Window {
     id: root
@@ -61,6 +60,54 @@ Window {
             font.pixelSize: 14
             font.letterSpacing: 2
             opacity: 0.7
+        }
+    }
+
+    // Dock
+    Rectangle {
+        id: dock
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottomMargin: 12
+        width: dockRow.width + 24
+        height: 56
+        radius: 16
+        color: "#1a1a1a"
+        opacity: 0.85
+
+        Row {
+            id: dockRow
+            anchors.centerIn: parent
+            spacing: 8
+
+            Repeater {
+                model: [
+                    { icon: "🗂", label: "Files" },
+                    { icon: "🌐", label: "Browser" },
+                    { icon: "⚙️", label: "Settings" },
+                    { icon: "🖥", label: "Terminal" },
+                    { icon: "🏪", label: "Store" }
+                ]
+
+                delegate: Rectangle {
+                    width: 44
+                    height: 44
+                    radius: 10
+                    color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: modelData.icon
+                        font.pixelSize: 24
+                    }
+
+                    MouseArea {
+                        id: dockItemMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                    }
+                }
+            }
         }
     }
 }
