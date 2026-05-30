@@ -183,46 +183,63 @@ Window {
                 ]
 
                 delegate: Rectangle {
-                    id: dockItem
-                    width: dockItemMouse.containsMouse ? 52 : 44
-                    height: dockItemMouse.containsMouse ? 52 : 44
-                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                    radius: 12
-                    color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
+    id: dockItem
+    width: dockItemMouse.containsMouse ? 52 : 44
+    height: dockItemMouse.containsMouse ? 52 : 44
+    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+    radius: 12
+    color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
 
-                    Behavior on width {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                    }
-                    Behavior on height {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                    }
+    property bool bouncing: false
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: modelData.icon
-                        font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
+    Behavior on width {
+        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+    }
+    Behavior on height {
+        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+    }
 
-                        Behavior on font.pixelSize {
-                            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                        }
-                    }
+    transform: Translate {
+        id: bounceTranslate
+        y: 0
+    }
 
-                    MouseArea {
-                        id: dockItemMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        acceptedButtons: Qt.NoButton
+    SequentialAnimation {
+        id: bounceAnim
+        NumberAnimation { target: bounceTranslate; property: "y"; to: -16; duration: 120; easing.type: Easing.OutCubic }
+        NumberAnimation { target: bounceTranslate; property: "y"; to: 0;   duration: 120; easing.type: Easing.InBounce }
+        NumberAnimation { target: bounceTranslate; property: "y"; to: -8;  duration: 80;  easing.type: Easing.OutCubic }
+        NumberAnimation { target: bounceTranslate; property: "y"; to: 0;   duration: 80;  easing.type: Easing.InBounce }
+    }
 
-                        onContainsMouseChanged: {
-                            if (containsMouse) {
-                                globalTooltipText.text = modelData.label
-                                globalTooltip.opacity = 1.0
-                            } else {
-                                globalTooltip.opacity = 0.0
-                            }
-                        }
-                    }
-                }
+    Text {
+        anchors.centerIn: parent
+        text: modelData.icon
+        font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
+
+        Behavior on font.pixelSize {
+            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+        }
+    }
+
+    MouseArea {
+        id: dockItemMouse
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.LeftButton
+
+        onClicked: bounceAnim.start()
+
+        onContainsMouseChanged: {
+            if (containsMouse) {
+                globalTooltipText.text = modelData.label
+                globalTooltip.opacity = 1.0
+            } else {
+                globalTooltip.opacity = 0.0
+            }
+        }
+    }
+}
             }
         }
     }
