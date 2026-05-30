@@ -9,7 +9,6 @@ Window {
     title: "PED OS Shell"
     color: "#0a0a0a"
 
-    // Wallpaper gradient
     Rectangle {
         anchors.fill: parent
         gradient: Gradient {
@@ -19,7 +18,6 @@ Window {
         }
     }
 
-    // Top bar
     Rectangle {
         id: topBar
         anchors.top: parent.top
@@ -76,7 +74,6 @@ Window {
         }
     }
 
-    // Center logo
     Column {
         id: centerLogo
         anchors.centerIn: parent
@@ -107,14 +104,13 @@ Window {
         }
     }
 
-    // Dock
     Rectangle {
         id: dock
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottomMargin: 40
         width: dockRow.width + 24
-        height: 56
+        height: 60
         radius: 16
         color: "#1a1a1a"
         opacity: 0.0
@@ -146,15 +142,28 @@ Window {
                 ]
 
                 delegate: Rectangle {
-                    width: 44
-                    height: 44
-                    radius: 10
+                    id: dockItem
+                    width: dockItemMouse.containsMouse ? 52 : 44
+                    height: dockItemMouse.containsMouse ? 52 : 44
+                    radius: 12
                     color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
+                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
+
+                    Behavior on width {
+                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    }
+                    Behavior on height {
+                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                    }
 
                     Text {
                         anchors.centerIn: parent
                         text: modelData.icon
-                        font.pixelSize: 24
+                        font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
+
+                        Behavior on font.pixelSize {
+                            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
+                        }
                     }
 
                     MouseArea {
