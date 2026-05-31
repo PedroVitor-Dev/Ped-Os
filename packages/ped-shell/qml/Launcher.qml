@@ -8,8 +8,8 @@ Item {
     opacity: 0.0
 
     property var allApps: [
-        { icon: "🎮", name: "Steam",    category: "Gaming", command: "steam",  args: [], flatpakId: "com.valvesoftware.Steam" },
-        { icon: "🎮", name: "Lutris",   category: "Gaming", command: "lutris", args: [], flatpakId: "net.lutris.Lutris" },
+        { icon: "🎮", name: "Steam",  category: "Gaming", command: "steam",  flatpakId: "com.valvesoftware.Steam", windowClasses: ["steam", "Steam"] },
+        { icon: "🎮", name: "Lutris", category: "Gaming", command: "lutris", flatpakId: "net.lutris.Lutris", windowClasses: ["lutris", "Lutris"] },
         { icon: "🗂", name: "Files",    category: "System", command: "nautilus", args: [] },
         { icon: "⚙️", name: "Settings", category: "System", command: "gnome-control-center", args: [] },
         { icon: "🖥", name: "Terminal", category: "System", command: "gnome-terminal", args: [] },
@@ -32,20 +32,29 @@ Item {
         })
     }
 
-    function launchApp(app) {
-        var opened = false
+function launchApp(app) {
+    var opened = false
 
+    if (app.windowClasses && app.windowClasses.length > 0) {
+        opened = appLauncher.focusOrLaunch(
+            app.windowClasses,
+            app.command || "",
+            app.args || [],
+            app.flatpakId || ""
+        )
+    } else {
         if (app.command && app.command.length > 0)
             opened = appLauncher.launch(app.command, app.args || [])
 
         if (!opened && app.flatpakId && app.flatpakId.length > 0)
             opened = appLauncher.launch("flatpak", ["run", app.flatpakId])
-
-        if (!opened && notifCenter)
-            notifCenter.send("App not found", app.name + " is not installed.", "⚠️")
-
-        launcher.hide()
     }
+
+    if (!opened && notifCenter)
+        notifCenter.send("App not found", app.name + " is not installed.", "⚠️")
+
+    launcher.hide()
+}
 
     function show() {
         launcher.visible = true

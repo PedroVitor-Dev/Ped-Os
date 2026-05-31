@@ -11,18 +11,27 @@ Window {
 
     property string pedFont: "Exo 2"
 
-    function launchDesktopApp(app) {
-        var opened = false
+ function launchDesktopApp(app) {
+    var opened = false
 
+    if (app.windowClasses && app.windowClasses.length > 0) {
+        opened = appLauncher.focusOrLaunch(
+            app.windowClasses,
+            app.command || "",
+            app.args || [],
+            app.flatpakId || ""
+        )
+    } else {
         if (app.command && app.command.length > 0)
             opened = appLauncher.launch(app.command, app.args || [])
 
         if (!opened && app.flatpakId && app.flatpakId.length > 0)
             opened = appLauncher.launch("flatpak", ["run", app.flatpakId])
-
-        if (!opened)
-            notifCenter.send("App not found", app.label + " is not installed.", "⚠️")
     }
+
+    if (!opened)
+        notifCenter.send("App not found", app.label + " is not installed.", "⚠️")
+}
 
 // Wallpaper
 Rectangle {
@@ -417,7 +426,7 @@ Rectangle {
                     { icon: "🌐", label: "Browser",  command: "xdg-open", args: ["https://www.google.com"] },
                     { icon: "⚙️", label: "Settings", command: "systemsettings", args: [] },
                     { icon: "🖥", label: "Terminal", command: "terminal", args: [] },
-                    { icon: "🎮", label: "Steam",    command: "steam", args: [], flatpakId: "com.valvesoftware.Steam" }
+                    { icon: "🎮", label: "Steam", command: "steam", args: [], flatpakId: "com.valvesoftware.Steam", windowClasses: ["steam", "Steam"] }
                 ]
 
                 delegate: Rectangle {
