@@ -219,78 +219,76 @@ Item {
             Repeater {
                 model: launcher.filteredApps()
 
-                delegate: Rectangle {
-                    width: resultsList.width - 16
-                    height: 48
-                    radius: 8
-                    color: itemMouse.containsMouse ? "#1e2d45" : "transparent"
+delegate: Rectangle {
+    width: resultsList.width - 16
+    height: 48
+    radius: 8
+    color: itemMouse.containsMouse ? "#1e2d45" : "transparent"
 
-                    Behavior on color {
-                        ColorAnimation { duration: 100 }
-                    }
+    Behavior on color {
+        ColorAnimation { duration: 100 }
+    }
 
-                    Row {
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.leftMargin: 12
-                        spacing: 12
+    Row {
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.leftMargin: 12
+        spacing: 12
 
-                        Text {
-                            text: modelData.icon
-                            font.pixelSize: 22
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
+        Text {
+            text: modelData.icon
+            font.pixelSize: 22
+            anchors.verticalCenter: parent.verticalCenter
+        }
 
-                        Text {
-                            text: modelData.name
-                            color: "#ffffff"
-                            font.pixelSize: 15
-                            opacity: 0.9
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-                    }
+        Text {
+            text: modelData.name
+            color: "#ffffff"
+            font.pixelSize: 15
+            opacity: 0.9
+            anchors.verticalCenter: parent.verticalCenter
+        }
+    }
 
-                    Text {
-                        anchors.right: parent.right
-                        anchors.rightMargin: 16
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: modelData.category
-                        color: "#4d9eff"
-                        font.pixelSize: 11
-                        opacity: 0.6
-                    }
+    // Status instalado/não instalado
+    Rectangle {
+        anchors.right: parent.right
+        anchors.rightMargin: 12
+        anchors.verticalCenter: parent.verticalCenter
+        width: statusText.width + 12
+        height: 18
+        radius: 6
+        color: {
+            if (modelData.category !== "Gaming") return "transparent"
+            var installed = appLauncher.isInstalled(modelData.command || "") ||
+                            appLauncher.isFlatpakInstalled(modelData.flatpakId || "")
+            return installed ? "#0d3020" : "#2a1010"
+        }
 
-                    MouseArea {
-                        id: itemMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-
-                        onClicked: {
-                            if (modelData.command === "terminal") {
-                                var opened = appLauncher.launchFirstAvailable([
-                                    "gnome-terminal",
-                                    "konsole",
-                                    "xfce4-terminal",
-                                    "xterm"
-                                ])
-
-                                if (!opened && notifCenter)
-                                    notifCenter.send("App not found", "No terminal emulator was found.", "⚠️")
-
-                                launcher.hide()
-                            } else {
-                                launcher.launchApp(modelData)
-                            }
-                        }
-                    }
-                }
+        Text {
+            id: statusText
+            anchors.centerIn: parent
+            text: {
+                if (modelData.category !== "Gaming") return modelData.category
+                var installed = appLauncher.isInstalled(modelData.command || "") ||
+                                appLauncher.isFlatpakInstalled(modelData.flatpakId || "")
+                return installed ? "✓ installed" : "not installed"
             }
+            color: {
+                if (modelData.category !== "Gaming") return "#4d9eff"
+                var installed = appLauncher.isInstalled(modelData.command || "") ||
+                                appLauncher.isFlatpakInstalled(modelData.flatpakId || "")
+                return installed ? "#00ff88" : "#ff4d4d"
+            }
+            font.pixelSize: 11
+            opacity: modelData.category !== "Gaming" ? 0.6 : 1.0
         }
     }
 
     MouseArea {
+        id: itemMouse
         anchors.fill: parent
-        z: -1
-        onClicked: launcher.hide()
+        hoverEnabled: true
+        onClicked: launchApp(modelData)
     }
 }
