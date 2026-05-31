@@ -64,6 +64,6 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## Philosophy Reminder
 
-> "The operating system should disappear so the user can focus only on what matters."
+> "Gaming on Linux should be effortless. No tweaking. No struggling. Just play."
 
 Every contribution should serve this principle.
