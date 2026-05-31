@@ -10,174 +10,169 @@ Window {
     color: "#0a0a0a"
 
     property string pedFont: "Exo 2"
-
     property int dockStateVersion: 0
 
-Timer {
-    interval: 1000
-    running: true
-    repeat: true
-    onTriggered: dockStateVersion++
-}
-
- function launchDesktopApp(app) {
-    var opened = false
-
-    if (app.windowClasses && app.windowClasses.length > 0) {
-        opened = appLauncher.focusOrLaunch(
-            app.windowClasses,
-            app.command || "",
-            app.args || [],
-            app.flatpakId || ""
-        )
-    } else {
-        if (app.command && app.command.length > 0)
-            opened = appLauncher.launch(app.command, app.args || [])
-
-        if (!opened && app.flatpakId && app.flatpakId.length > 0)
-            opened = appLauncher.launch("flatpak", ["run", app.flatpakId])
+    Timer {
+        interval: 1000
+        running: true
+        repeat: true
+        onTriggered: dockStateVersion++
     }
 
-    if (!opened)
-        notifCenter.send("App not found", app.label + " is not installed.", "⚠️")
-}
+    function launchDesktopApp(app) {
+        var opened = false
 
-// Wallpaper
-Rectangle {
-    anchors.fill: parent
-    color: "#04050d"
+        if (app.windowClasses && app.windowClasses.length > 0) {
+            opened = appLauncher.focusOrLaunch(
+                app.windowClasses,
+                app.command || "",
+                app.args || [],
+                app.flatpakId || ""
+            )
+        } else {
+            if (app.command && app.command.length > 0)
+                opened = appLauncher.launch(app.command, app.args || [])
 
-    // Gradiente base
+            if (!opened && app.flatpakId && app.flatpakId.length > 0)
+                opened = appLauncher.launch("flatpak", ["run", app.flatpakId])
+        }
+
+        if (!opened)
+            notifCenter.send("App not found", app.label + " is not installed.", "⚠️")
+    }
+
     Rectangle {
         anchors.fill: parent
-        gradient: Gradient {
-            orientation: Gradient.Vertical
-            GradientStop { position: 0.0; color: "#04050d" }
-            GradientStop { position: 0.5; color: "#080b18" }
-            GradientStop { position: 1.0; color: "#050810" }
-        }
-    }
+        color: "#04050d"
 
-    // Triângulo grande esquerdo
-    Canvas {
-        width: parent.width
-        height: parent.height
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
-
-            ctx.beginPath()
-            ctx.moveTo(0, height * 0.3)
-            ctx.lineTo(width * 0.35, height * 0.0)
-            ctx.lineTo(width * 0.15, height * 0.75)
-            ctx.closePath()
-            ctx.strokeStyle = "#0d3060"
-            ctx.lineWidth = 1
-            ctx.stroke()
-
-            ctx.beginPath()
-            ctx.moveTo(width * 0.6, height)
-            ctx.lineTo(width, height * 0.4)
-            ctx.lineTo(width, height)
-            ctx.closePath()
-            ctx.strokeStyle = "#0d3060"
-            ctx.lineWidth = 1
-            ctx.stroke()
-
-            ctx.beginPath()
-            ctx.moveTo(width * 0.7, 0)
-            ctx.lineTo(width, height * 0.25)
-            ctx.lineTo(width * 0.85, 0)
-            ctx.closePath()
-            ctx.strokeStyle = "#4d9eff"
-            ctx.lineWidth = 1
-            ctx.globalAlpha = 0.15
-            ctx.stroke()
-
-            ctx.globalAlpha = 1.0
-            ctx.beginPath()
-            ctx.moveTo(width * 0.1, height * 0.85)
-            ctx.lineTo(width * 0.3, height * 0.6)
-            ctx.lineTo(width * 0.45, height)
-            ctx.closePath()
-            ctx.strokeStyle = "#4d9eff"
-            ctx.lineWidth = 1
-            ctx.globalAlpha = 0.1
-            ctx.stroke()
-        }
-    }
-
-    // Glow canto superior direito
-    Rectangle {
-        width: 500
-        height: 500
-        radius: 250
-        x: parent.width - 200
-        y: -150
-        color: "transparent"
         Rectangle {
-            anchors.centerIn: parent
-            width: 300
-            height: 300
-            radius: 150
-            color: "#4d9eff"
-            opacity: 0.04
-        }
-    }
-
-    // Glow canto inferior esquerdo
-    Rectangle {
-        width: 400
-        height: 400
-        radius: 200
-        x: -150
-        y: parent.height - 200
-        color: "#4d9eff"
-        opacity: 0.03
-    }
-
-    // Partículas estáticas
-    Repeater {
-        model: 30
-        delegate: Rectangle {
-            property real px: Math.random()
-            property real py: Math.random()
-            x: px * parent.width
-            y: py * parent.height
-            width: Math.random() > 0.7 ? 3 : 1.5
-            height: width
-            radius: width
-            color: "#4d9eff"
-            opacity: Math.random() * 0.4 + 0.1
-
-            SequentialAnimation on opacity {
-                loops: Animation.Infinite
-                NumberAnimation { to: 0.05; duration: Math.random() * 2000 + 1000; easing.type: Easing.InOutSine }
-                NumberAnimation { to: Math.random() * 0.4 + 0.1; duration: Math.random() * 2000 + 1000; easing.type: Easing.InOutSine }
+            anchors.fill: parent
+            gradient: Gradient {
+                orientation: Gradient.Vertical
+                GradientStop { position: 0.0; color: "#04050d" }
+                GradientStop { position: 0.5; color: "#080b18" }
+                GradientStop { position: 1.0; color: "#050810" }
             }
         }
-    }
 
-    // Linhas diagonais sutis
-    Canvas {
-        width: parent.width
-        height: parent.height
-        opacity: 0.06
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.strokeStyle = "#4d9eff"
-            ctx.lineWidth = 1
-            for (var i = -height; i < width + height; i += 80) {
+        Canvas {
+            width: parent.width
+            height: parent.height
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+
                 ctx.beginPath()
-                ctx.moveTo(i, 0)
-                ctx.lineTo(i + height, height)
+                ctx.moveTo(0, height * 0.3)
+                ctx.lineTo(width * 0.35, height * 0.0)
+                ctx.lineTo(width * 0.15, height * 0.75)
+                ctx.closePath()
+                ctx.strokeStyle = "#0d3060"
+                ctx.lineWidth = 1
+                ctx.stroke()
+
+                ctx.beginPath()
+                ctx.moveTo(width * 0.6, height)
+                ctx.lineTo(width, height * 0.4)
+                ctx.lineTo(width, height)
+                ctx.closePath()
+                ctx.strokeStyle = "#0d3060"
+                ctx.lineWidth = 1
+                ctx.stroke()
+
+                ctx.beginPath()
+                ctx.moveTo(width * 0.7, 0)
+                ctx.lineTo(width, height * 0.25)
+                ctx.lineTo(width * 0.85, 0)
+                ctx.closePath()
+                ctx.strokeStyle = "#4d9eff"
+                ctx.lineWidth = 1
+                ctx.globalAlpha = 0.15
+                ctx.stroke()
+
+                ctx.globalAlpha = 1.0
+                ctx.beginPath()
+                ctx.moveTo(width * 0.1, height * 0.85)
+                ctx.lineTo(width * 0.3, height * 0.6)
+                ctx.lineTo(width * 0.45, height)
+                ctx.closePath()
+                ctx.strokeStyle = "#4d9eff"
+                ctx.lineWidth = 1
+                ctx.globalAlpha = 0.1
                 ctx.stroke()
             }
         }
-    }
-}
 
-    // Top bar
+        Rectangle {
+            width: 500
+            height: 500
+            radius: 250
+            x: parent.width - 200
+            y: -150
+            color: "transparent"
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 300
+                height: 300
+                radius: 150
+                color: "#4d9eff"
+                opacity: 0.04
+            }
+        }
+
+        Rectangle {
+            width: 400
+            height: 400
+            radius: 200
+            x: -150
+            y: parent.height - 200
+            color: "#4d9eff"
+            opacity: 0.03
+        }
+
+        Repeater {
+            model: 30
+
+            delegate: Rectangle {
+                property real px: Math.random()
+                property real py: Math.random()
+
+                x: px * parent.width
+                y: py * parent.height
+                width: Math.random() > 0.7 ? 3 : 1.5
+                height: width
+                radius: width
+                color: "#4d9eff"
+                opacity: Math.random() * 0.4 + 0.1
+
+                SequentialAnimation on opacity {
+                    loops: Animation.Infinite
+                    NumberAnimation { to: 0.05; duration: Math.random() * 2000 + 1000; easing.type: Easing.InOutSine }
+                    NumberAnimation { to: Math.random() * 0.4 + 0.1; duration: Math.random() * 2000 + 1000; easing.type: Easing.InOutSine }
+                }
+            }
+        }
+
+        Canvas {
+            width: parent.width
+            height: parent.height
+            opacity: 0.06
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.strokeStyle = "#4d9eff"
+                ctx.lineWidth = 1
+
+                for (var i = -height; i < width + height; i += 80) {
+                    ctx.beginPath()
+                    ctx.moveTo(i, 0)
+                    ctx.lineTo(i + height, height)
+                    ctx.stroke()
+                }
+            }
+        }
+    }
+
     Rectangle {
         id: topBar
         anchors.top: parent.top
@@ -216,12 +211,12 @@ Rectangle {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
+
                 onClicked: {
-                    if (pedLauncher.visible) {
+                    if (pedLauncher.visible)
                         pedLauncher.hide()
-                    } else {
+                    else
                         pedLauncher.show()
-                    }
                 }
             }
         }
@@ -259,10 +254,6 @@ Rectangle {
                 border.width: 1
                 anchors.verticalCenter: parent.verticalCenter
 
-                Behavior on color {
-                    ColorAnimation { duration: 200 }
-                }
-
                 Text {
                     anchors.centerIn: parent
                     text: "🎮"
@@ -273,13 +264,14 @@ Rectangle {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
+
                     onClicked: {
                         gameMode.toggle()
-                        if (gameMode.active) {
+
+                        if (gameMode.active)
                             notifCenter.send("Game Mode ON", "Performance optimized for gaming.", "🎮")
-                        } else {
+                        else
                             notifCenter.send("Game Mode OFF", "System back to normal.", "💤")
-                        }
                     }
                 }
             }
@@ -337,7 +329,6 @@ Rectangle {
         }
     }
 
-    // Center logo
     Column {
         id: centerLogo
         anchors.centerIn: parent
@@ -359,24 +350,25 @@ Rectangle {
             opacity: 0.9
         }
 
-       Text {
-    anchors.horizontalCenter: parent.horizontalCenter
-    text: "gaming on linux, effortless."
-    color: "#4d9eff"
-    font.pixelSize: 14
-    font.letterSpacing: 2
-    font.family: root.pedFont
-    opacity: 0.7
-}
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "gaming on linux, effortless."
+            color: "#4d9eff"
+            font.pixelSize: 14
+            font.letterSpacing: 2
+            font.family: root.pedFont
+            opacity: 0.7
+        }
     }
 
-    // Dock container
     Item {
+        id: dockContainer
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 12
         anchors.horizontalCenter: parent.horizontalCenter
         width: dockRow.width + 24
         height: 90
+        z: 80
 
         Rectangle {
             id: globalTooltip
@@ -430,13 +422,13 @@ Rectangle {
             spacing: 8
 
             Repeater {
-         model: [
-    { icon: "🗂", label: "Files",    command: "nautilus", args: [], windowClasses: ["org.gnome.Nautilus", "nautilus", "Nautilus"], processNames: ["nautilus"] },
-    { icon: "🌐", label: "Browser",  command: "firefox", args: [], windowClasses: ["firefox", "Firefox", "Navigator.firefox"], processNames: ["firefox"] },
-    { icon: "⚙️", label: "Settings", command: "gnome-control-center", args: [], windowClasses: ["gnome-control-center", "Gnome-control-center"], processNames: ["gnome-control-center"] },
-    { icon: "🖥", label: "Terminal", command: "gnome-terminal", args: [], windowClasses: ["gnome-terminal", "Gnome-terminal"], processNames: ["gnome-terminal-server", "gnome-terminal"] },
-    { icon: "🎮", label: "Steam",    command: "steam", args: [], flatpakId: "com.valvesoftware.Steam", windowClasses: ["steam", "Steam"], processNames: ["steam", "steamwebhelper"] }
-]
+                model: [
+                    { icon: "🗂", label: "Files", command: "nautilus", args: [], windowClasses: ["org.gnome.Nautilus", "nautilus", "Nautilus"], processNames: ["nautilus"] },
+                    { icon: "🌐", label: "Browser", command: "firefox", args: [], windowClasses: ["firefox", "Firefox", "Navigator.firefox"], processNames: ["firefox"] },
+                    { icon: "⚙️", label: "Settings", command: "gnome-control-center", args: [], windowClasses: ["gnome-control-center", "Gnome-control-center"], processNames: ["gnome-control-center"] },
+                    { icon: "🖥", label: "Terminal", command: "gnome-terminal", args: [], windowClasses: ["gnome-terminal", "Gnome-terminal"], processNames: ["gnome-terminal-server", "gnome-terminal"] },
+                    { icon: "🎮", label: "Steam", command: "steam", args: [], flatpakId: "com.valvesoftware.Steam", windowClasses: ["steam", "Steam"], processNames: ["steam", "steamwebhelper"] }
+                ]
 
                 delegate: Rectangle {
                     id: dockItem
@@ -447,23 +439,24 @@ Rectangle {
                     color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
 
                     property bool active: {
-    root.dockStateVersion
+                        root.dockStateVersion
 
-    var hasWindowClasses = modelData.windowClasses && modelData.windowClasses.length > 0
-    var hasProcessNames = modelData.processNames && modelData.processNames.length > 0
+                        var hasWindowClasses = modelData.windowClasses && modelData.windowClasses.length > 0
+                        var hasProcessNames = modelData.processNames && modelData.processNames.length > 0
 
-    if (hasWindowClasses && appLauncher.isWindowOpen(modelData.windowClasses))
-        return true
+                        if (hasWindowClasses && appLauncher.isWindowOpen(modelData.windowClasses))
+                            return true
 
-    if (hasProcessNames && appLauncher.isProcessRunning(modelData.processNames))
-        return true
+                        if (hasProcessNames && appLauncher.isProcessRunning(modelData.processNames))
+                            return true
 
-    return false
-}
+                        return false
+                    }
 
                     Behavior on width {
                         NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                     }
+
                     Behavior on height {
                         NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
                     }
@@ -476,9 +469,9 @@ Rectangle {
                     SequentialAnimation {
                         id: bounceAnim
                         NumberAnimation { target: bounceTranslate; property: "y"; to: -16; duration: 120; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: 0;   duration: 120; easing.type: Easing.InBounce }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: -8;  duration: 80;  easing.type: Easing.OutCubic }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: 0;   duration: 80;  easing.type: Easing.InBounce }
+                        NumberAnimation { target: bounceTranslate; property: "y"; to: 0; duration: 120; easing.type: Easing.InBounce }
+                        NumberAnimation { target: bounceTranslate; property: "y"; to: -8; duration: 80; easing.type: Easing.OutCubic }
+                        NumberAnimation { target: bounceTranslate; property: "y"; to: 0; duration: 80; easing.type: Easing.InBounce }
                     }
 
                     Text {
@@ -510,42 +503,42 @@ Rectangle {
                         id: dockItemMouse
                         anchors.fill: parent
                         hoverEnabled: true
-                        acceptedButtons: Qt.LeftButton
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                        onClicked: {
-    bounceAnim.start()
+                        onClicked: function(mouse) {
+                            mouse.accepted = true
 
-    if (modelData.windowClasses && modelData.windowClasses.length > 0) {
-        var focusedOrOpened = appLauncher.focusOrLaunch(
-            modelData.windowClasses,
-            modelData.command || "",
-            modelData.args || [],
-            modelData.flatpakId || ""
-        )
+                            if (mouse.button === Qt.RightButton) {
+                                globalTooltip.opacity = 0.0
+                                dockActionMenu.showForApp(
+                                    modelData,
+                                    dockItem.mapToItem(root.contentItem, dockItem.width / 2, 0)
+                                )
+                                return
+                            }
 
-        if (!focusedOrOpened)
-            notifCenter.send("App not found", modelData.label + " is not installed.", "⚠️")
+                            dockActionMenu.hideMenu()
+                            bounceAnim.start()
 
-        return
-    }
+                            if (modelData.windowClasses && modelData.windowClasses.length > 0) {
+                                var focusedOrOpened = appLauncher.focusOrLaunch(
+                                    modelData.windowClasses,
+                                    modelData.command || "",
+                                    modelData.args || [],
+                                    modelData.flatpakId || ""
+                                )
 
-    if (modelData.command === "terminal") {
-        var opened = appLauncher.launchFirstAvailable([
-            "gnome-terminal",
-            "konsole",
-            "xfce4-terminal",
-            "xterm"
-        ])
+                                if (!focusedOrOpened)
+                                    notifCenter.send("App not found", modelData.label + " is not installed.", "⚠️")
 
-        if (!opened)
-            notifCenter.send("App not found", "No terminal emulator was found.", "⚠️")
-    } else {
-        root.launchDesktopApp(modelData)
-    }
-}
+                                return
+                            }
+
+                            root.launchDesktopApp(modelData)
+                        }
 
                         onContainsMouseChanged: {
-                            if (containsMouse) {
+                            if (containsMouse && !dockActionMenu.visible) {
                                 globalTooltipText.text = modelData.label
                                 globalTooltip.opacity = 1.0
                             } else {
@@ -558,14 +551,108 @@ Rectangle {
         }
     }
 
-    // Launcher
+    Rectangle {
+        id: dockActionMenu
+        width: 150
+        height: actionColumn.height + 12
+        radius: 8
+        color: "#0e1520"
+        border.color: "#2a3a55"
+        border.width: 1
+        visible: false
+        z: 180
+
+        property var currentApp: null
+
+        function showForApp(app, point) {
+            currentApp = app
+            x = Math.max(8, Math.min(root.width - width - 8, point.x - width / 2))
+            y = Math.max(44, point.y - height - 10)
+            visible = true
+        }
+
+        function hideMenu() {
+            visible = false
+            currentApp = null
+        }
+
+        Column {
+            id: actionColumn
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: 6
+            spacing: 2
+
+            Rectangle {
+                width: parent.width
+                height: 34
+                color: openMouse.containsMouse ? "#1e2d45" : "transparent"
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 12
+                    text: "Open / Focus"
+                    color: "#ffffff"
+                    font.pixelSize: 12
+                    font.family: root.pedFont
+                }
+
+                MouseArea {
+                    id: openMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+
+                    onClicked: {
+                        if (dockActionMenu.currentApp)
+                            root.launchDesktopApp(dockActionMenu.currentApp)
+
+                        dockActionMenu.hideMenu()
+                    }
+                }
+            }
+
+            Rectangle {
+                width: parent.width
+                height: 34
+                color: closeMouse.containsMouse ? "#3a1f2a" : "transparent"
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 12
+                    text: "Close"
+                    color: "#ff8a8a"
+                    font.pixelSize: 12
+                    font.family: root.pedFont
+                }
+
+                MouseArea {
+                    id: closeMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+
+                    onClicked: {
+                        if (dockActionMenu.currentApp &&
+                            dockActionMenu.currentApp.windowClasses &&
+                            dockActionMenu.currentApp.windowClasses.length > 0) {
+                            appLauncher.closeWindow(dockActionMenu.currentApp.windowClasses)
+                        }
+
+                        dockActionMenu.hideMenu()
+                    }
+                }
+            }
+        }
+    }
+
     Launcher {
         id: pedLauncher
         anchors.fill: parent
         z: 100
     }
 
-    // Context menu
     ContextMenu {
         id: contextMenu
         anchors.fill: parent
@@ -576,24 +663,26 @@ Rectangle {
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
         z: 1
-        onClicked: {
+
+        onClicked: function(mouse) {
+            dockActionMenu.hideMenu()
+
             if (mouse.button === Qt.RightButton)
                 contextMenu.show(mouse.x, mouse.y)
         }
     }
 
-    // Notifications
     NotificationCenter {
         id: notifCenter
         anchors.fill: parent
         z: 120
     }
 
-    // Login screen
     LoginScreen {
         id: loginScreen
         anchors.fill: parent
         z: 200
+
         onLoginSuccess: {
             loginScreen.destroy()
             notifCenter.send("Welcome back!", "PED OS is ready.", "👋")
