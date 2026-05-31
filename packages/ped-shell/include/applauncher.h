@@ -25,6 +25,7 @@ public:
         const QStringList &arguments = {},
         const QString &flatpakId = ""
     );
+    Q_INVOKABLE bool closeWindow(const QStringList &windowClasses);
 
 private:
     bool focusWithHyprctl(const QStringList &windowClasses);
