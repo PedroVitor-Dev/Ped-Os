@@ -8,7 +8,8 @@ Window {
     height: 720
     title: "PED OS Shell"
     color: "#0a0a0a"
-    font.family: "Exo 2"
+
+    property string pedFont: "Exo 2"
 
     // Wallpaper
     Rectangle {
@@ -87,7 +88,7 @@ Window {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        height: 32
+        height: 36
         color: "#111111"
         opacity: 0.0
 
@@ -111,6 +112,7 @@ Window {
                 color: "#ffffff"
                 font.pixelSize: 12
                 font.letterSpacing: 4
+                font.family: root.pedFont
                 opacity: 0.7
             }
 
@@ -134,6 +136,7 @@ Window {
             anchors.centerIn: parent
             color: "#ffffff"
             font.pixelSize: 13
+            font.family: root.pedFont
             opacity: 0.8
 
             Timer {
@@ -146,91 +149,89 @@ Window {
             Component.onCompleted: text = Qt.formatDateTime(new Date(), "hh:mm:ss")
         }
 
-Row {
-    anchors.right: parent.right
-    anchors.rightMargin: 16
-    anchors.verticalCenter: parent.verticalCenter
-    spacing: 10
+        Row {
+            anchors.right: parent.right
+            anchors.rightMargin: 16
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 10
 
-    // Game Mode toggle
-Rectangle {
-    width: 26
-    height: 22
-    radius: 6
-    color: gameMode.active ? "#ff4d00" : "#1a2030"
-    border.color: gameMode.active ? "#ff6a00" : "#2a3a55"
-    border.width: 1
-    anchors.verticalCenter: parent.verticalCenter
+            Rectangle {
+                width: 26
+                height: 22
+                radius: 6
+                color: gameMode.active ? "#ff4d00" : "#1a2030"
+                border.color: gameMode.active ? "#ff6a00" : "#2a3a55"
+                border.width: 1
+                anchors.verticalCenter: parent.verticalCenter
 
-    Behavior on color {
-        ColorAnimation { duration: 200 }
-    }
+                Behavior on color {
+                    ColorAnimation { duration: 200 }
+                }
 
-    Text {
-        anchors.centerIn: parent
-        text: "🎮"
-        font.pixelSize: 13
-        opacity: gameMode.active ? 1.0 : 0.5
-    }
+                Text {
+                    anchors.centerIn: parent
+                    text: "🎮"
+                    font.pixelSize: 13
+                    opacity: gameMode.active ? 1.0 : 0.5
+                }
 
-    MouseArea {
-        anchors.fill: parent
-        cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            gameMode.toggle()
-            if (gameMode.active) {
-                notifCenter.send("Game Mode ON", "Performance optimized for gaming.", "🎮")
-            } else {
-                notifCenter.send("Game Mode OFF", "System back to normal.", "💤")
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        gameMode.toggle()
+                        if (gameMode.active) {
+                            notifCenter.send("Game Mode ON", "Performance optimized for gaming.", "🎮")
+                        } else {
+                            notifCenter.send("Game Mode OFF", "System back to normal.", "💤")
+                        }
+                    }
+                }
+            }
+
+            Text {
+                text: systemInfo.networkConnected ? "🌐" : "🚫"
+                color: systemInfo.networkConnected ? "#4d9eff" : "#ff4d4d"
+                font.pixelSize: 13
+                opacity: 0.8
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Text {
+                visible: systemInfo.hasBattery
+                text: systemInfo.batteryCharging ? "⚡" : (systemInfo.batteryLevel < 20 ? "🪫" : "🔋")
+                font.pixelSize: 13
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Text {
+                visible: systemInfo.hasBattery
+                text: systemInfo.batteryLevel + "%"
+                color: systemInfo.batteryLevel < 20 ? "#ff4d4d" : "#ffffff"
+                font.pixelSize: 12
+                font.family: root.pedFont
+                opacity: 0.7
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Text {
+                id: dateText
+                color: "#ffffff"
+                font.pixelSize: 12
+                font.family: root.pedFont
+                opacity: 0.5
+                anchors.verticalCenter: parent.verticalCenter
+
+                Timer {
+                    interval: 60000
+                    running: true
+                    repeat: true
+                    onTriggered: dateText.text = Qt.formatDateTime(new Date(), "dd/MM/yyyy")
+                }
+
+                Component.onCompleted: text = Qt.formatDateTime(new Date(), "dd/MM/yyyy")
             }
         }
-    }
-}
-
-    // Rede
-    Text {
-        text: systemInfo.networkConnected ? "🌐" : "🚫"
-        color: systemInfo.networkConnected ? "#4d9eff" : "#ff4d4d"
-        font.pixelSize: 13
-        opacity: 0.8
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
-    // Bateria
-    Text {
-        visible: systemInfo.hasBattery
-        text: systemInfo.batteryCharging ? "⚡" : (systemInfo.batteryLevel < 20 ? "🪫" : "🔋")
-        font.pixelSize: 13
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
-    Text {
-        visible: systemInfo.hasBattery
-        text: systemInfo.batteryLevel + "%"
-        color: systemInfo.batteryLevel < 20 ? "#ff4d4d" : "#ffffff"
-        font.pixelSize: 12
-        opacity: 0.7
-        anchors.verticalCenter: parent.verticalCenter
-    }
-
-    // Data
-    Text {
-        id: dateText
-        color: "#ffffff"
-        font.pixelSize: 12
-        opacity: 0.5
-        anchors.verticalCenter: parent.verticalCenter
-
-        Timer {
-            interval: 60000
-            running: true
-            repeat: true
-            onTriggered: dateText.text = Qt.formatDateTime(new Date(), "dd/MM/yyyy")
-        }
-
-        Component.onCompleted: text = Qt.formatDateTime(new Date(), "dd/MM/yyyy")
-    }
-}
 
         NumberAnimation on opacity {
             from: 0.0
@@ -259,6 +260,7 @@ Rectangle {
             color: "#ffffff"
             font.pixelSize: 48
             font.letterSpacing: 8
+            font.family: root.pedFont
             opacity: 0.9
         }
 
@@ -268,6 +270,7 @@ Rectangle {
             color: "#4d9eff"
             font.pixelSize: 14
             font.letterSpacing: 2
+            font.family: root.pedFont
             opacity: 0.7
         }
     }
@@ -302,6 +305,7 @@ Rectangle {
                 text: ""
                 color: "#ffffff"
                 font.pixelSize: 12
+                font.family: root.pedFont
                 opacity: 0.9
             }
         }
@@ -373,6 +377,7 @@ Rectangle {
                         anchors.centerIn: parent
                         text: modelData.icon
                         font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
+                        font.family: root.pedFont
 
                         Behavior on font.pixelSize {
                             NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
