@@ -14,6 +14,7 @@ and a Qt/QML interface layer — all tuned for gaming performance.
 
 ## Layer Stack
 
+```
 ┌─────────────────────────────────────┐
 │         Games & Gaming Apps         │
 │   (Steam, Lutris, Proton, Wine)     │
@@ -31,8 +32,7 @@ and a Qt/QML interface layer — all tuned for gaming performance.
 ├─────────────────────────────────────┤
 │     Linux Kernel (gaming tuned)     │
 └─────────────────────────────────────┘
----
-
+```
 ## Gaming Architecture
 
 ### Game Mode
