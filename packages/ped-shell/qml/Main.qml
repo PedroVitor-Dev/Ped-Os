@@ -341,15 +341,15 @@ Rectangle {
             opacity: 0.9
         }
 
-        Text {
-            anchors.horizontalCenter: parent.horizontalCenter
-            text: "the OS should disappear."
-            color: "#4d9eff"
-            font.pixelSize: 14
-            font.letterSpacing: 2
-            font.family: root.pedFont
-            opacity: 0.7
-        }
+       Text {
+    anchors.horizontalCenter: parent.horizontalCenter
+    text: "gaming on linux, effortless."
+    color: "#4d9eff"
+    font.pixelSize: 14
+    font.letterSpacing: 2
+    font.family: root.pedFont
+    opacity: 0.7
+}
     }
 
     // Dock container
