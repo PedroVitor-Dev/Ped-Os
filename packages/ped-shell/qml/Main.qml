@@ -264,14 +264,14 @@ Window {
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-
                     onClicked: {
                         gameMode.toggle()
-
-                        if (gameMode.active)
+                        systemStats.visible = gameMode.active
+                        if (gameMode.active) {
                             notifCenter.send("Game Mode ON", "Performance optimized for gaming.", "🎮")
-                        else
+                        } else {
                             notifCenter.send("Game Mode OFF", "System back to normal.", "💤")
+                        }
                     }
                 }
             }
@@ -659,7 +659,7 @@ Window {
         z: 150
     }
 
-    MouseArea {
+MouseArea {
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
         z: 1
@@ -687,5 +687,10 @@ Window {
             loginScreen.destroy()
             notifCenter.send("Welcome back!", "PED OS is ready.", "👋")
         }
+    }
+
+    FpsOverlay {
+        anchors.fill: parent
+        z: 130
     }
 }

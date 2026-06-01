@@ -13,9 +13,11 @@ qt_add_executable(ped-shell
     src/systeminfo.cpp
     src/gamemode.cpp
     src/applauncher.cpp
+    src/systemstats.cpp
     include/systeminfo.h
     include/gamemode.h
     include/applauncher.h
+    include/systemstats.h
 )
 
 qt_add_qml_module(ped-shell
@@ -27,6 +29,7 @@ qt_add_qml_module(ped-shell
         qml/LoginScreen.qml
         qml/ContextMenu.qml
         qml/NotificationCenter.qml
+        qml/FpsOverlay.qml
 )
 
 target_include_directories(ped-shell PRIVATE include)

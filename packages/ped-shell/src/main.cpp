@@ -2,13 +2,12 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QUrl>
-
 #include "systeminfo.h"
 #include "gamemode.h"
 #include "applauncher.h"
+#include "systemstats.h"
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
@@ -16,10 +15,12 @@ int main(int argc, char *argv[])
     SystemInfo systemInfo;
     GameMode gameMode;
     AppLauncher appLauncher;
+    SystemStats systemStats;
 
     engine.rootContext()->setContextProperty("systemInfo", &systemInfo);
     engine.rootContext()->setContextProperty("gameMode", &gameMode);
     engine.rootContext()->setContextProperty("appLauncher", &appLauncher);
+    engine.rootContext()->setContextProperty("systemStats", &systemStats);
 
     engine.load(QUrl(QStringLiteral("qrc:/PedShell/qml/Main.qml")));
 
