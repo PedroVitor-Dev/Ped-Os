@@ -262,19 +262,18 @@ Window {
                 }
 
                 MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-
-                    onClicked: {
-                        gameMode.toggle()
-
-                        if (gameMode.active)
-                            notifCenter.send("Game Mode ON", "Performance optimized for gaming.", "🎮")
-                        else
-                            notifCenter.send("Game Mode OFF", "System back to normal.", "💤")
-                    }
-                }
-            }
+    anchors.fill: parent
+    cursorShape: Qt.PointingHandCursor
+    onClicked: {
+        gameMode.toggle()
+        systemStats.visible = gameMode.active
+        if (gameMode.active) {
+            notifCenter.send("Game Mode ON", "Performance optimized for gaming.", "🎮")
+        } else {
+            notifCenter.send("Game Mode OFF", "System back to normal.", "💤")
+        }
+    }
+}
 
             Text {
                 text: systemInfo.networkConnected ? "🌐" : "🚫"
@@ -688,4 +687,8 @@ Window {
             notifCenter.send("Welcome back!", "PED OS is ready.", "👋")
         }
     }
+    FpsOverlay {
+    anchors.fill: parent
+    z: 130
+}
 }
