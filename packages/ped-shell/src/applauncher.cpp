@@ -56,6 +56,16 @@ bool AppLauncher::isFlatpakInstalled(const QString &flatpakId)
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
+bool AppLauncher::isMangoHudInstalled()
+{
+    return !QStandardPaths::findExecutable("mangohud").isEmpty();
+}
+
+bool AppLauncher::isGameModeRunInstalled()
+{
+    return !QStandardPaths::findExecutable("gamemoderun").isEmpty();
+}
+
 bool AppLauncher::isWindowOpen(const QStringList &windowClasses)
 {
     if (windowClasses.isEmpty())
@@ -159,6 +169,43 @@ bool AppLauncher::focusOrLaunch(
         return launch("flatpak", {"run", flatpakId});
 
     return false;
+}
+
+bool AppLauncher::focusOrLaunchGame(
+    const QStringList &windowClasses,
+    const QString &command,
+    const QStringList &arguments,
+    const QString &flatpakId,
+    bool useMangoHud,
+    bool useGameMode
+)
+{
+    if (focusWindow(windowClasses))
+        return true;
+
+    QString launchCommand = command;
+    QStringList launchArguments = arguments;
+
+    if (launchCommand.trimmed().isEmpty() ||
+        (QStandardPaths::findExecutable(launchCommand).isEmpty() && !flatpakId.trimmed().isEmpty())) {
+        launchCommand = "flatpak";
+        launchArguments = {"run", flatpakId};
+    }
+
+    if (launchCommand.trimmed().isEmpty())
+        return false;
+
+    if (useGameMode && isGameModeRunInstalled()) {
+        launchArguments.prepend(launchCommand);
+        launchCommand = "gamemoderun";
+    }
+
+    if (useMangoHud && isMangoHudInstalled()) {
+        launchArguments.prepend(launchCommand);
+        launchCommand = "mangohud";
+    }
+
+    return launch(launchCommand, launchArguments);
 }
 
 bool AppLauncher::focusWithHyprctl(const QStringList &windowClasses)

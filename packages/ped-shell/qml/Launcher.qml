@@ -34,8 +34,24 @@ Item {
 
 function launchApp(app) {
     var opened = false
+    var isGamingApp = app.category === "Gaming"
 
-    if (app.windowClasses && app.windowClasses.length > 0) {
+    if (isGamingApp && gameMode.active) {
+        if (!appLauncher.isMangoHudInstalled())
+            notifCenter.send("MangoHud not found", "Launching without MangoHud overlay.", "⚠️")
+
+        if (!appLauncher.isGameModeRunInstalled())
+            notifCenter.send("GameMode not found", "Launching without gamemoderun.", "⚠️")
+
+        opened = appLauncher.focusOrLaunchGame(
+            app.windowClasses || [],
+            app.command || "",
+            app.args || [],
+            app.flatpakId || "",
+            true,
+            true
+        )
+    } else if (app.windowClasses && app.windowClasses.length > 0) {
         opened = appLauncher.focusOrLaunch(
             app.windowClasses,
             app.command || "",

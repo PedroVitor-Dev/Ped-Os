@@ -20,26 +20,42 @@ Window {
     }
 
     function launchDesktopApp(app) {
-        var opened = false
+    var opened = false
+    var isGamingApp = app.gaming === true
 
-        if (app.windowClasses && app.windowClasses.length > 0) {
-            opened = appLauncher.focusOrLaunch(
-                app.windowClasses,
-                app.command || "",
-                app.args || [],
-                app.flatpakId || ""
-            )
-        } else {
-            if (app.command && app.command.length > 0)
-                opened = appLauncher.launch(app.command, app.args || [])
+    if (isGamingApp && gameMode.active) {
+        if (!appLauncher.isMangoHudInstalled())
+            notifCenter.send("MangoHud not found", "Launching without MangoHud overlay.", "⚠️")
 
-            if (!opened && app.flatpakId && app.flatpakId.length > 0)
-                opened = appLauncher.launch("flatpak", ["run", app.flatpakId])
-        }
+        if (!appLauncher.isGameModeRunInstalled())
+            notifCenter.send("GameMode not found", "Launching without gamemoderun.", "⚠️")
 
-        if (!opened)
-            notifCenter.send("App not found", app.label + " is not installed.", "⚠️")
+        opened = appLauncher.focusOrLaunchGame(
+            app.windowClasses || [],
+            app.command || "",
+            app.args || [],
+            app.flatpakId || "",
+            true,
+            true
+        )
+    } else if (app.windowClasses && app.windowClasses.length > 0) {
+        opened = appLauncher.focusOrLaunch(
+            app.windowClasses,
+            app.command || "",
+            app.args || [],
+            app.flatpakId || ""
+        )
+    } else {
+        if (app.command && app.command.length > 0)
+            opened = appLauncher.launch(app.command, app.args || [])
+
+        if (!opened && app.flatpakId && app.flatpakId.length > 0)
+            opened = appLauncher.launch("flatpak", ["run", app.flatpakId])
     }
+
+    if (!opened)
+        notifCenter.send("App not found", app.label + " is not installed.", "⚠️")
+}
 
     Rectangle {
         anchors.fill: parent
@@ -427,7 +443,7 @@ Window {
                     { icon: "🌐", label: "Browser", command: "firefox", args: [], windowClasses: ["firefox", "Firefox", "Navigator.firefox"], processNames: ["firefox"] },
                     { icon: "⚙️", label: "Settings", command: "gnome-control-center", args: [], windowClasses: ["gnome-control-center", "Gnome-control-center"], processNames: ["gnome-control-center"] },
                     { icon: "🖥", label: "Terminal", command: "gnome-terminal", args: [], windowClasses: ["gnome-terminal", "Gnome-terminal"], processNames: ["gnome-terminal-server", "gnome-terminal"] },
-                    { icon: "🎮", label: "Steam", command: "steam", args: [], flatpakId: "com.valvesoftware.Steam", windowClasses: ["steam", "Steam"], processNames: ["steam", "steamwebhelper"] }
+                    { icon: "🎮", label: "Steam", command: "steam", args: [], flatpakId: "com.valvesoftware.Steam", windowClasses: ["steam", "Steam"], processNames: ["steam", "steamwebhelper"], gaming: true }
                 ]
 
                 delegate: Rectangle {
@@ -520,21 +536,7 @@ Window {
                             dockActionMenu.hideMenu()
                             bounceAnim.start()
 
-                            if (modelData.windowClasses && modelData.windowClasses.length > 0) {
-                                var focusedOrOpened = appLauncher.focusOrLaunch(
-                                    modelData.windowClasses,
-                                    modelData.command || "",
-                                    modelData.args || [],
-                                    modelData.flatpakId || ""
-                                )
-
-                                if (!focusedOrOpened)
-                                    notifCenter.send("App not found", modelData.label + " is not installed.", "⚠️")
-
-                                return
-                            }
-
-                            root.launchDesktopApp(modelData)
+                           root.launchDesktopApp(modelData)
                         }
 
                         onContainsMouseChanged: {
