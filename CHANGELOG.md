@@ -11,10 +11,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Planned
 - Game Mode (auto performance boost)
 - GPU driver manager
-- FPS overlay
+- FPS overlay with MangoHud
 - Steam / Lutris integration
 - Controller support out of the box
 - Per-game performance profiles
+- Close window via hyprctl
+- Auto-start PED OS Shell on login
+
+---
+
+## [0.3.0] — 2026-05-31
+
+### Added
+- Dual boot Arch Linux + Hyprland on real hardware
+- PED OS Shell running natively on Hyprland
+- AppLauncher C++ class with real app detection
+- `isWindowOpen` via hyprctl and wmctrl fallback
+- `isProcessRunning` via pgrep
+- `focusWindow` and `focusOrLaunch` via hyprctl
+- `closeWindow` via hyprctl (functional on Hyprland)
+- Dock active indicator based on real process state
+- Right-click dock menu with Open/Focus and Close actions
+- Steam and Lutris in launcher with installed/not installed status
+- Flatpak fallback for gaming apps
+- Emoji icons via noto-fonts-emoji
+- Exo 2 font installed on real hardware
+
+### Fixed
+- AppLauncher header contained implementations causing MOC errors
+- Right-click on dock was leaking to desktop context menu
+- closeWindow missing implementation causing linker error
+
+### Environment
+- Moved from Ubuntu VM to Arch Linux + Hyprland on real hardware
+- hyprctl now available and functional
+- sudo password issue resolved (keyboard layout)
 
 ---
 
@@ -36,6 +67,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Bounce animation on dock item click
 - Geometric wallpaper with glow effects
 - Tooltip above dock items (RocketDock style)
+- Game Mode toggle via gamemoded
 
 ---
 
@@ -48,7 +80,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Minimalist floating dock with 5 app slots
 - Dock hover zoom effect
 - Entrance animations on startup (fade + slide)
-- Center logo with tagline "the OS should disappear."
+- Center logo with tagline
 - Initial visual identity (dark theme, blue accent #4d9eff)
 
 ### Docs
