@@ -74,6 +74,21 @@ Window {
             userSettings.statsOverlayVisible = systemStats.visible
         }
     }
+    property var systemDockApps: [
+        { icon: "F", iconNames: ["org.gnome.Nautilus", "nautilus", "system-file-manager"], label: "Files", command: "nautilus", args: [], windowClasses: ["org.gnome.Nautilus", "nautilus", "Nautilus"], processNames: ["nautilus"] },
+        { icon: "W", iconNames: ["firefox", "org.mozilla.firefox"], label: "Browser", command: "firefox", args: [], windowClasses: ["firefox", "Firefox", "Navigator.firefox"], processNames: ["firefox"] },
+        { icon: "S", iconNames: ["preferences-system", "org.gnome.Settings", "gnome-control-center"], label: "PED Settings", internalAction: "settings" },
+        { icon: ">_", iconNames: ["utilities-terminal", "org.gnome.Terminal", "gnome-terminal"], label: "Terminal", command: "gnome-terminal", args: [], windowClasses: ["gnome-terminal", "Gnome-terminal"], processNames: ["gnome-terminal-server", "gnome-terminal"] },
+        { icon: "OK", iconNames: ["preferences-system-symbolic", "emblem-default"], label: "First Setup", internalAction: "firstSetup" }
+    ]
+
+    property var gameDockApps: [
+        { icon: "ST", iconNames: ["steam", "com.valvesoftware.Steam"], label: "Steam", command: "steam", args: [], flatpakId: "com.valvesoftware.Steam", windowClasses: ["steam", "Steam"], processNames: ["steam", "steamwebhelper"], gaming: true },
+        { icon: "LU", iconNames: ["lutris", "net.lutris.Lutris"], label: "Lutris", command: "lutris", args: [], flatpakId: "net.lutris.Lutris", windowClasses: ["lutris", "Lutris"], processNames: ["lutris"], gaming: true },
+        { icon: "HE", iconNames: ["com.heroicgameslauncher.hgl", "heroic", "heroicgameslauncher"], label: "Heroic", command: "heroic", args: [], flatpakId: "com.heroicgameslauncher.hgl", windowClasses: ["heroic", "Heroic", "com.heroicgameslauncher.hgl"], processNames: ["heroic", "heroicgameslauncher"], gaming: true },
+        { icon: "BO", iconNames: ["com.usebottles.bottles", "bottles"], label: "Bottles", command: "bottles", args: [], flatpakId: "com.usebottles.bottles", windowClasses: ["bottles", "Bottles", "com.usebottles.bottles"], processNames: ["bottles"], gaming: true },
+        { icon: "GS", iconNames: ["applications-games", "input-gaming"], label: "Game Settings", internalAction: "gameSettings" }
+    ]
     property int dockStateVersion: 0
 
     Timer {
@@ -91,6 +106,11 @@ Window {
 
     if (app.internalAction === "gameSettings") {
         gameSettings.show()
+        return
+    }
+
+    if (app.internalAction === "firstSetup") {
+        firstSetup.show()
         return
     }
 
@@ -457,180 +477,20 @@ Window {
         }
     }
 
-    Item {
-        id: dockContainer
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 12
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: dockRow.width + 24
-        height: 90
+    SideDock {
+        id: systemDock
+        side: "left"
+        title: "SYSTEM"
+        apps: root.systemDockApps
         z: 80
+    }
 
-        Rectangle {
-            id: globalTooltip
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: dockBg.top
-            anchors.bottomMargin: 8
-            height: 22
-            width: globalTooltipText.width + 16
-            radius: 8
-            color: "#1e1e1e"
-            opacity: 0.0
-            visible: opacity > 0
-
-            Behavior on opacity {
-                NumberAnimation { duration: 150 }
-            }
-
-            Text {
-                id: globalTooltipText
-                anchors.centerIn: parent
-                text: ""
-                color: "#ffffff"
-                font.pixelSize: 12
-                font.family: root.pedFont
-                opacity: 0.9
-            }
-        }
-
-        Rectangle {
-            id: dockBg
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width
-            height: 60
-            radius: 16
-            color: "#1a1a1a"
-            opacity: 0.0
-
-            SequentialAnimation on opacity {
-                running: true
-                PauseAnimation { duration: 400 }
-                NumberAnimation { from: 0.0; to: 0.85; duration: 1000; easing.type: Easing.OutCubic }
-            }
-        }
-
-        Row {
-            id: dockRow
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 8
-
-            Repeater {
-                model: [
-                    { icon: "🗂", label: "Files", command: "nautilus", args: [], windowClasses: ["org.gnome.Nautilus", "nautilus", "Nautilus"], processNames: ["nautilus"] },
-                    { icon: "🌐", label: "Browser", command: "firefox", args: [], windowClasses: ["firefox", "Firefox", "Navigator.firefox"], processNames: ["firefox"] },
-                    { icon: "⚙️", label: "Settings", internalAction: "settings" },
-                    { icon: "🖥", label: "Terminal", command: "gnome-terminal", args: [], windowClasses: ["gnome-terminal", "Gnome-terminal"], processNames: ["gnome-terminal-server", "gnome-terminal"] },
-                    { icon: "🎮", label: "Steam", command: "steam", args: [], flatpakId: "com.valvesoftware.Steam", windowClasses: ["steam", "Steam"], processNames: ["steam", "steamwebhelper"], gaming: true }
-                ]
-
-                delegate: Rectangle {
-                    id: dockItem
-                    width: dockItemMouse.containsMouse ? 52 : 44
-                    height: dockItemMouse.containsMouse ? 52 : 44
-                    anchors.verticalCenter: parent ? parent.verticalCenter : undefined
-                    radius: 12
-                    color: dockItemMouse.containsMouse ? "#2a2a2a" : "transparent"
-
-                    property bool active: {
-                        root.dockStateVersion
-
-                        var hasWindowClasses = modelData.windowClasses && modelData.windowClasses.length > 0
-                        var hasProcessNames = modelData.processNames && modelData.processNames.length > 0
-
-                        if (hasWindowClasses && appLauncher.isWindowOpen(modelData.windowClasses))
-                            return true
-
-                        if (hasProcessNames && appLauncher.isProcessRunning(modelData.processNames))
-                            return true
-
-                        return false
-                    }
-
-                    Behavior on width {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                    }
-
-                    Behavior on height {
-                        NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                    }
-
-                    transform: Translate {
-                        id: bounceTranslate
-                        y: 0
-                    }
-
-                    SequentialAnimation {
-                        id: bounceAnim
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: -16; duration: 120; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: 0; duration: 120; easing.type: Easing.InBounce }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: -8; duration: 80; easing.type: Easing.OutCubic }
-                        NumberAnimation { target: bounceTranslate; property: "y"; to: 0; duration: 80; easing.type: Easing.InBounce }
-                    }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: modelData.icon
-                        font.pixelSize: dockItemMouse.containsMouse ? 28 : 24
-                        font.family: root.pedFont
-
-                        Behavior on font.pixelSize {
-                            NumberAnimation { duration: 150; easing.type: Easing.OutCubic }
-                        }
-                    }
-
-                    Rectangle {
-                        width: dockItem.active ? 6 : 0
-                        height: 3
-                        radius: 2
-                        color: root.themeAccent
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 3
-
-                        Behavior on width {
-                            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
-                        }
-                    }
-
-                    MouseArea {
-                        id: dockItemMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-
-                        onClicked: function(mouse) {
-                            mouse.accepted = true
-
-                            if (mouse.button === Qt.RightButton) {
-                                globalTooltip.opacity = 0.0
-                                dockActionMenu.showForApp(
-                                    modelData,
-                                    dockItem.mapToItem(root.contentItem, dockItem.width / 2, 0)
-                                )
-                                return
-                            }
-
-                            dockActionMenu.hideMenu()
-                            bounceAnim.start()
-
-                           root.launchDesktopApp(modelData)
-                        }
-
-                        onContainsMouseChanged: {
-                            if (containsMouse && !dockActionMenu.visible) {
-                                globalTooltipText.text = modelData.label
-                                globalTooltip.opacity = 1.0
-                            } else {
-                                globalTooltip.opacity = 0.0
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    SideDock {
+        id: gameDock
+        side: "right"
+        title: "GAMES"
+        apps: root.gameDockApps
+        z: 80
     }
 
     Rectangle {
@@ -730,6 +590,197 @@ Window {
         }
     }
 
+    component SideDock: Item {
+        id: sideDock
+        property string side: "left"
+        property string title: ""
+        property var apps: []
+        property bool expanded: dockMouse.containsMouse || edgeMouse.containsMouse || dockActionMenu.visible
+        property bool leftSide: side === "left"
+
+        width: 72
+        height: dockPanel.height
+        y: Math.max(56, (root.height - height) / 2)
+        x: leftSide ? (expanded ? 12 : -60) : (expanded ? root.width - width - 12 : root.width - 12)
+
+        Behavior on x {
+            NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
+        }
+
+        MouseArea {
+            id: edgeMouse
+            x: sideDock.leftSide ? sideDock.width - 12 : 0
+            y: 0
+            width: 16
+            height: sideDock.height
+            hoverEnabled: true
+        }
+
+        Rectangle {
+            id: dockPanel
+            width: sideDock.width
+            height: dockColumn.height + 18
+            radius: 16
+            color: "#111111"
+            opacity: 0.88
+            border.color: root.themeAccent
+            border.width: 1
+
+            Column {
+                id: dockColumn
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 9
+                spacing: 8
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: sideDock.title
+                    color: root.themeAccent
+                    font.pixelSize: 9
+                    font.family: root.pedFont
+                    font.bold: true
+                    opacity: 0.85
+                }
+
+                Repeater {
+                    model: sideDock.apps
+
+                    delegate: DockButton {
+                        app: modelData
+                        leftSide: sideDock.leftSide
+                    }
+                }
+            }
+        }
+
+        MouseArea {
+            id: dockMouse
+            anchors.fill: dockPanel
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+        }
+    }
+
+    component DockButton: Rectangle {
+        id: dockButton
+        property var app
+        property bool leftSide: true
+        property bool active: {
+            root.dockStateVersion
+
+            var hasWindowClasses = app.windowClasses && app.windowClasses.length > 0
+            var hasProcessNames = app.processNames && app.processNames.length > 0
+
+            if (hasWindowClasses && appLauncher.isWindowOpen(app.windowClasses))
+                return true
+
+            if (hasProcessNames && appLauncher.isProcessRunning(app.processNames))
+                return true
+
+            return false
+        }
+
+        width: dockMouseArea.containsMouse ? 56 : 48
+        height: dockMouseArea.containsMouse ? 56 : 48
+        radius: 14
+        color: dockMouseArea.containsMouse ? "#2a2a2a" : "transparent"
+
+        Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+
+        transform: Translate { id: dockBounce; y: 0 }
+
+        SequentialAnimation {
+            id: dockBounceAnim
+            NumberAnimation { target: dockBounce; property: "y"; to: -10; duration: 95; easing.type: Easing.OutCubic }
+            NumberAnimation { target: dockBounce; property: "y"; to: 0; duration: 110; easing.type: Easing.InBounce }
+        }
+
+        Image {
+            id: appIcon
+            anchors.centerIn: parent
+            width: dockMouseArea.containsMouse ? 34 : 30
+            height: width
+            source: app.iconNames ? appLauncher.findIcon(app.iconNames) : ""
+            fillMode: Image.PreserveAspectFit
+            smooth: true
+            visible: status === Image.Ready
+        }
+
+        Text {
+            anchors.centerIn: parent
+            text: app.icon || "?"
+            color: "#ffffff"
+            font.pixelSize: dockMouseArea.containsMouse ? 18 : 15
+            font.family: root.pedFont
+            font.bold: true
+            visible: appIcon.status !== Image.Ready
+        }
+
+        Rectangle {
+            width: 4
+            height: dockButton.active ? 18 : 0
+            radius: 2
+            color: root.themeAccent
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: dockButton.leftSide ? parent.left : undefined
+            anchors.right: dockButton.leftSide ? undefined : parent.right
+            anchors.leftMargin: 2
+            anchors.rightMargin: 2
+
+            Behavior on height { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        }
+
+        Rectangle {
+            id: dockLabel
+            width: dockLabelText.width + 16
+            height: 24
+            radius: 8
+            color: "#1e1e1e"
+            opacity: dockMouseArea.containsMouse ? 1.0 : 0.0
+            visible: opacity > 0
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: dockButton.leftSide ? parent.right : undefined
+            anchors.right: dockButton.leftSide ? undefined : parent.left
+            anchors.leftMargin: 10
+            anchors.rightMargin: 10
+
+            Behavior on opacity { NumberAnimation { duration: 120 } }
+
+            Text {
+                id: dockLabelText
+                anchors.centerIn: parent
+                text: dockButton.app.label
+                color: "#ffffff"
+                font.pixelSize: 12
+                font.family: root.pedFont
+            }
+        }
+
+        MouseArea {
+            id: dockMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+            onClicked: function(mouse) {
+                mouse.accepted = true
+
+                if (mouse.button === Qt.RightButton) {
+                    dockActionMenu.showForApp(
+                        dockButton.app,
+                        dockButton.mapToItem(root.contentItem, dockButton.width / 2, dockButton.height / 2)
+                    )
+                    return
+                }
+
+                dockActionMenu.hideMenu()
+                dockBounceAnim.start()
+                root.launchDesktopApp(dockButton.app)
+            }
+        }
+    }
     Launcher {
         id: pedLauncher
         anchors.fill: parent

@@ -1,6 +1,8 @@
 #include "applauncher.h"
 
 #include <QClipboard>
+#include <QDir>
+#include <QFileInfo>
 #include <QGuiApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -74,7 +76,62 @@ void AppLauncher::copyToClipboard(const QString &text)
     if (QClipboard *clipboard = QGuiApplication::clipboard())
         clipboard->setText(text);
 }
+QString AppLauncher::findIcon(const QStringList &iconNames)
+{
+    QStringList roots = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
+    roots << QStringLiteral("/var/lib/flatpak/exports/share");
+    roots << QDir::homePath() + QStringLiteral("/.local/share/flatpak/exports/share");
+    roots.removeDuplicates();
 
+    const QStringList sizes = {QStringLiteral("512x512"), QStringLiteral("256x256"), QStringLiteral("128x128"), QStringLiteral("64x64"), QStringLiteral("48x48"), QStringLiteral("32x32")};
+    const QStringList extensions = {QStringLiteral("png"), QStringLiteral("svg")};
+
+    for (const QString &iconName : iconNames) {
+        if (iconName.trimmed().isEmpty())
+            continue;
+
+        const QFileInfo directInfo(iconName);
+        if (directInfo.isAbsolute() && directInfo.exists())
+            return QStringLiteral("file://") + directInfo.absoluteFilePath();
+
+        for (const QString &root : roots) {
+            QStringList themes = {QStringLiteral("hicolor")};
+            const QDir iconsDir(root + QStringLiteral("/icons"));
+            if (iconsDir.exists()) {
+                themes << iconsDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+                themes.removeDuplicates();
+            }
+
+            for (const QString &theme : themes) {
+                for (const QString &size : sizes) {
+                    for (const QString &extension : extensions) {
+                        const QString path = root + QStringLiteral("/icons/") + theme + QStringLiteral("/") + size + QStringLiteral("/apps/") + iconName + QStringLiteral(".") + extension;
+                        if (QFileInfo::exists(path))
+                            return QStringLiteral("file://") + path;
+                    }
+                }
+
+                for (const QString &extension : extensions) {
+                    const QString scalablePath = root + QStringLiteral("/icons/") + theme + QStringLiteral("/scalable/apps/") + iconName + QStringLiteral(".") + extension;
+                    if (QFileInfo::exists(scalablePath))
+                        return QStringLiteral("file://") + scalablePath;
+
+                    const QString symbolicPath = root + QStringLiteral("/icons/") + theme + QStringLiteral("/symbolic/apps/") + iconName + QStringLiteral(".") + extension;
+                    if (QFileInfo::exists(symbolicPath))
+                        return QStringLiteral("file://") + symbolicPath;
+                }
+            }
+
+            for (const QString &extension : extensions) {
+                const QString pixmapPath = root + QStringLiteral("/pixmaps/") + iconName + QStringLiteral(".") + extension;
+                if (QFileInfo::exists(pixmapPath))
+                    return QStringLiteral("file://") + pixmapPath;
+            }
+        }
+    }
+
+    return QString();
+}
 bool AppLauncher::isWindowOpen(const QStringList &windowClasses)
 {
     if (windowClasses.isEmpty())

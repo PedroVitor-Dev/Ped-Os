@@ -20,6 +20,7 @@ public:
     Q_INVOKABLE bool isWindowOpen(const QStringList &windowClasses);
     Q_INVOKABLE bool isProcessRunning(const QStringList &processNames);
     Q_INVOKABLE void copyToClipboard(const QString &text);
+    Q_INVOKABLE QString findIcon(const QStringList &iconNames);
 
     Q_INVOKABLE bool focusWindow(const QStringList &windowClasses);
     Q_INVOKABLE bool focusOrLaunch(
