@@ -1,6 +1,6 @@
 <div align="center">
   <h1>uNexus</h1>
-  <p>A Linux-based operating system shell built for gamers. Fast, clean, and optimized for play.</p>
+  <p>A gaming-first Linux shell built around speed, focus, and a polished desktop experience.</p>
 
   ![Status](https://img.shields.io/badge/status-in%20development-blue)
   ![License](https://img.shields.io/badge/license-GPL--3.0-white)
@@ -8,13 +8,6 @@
   ![Focus](https://img.shields.io/badge/focus-Gaming-red)
   ![Environment](https://img.shields.io/badge/environment-Arch%20%2B%20Hyprland-purple)
 
-  <br/>
-
-  <img src="assets/screenshots/desktop.png" width="800" alt="uNexus Desktop"/>
-
-  <br/><br/>
-
-  <img src="assets/demo/unexus-demo.gif" width="800" alt="uNexus Demo"/>
 </div>
 
 ---
@@ -97,25 +90,6 @@ The shell can auto-start from `hyprland.conf` through `exec-once`.
 | Per-game performance profiles | Planned |
 | Bootable ISO | Planned |
 
----
-
-## Screenshots
-
-<div align="center">
-
-### Login Screen
-<img src="assets/screenshots/tela_de_login.png" width="800" alt="uNexus Login Screen"/>
-
-### Desktop
-<img src="assets/screenshots/desktop.png" width="800" alt="uNexus Desktop"/>
-
-### Launcher
-<img src="assets/screenshots/laucher.png" width="800" alt="uNexus Launcher"/>
-
-### Context Menu
-<img src="assets/screenshots/menu_de_contexto.png" width="800" alt="uNexus Context Menu"/>
-
-</div>
 
 ---
 
@@ -144,7 +118,7 @@ The shell can auto-start from `hyprland.conf` through `exec-once`.
 | `packages/unexus-shell/include` | C++ headers exposed to Qt/QML |
 | `packages/unexus-shell/qml` | Shell UI, docks, launcher, settings and overlays |
 | `docs` | Architecture, build guide, roadmap and contribution docs |
-| `assets` | Screenshots and demo media |
+| `assets` | Visual and media assets |
 | `scripts` | Project helper scripts |
 
 ---
