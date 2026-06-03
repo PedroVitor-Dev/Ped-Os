@@ -110,7 +110,11 @@ Item {
                     fontFamily: sideDock.fontFamily
                     dockStateVersion: sideDock.dockStateVersion
                     localeVersion: sideDock.localeVersion
-                    appStateOverride: sideDock.stateFor(modelData)
+                    appStateOverride: {
+                        sideDock.appStateVersion
+                        sideDock.dockStateVersion
+                        return sideDock.stateFor(modelData)
+                    }
                     onLaunchRequested: function(app) {
                         sideDock.launchRequested(app)
                     }

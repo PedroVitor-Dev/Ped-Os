@@ -14,9 +14,15 @@ Rectangle {
     property string resolvedIcon: app.iconNames ? appLauncher.findIcon(app.iconNames) : ""
     property string appState: {
         dockStateVersion
+        var override = appStateOverride
 
-        if (appStateOverride.length > 0)
-            return appStateOverride
+        // App interno: estado vem inteiramente do painel, nunca consulta processo/janela
+        if (app.internalAction && app.internalAction.length > 0)
+            return override.length > 0 ? override : "closed"
+
+        // App externo com override explícito
+        if (override === "active" || override === "minimized" || override === "running")
+            return override
 
         var hasWindowClasses = app.windowClasses && app.windowClasses.length > 0
         var hasProcessNames = app.processNames && app.processNames.length > 0
