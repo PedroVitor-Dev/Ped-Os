@@ -10,6 +10,7 @@ Item {
     property color panelColor: "#111111"
     property string fontFamily: "Exo 2"
     property int dockStateVersion: 0
+    property int appStateVersion: 0
     property var appStates: ({})
     property bool actionMenuVisible: false
     property string actionMenuSide: ""
@@ -22,6 +23,8 @@ Item {
     signal actionMenuRequested(var app, var point, string side)
 
     function stateFor(app) {
+        appStateVersion
+
         if (app && app.internalAction && appStates[app.internalAction])
             return appStates[app.internalAction]
 

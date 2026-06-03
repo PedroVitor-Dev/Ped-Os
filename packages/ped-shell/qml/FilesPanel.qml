@@ -13,15 +13,18 @@ Item {
     property var entries: []
     property var places: []
     property string mode: "browse"
+    property bool dockActive: false
 
     function show(path) {
         visible = true
+        dockActive = true
         places = fileManager.places()
         loadPath(path && path.length > 0 ? path : currentPath)
         showAnim.start()
     }
 
     function hide() {
+        dockActive = false
         hideAnim.start()
     }
 

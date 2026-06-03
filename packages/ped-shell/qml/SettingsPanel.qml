@@ -5,13 +5,16 @@ Item {
     anchors.fill: parent
     visible: false
     opacity: 0.0
+    property bool dockActive: false
 
     function show() {
         visible = true
+        dockActive = true
         showAnim.start()
     }
 
     function hide() {
+        dockActive = false
         hideAnim.start()
     }
 

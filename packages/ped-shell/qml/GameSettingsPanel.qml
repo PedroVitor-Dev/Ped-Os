@@ -7,14 +7,17 @@ Item {
     opacity: 0.0
 
     property bool toolsRefresh: false
+    property bool dockActive: false
 
     function show() {
         visible = true
+        dockActive = true
         toolsRefresh = !toolsRefresh
         showAnim.start()
     }
 
     function hide() {
+        dockActive = false
         hideAnim.start()
     }
 

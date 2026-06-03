@@ -90,6 +90,7 @@ Window {
         { icon: "GS", iconNames: ["applications-games", "input-gaming"], label: "Game Settings", internalAction: "gameSettings" }
     ]
     property int dockStateVersion: 0
+    property int panelStateVersion: 0
 
     Timer {
         interval: 1000
@@ -99,7 +100,9 @@ Window {
     }
 
     function panelDockState(panel) {
-        if (!panel || !panel.visible)
+        panelStateVersion
+
+        if (!panel || !panel.dockActive)
             return "closed"
 
         return "active"
@@ -527,6 +530,7 @@ Window {
         panelColor: "#111111"
         fontFamily: root.pedFont
         dockStateVersion: root.dockStateVersion
+        appStateVersion: root.panelStateVersion
         appStates: ({
             "files": root.panelDockState(pedFiles),
             "settings": root.panelDockState(pedSettings),
@@ -553,6 +557,7 @@ Window {
         panelColor: "#16110e"
         fontFamily: root.pedFont
         dockStateVersion: root.dockStateVersion
+        appStateVersion: root.panelStateVersion
         appStates: ({
             "gameSettings": root.panelDockState(gameSettings)
         })
@@ -751,23 +756,39 @@ MouseArea {
         id: pedSettings
         anchors.fill: parent
         z: 190
+        onDockActiveChanged: {
+            root.panelStateVersion++
+            root.dockStateVersion++
+        }
     }
 
     GameSettingsPanel {
         id: gameSettings
         anchors.fill: parent
         z: 191
+        onDockActiveChanged: {
+            root.panelStateVersion++
+            root.dockStateVersion++
+        }
     }
 
     FilesPanel {
         id: pedFiles
         anchors.fill: parent
         z: 192
+        onDockActiveChanged: {
+            root.panelStateVersion++
+            root.dockStateVersion++
+        }
     }
 
     FirstSetupPanel {
         id: firstSetup
         anchors.fill: parent
         z: 195
+        onDockActiveChanged: {
+            root.panelStateVersion++
+            root.dockStateVersion++
+        }
     }
 }
