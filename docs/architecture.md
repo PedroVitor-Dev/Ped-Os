@@ -199,7 +199,7 @@ It shows install status and copies install commands for the user to run.
 | `ped-launcher` | Implemented in `Launcher.qml` |
 | `ped-settings` | Implemented as `SettingsPanel.qml` and `GameSettingsPanel.qml` |
 | `ped-store` | Planned |
-| `ped-files` | Planned; current shell launches external file managers |
+| `ped-files` | MVP embedded as `FilesPanel.qml` backed by `FileManager` |
 
 ---
 

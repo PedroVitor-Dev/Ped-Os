@@ -7,6 +7,7 @@
 #include "applauncher.h"
 #include "systemstats.h"
 #include "usersettings.h"
+#include "filemanager.h"
 
 int main(int argc, char *argv[]) {
     QGuiApplication app(argc, argv);
@@ -18,12 +19,14 @@ int main(int argc, char *argv[]) {
     AppLauncher appLauncher;
     SystemStats systemStats;
     UserSettings userSettings;
+    FileManager fileManager;
 
     engine.rootContext()->setContextProperty("systemInfo", &systemInfo);
     engine.rootContext()->setContextProperty("gameMode", &gameMode);
     engine.rootContext()->setContextProperty("appLauncher", &appLauncher);
     engine.rootContext()->setContextProperty("systemStats", &systemStats);
     engine.rootContext()->setContextProperty("userSettings", &userSettings);
+    engine.rootContext()->setContextProperty("fileManager", &fileManager);
 
     engine.load(QUrl(QStringLiteral("qrc:/PedShell/qml/Main.qml")));
 

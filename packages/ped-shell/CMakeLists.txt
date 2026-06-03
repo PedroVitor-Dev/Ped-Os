@@ -15,11 +15,13 @@ qt_add_executable(ped-shell
     src/applauncher.cpp
     src/systemstats.cpp
     src/usersettings.cpp
+    src/filemanager.cpp
     include/systeminfo.h
     include/gamemode.h
     include/applauncher.h
     include/systemstats.h
     include/usersettings.h
+    include/filemanager.h
 )
 
 qt_add_qml_module(ped-shell
@@ -37,6 +39,7 @@ qt_add_qml_module(ped-shell
         qml/SettingsPanel.qml
         qml/GameSettingsPanel.qml
         qml/FirstSetupPanel.qml
+        qml/FilesPanel.qml
 )
 
 target_include_directories(ped-shell PRIVATE include)

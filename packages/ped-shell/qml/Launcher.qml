@@ -13,7 +13,7 @@ Item {
         { icon: "🎮", name: "Heroic", category: "Gaming", command: "heroic", flatpakId: "com.heroicgameslauncher.hgl", windowClasses: ["heroic", "Heroic", "com.heroicgameslauncher.hgl"] },
         { icon: "🎮", name: "Bottles", category: "Gaming", command: "bottles", flatpakId: "com.usebottles.bottles", windowClasses: ["bottles", "Bottles", "com.usebottles.bottles"] },
         { icon: "🎮", name: "Game Settings", category: "Gaming", internalAction: "gameSettings" },
-        { icon: "🗂", name: "Files",    category: "System", command: "nautilus", args: [] },
+        { icon: "🗂", name: "PED Files", category: "System", internalAction: "files" },
         { icon: "⚙️", name: "Settings", category: "System", internalAction: "settings" },
         { icon: "🖥", name: "Terminal", category: "System", command: "gnome-terminal", args: [] },
         { icon: "🏪", name: "Store",    category: "System", command: "gnome-software", args: [] },
@@ -27,6 +27,7 @@ Item {
     property string activeCategory: "All"
     property var settingsPanel: null
     property var gameSettingsPanel: null
+    property var filesPanel: null
 
     function filteredApps() {
         return allApps.filter(function(a) {
@@ -42,6 +43,13 @@ function launchApp(app) {
         launcher.hide()
         if (settingsPanel)
             settingsPanel.show()
+        return
+    }
+
+    if (app.internalAction === "files") {
+        launcher.hide()
+        if (filesPanel)
+            filesPanel.show()
         return
     }
 

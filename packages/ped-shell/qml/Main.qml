@@ -75,7 +75,7 @@ Window {
         }
     }
     property var systemDockApps: [
-        { icon: "F", iconNames: ["org.gnome.Nautilus", "nautilus", "system-file-manager"], label: "Files", command: "nautilus", args: [], windowClasses: ["org.gnome.Nautilus", "nautilus", "Nautilus"], processNames: ["nautilus"] },
+        { icon: "F", iconNames: ["system-file-manager", "org.gnome.Nautilus", "nautilus"], label: "PED Files", internalAction: "files" },
         { icon: "W", iconNames: ["firefox", "org.mozilla.firefox"], label: "Browser", command: "firefox", args: [], windowClasses: ["firefox", "Firefox", "Navigator.firefox"], processNames: ["firefox"] },
         { icon: "S", iconNames: ["preferences-system", "org.gnome.Settings", "gnome-control-center"], label: "PED Settings", internalAction: "settings" },
         { icon: ">_", iconNames: ["utilities-terminal", "org.gnome.Terminal", "gnome-terminal"], label: "Terminal", command: "gnome-terminal", args: [], windowClasses: ["gnome-terminal", "Gnome-terminal"], processNames: ["gnome-terminal-server", "gnome-terminal"] },
@@ -101,6 +101,11 @@ Window {
     function launchDesktopApp(app) {
     if (app.internalAction === "settings") {
         pedSettings.show()
+        return
+    }
+
+    if (app.internalAction === "files") {
+        pedFiles.show()
         return
     }
 
@@ -654,6 +659,7 @@ Window {
         z: 100
         settingsPanel: pedSettings
         gameSettingsPanel: gameSettings
+        filesPanel: pedFiles
     }
 
     ContextMenu {
@@ -711,6 +717,12 @@ MouseArea {
         id: gameSettings
         anchors.fill: parent
         z: 191
+    }
+
+    FilesPanel {
+        id: pedFiles
+        anchors.fill: parent
+        z: 192
     }
 
     FirstSetupPanel {

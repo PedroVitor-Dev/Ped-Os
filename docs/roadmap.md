@@ -75,6 +75,7 @@ Goal: make the current shell feel intentional, original and pleasant enough to u
 - [x] Keep app active state tied to real process/window state
 - [x] Keep Open / Focus behavior on dock and launcher
 - [x] Keep Close behavior available from the dock action menu
+- [x] Add PED Files MVP with local directory navigation
 - [ ] Add keyboard shortcuts for Launcher, Settings, Game Settings and stats overlay
 - [ ] Add a visible shortcut help panel inside PED Settings
 - [ ] Add quick toggles for stats overlay, Game Mode and theme
@@ -120,6 +121,7 @@ Goal: make PED Settings and Game Settings useful, not just informational.
 - [x] Stats overlay visibility persists through `QSettings`
 - [x] First Setup completion persists through `QSettings`
 - [x] Game Settings can copy Steam launch options
+- [x] PED Files can open files, create folders, rename items and move items to trash
 - [ ] Add real install actions for Flatpak apps instead of only copying commands
 - [ ] Add Flatpak remote detection and Flathub setup status
 - [ ] Add MangoHud configuration status
