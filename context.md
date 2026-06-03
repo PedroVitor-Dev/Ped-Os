@@ -2,7 +2,7 @@
 
 Last updated: 2026-06-03
 
-This file is a handoff note for another AI/chat/dev session. It captures the current technical context, recent decisions, user preferences, completed work and the most important next steps.
+This file is the main handoff note for another AI/chat/dev session. Read it before changing code. It captures the current technical context, user workflow, completed work, recent commits, known gaps and recommended next steps.
 
 ---
 
@@ -20,7 +20,8 @@ Current development truth:
 - System integration: C++ context objects exposed to QML.
 - Build system: CMake.
 - Persistent settings: `QSettings`.
-- Current working machine for Codex may be Windows, but real build/test should happen on the user's Arch + Hyprland PC.
+- Official logo assets live in `assets/logo`.
+- Current Codex machine may be Windows, but real build/test should happen on the user's Arch + Hyprland PC.
 
 ---
 
@@ -34,6 +35,7 @@ Important preferences from the project owner:
 - Do not `git push`; stage and commit locally, then tell the user so they can push from VS Code.
 - Keep implementation moving; make practical, repo-consistent changes.
 - Preserve unrelated user changes if the worktree is dirty.
+- The user prefers Portuguese in conversation.
 
 ---
 
@@ -52,6 +54,7 @@ Important preferences from the project owner:
 | App launch | `QProcess`, Flatpak fallback |
 | Game helpers | GameMode, MangoHud |
 | File actions | `FileManager`, `QDesktopServices`, `gio trash` |
+| Assets | Qt resources loaded from `assets/logo` |
 | UI font | Exo 2 |
 
 ---
@@ -65,21 +68,21 @@ Important preferences from the project owner:
 | `packages/unexus-shell/src` | C++ backends |
 | `packages/unexus-shell/include` | Backend headers |
 | `docs` | Architecture, roadmap, build and contribution docs |
-| `assets` | Screenshots/demo media |
+| `assets/logo` | Official uNexus logo PNG variants |
 | `scripts` | Helper scripts |
 
 Important QML files:
 
-- `Main.qml`: owns shell orchestration, theme, localization, app metadata, dock actions and panel wiring.
+- `Main.qml`: owns shell orchestration, theme, localization, app metadata, dock actions, panel wiring and shared brand logo source.
 - `SideDock.qml`: left/right side dock container.
-- `DockButton.qml`: dock item visuals, tooltip, active/minimized state.
+- `DockButton.qml`: dock item visuals, tooltip, active/minimized/closed state.
 - `Launcher.qml`: app launcher with search, categories and install status.
-- `SettingsPanel.qml`: uNexus Settings, including language selector and theme/stats settings.
+- `SettingsPanel.qml`: uNexus Settings, including language selector, theme/stats settings and About logo block.
 - `GameSettingsPanel.qml`: GameMode, MangoHud and gaming launcher checks.
-- `FilesPanel.qml`: uNexus Files MVP.
+- `FilesPanel.qml`: uNexus Files MVP with places, breadcrumbs, sorting and file actions.
 - `FirstSetupPanel.qml`: first-run checklist and copied install commands.
 - `ContextMenu.qml`: desktop right-click menu.
-- `LoginScreen.qml`: login flow.
+- `LoginScreen.qml`: login flow using the official logo.
 - `FpsOverlay.qml`: shell stats overlay.
 
 Important C++ backends:
@@ -99,10 +102,12 @@ Core shell:
 
 - Login screen with password `1234` or blank.
 - Animated geometric wallpaper and top bar.
+- Shell starts in fullscreen through `Window.FullScreen` for Hyprland testing.
 - Top bar clock/date/network/battery/Game Mode toggle.
 - Notification center.
 - Desktop context menu.
-- Persistent theme and stats overlay preferences.
+- Persistent theme, language, stats overlay and first setup preferences.
+- Official uNexus logo integrated into desktop, login, First Setup, Settings About and README.
 
 Dock:
 
@@ -111,9 +116,10 @@ Dock:
 - Gaming side: Steam, Lutris, Heroic, Bottles, Game Settings.
 - Auto-hide side dock behavior.
 - Original application icons are resolved when possible through icon names.
-- Dock tooltips and action menu.
+- Dock tooltips, hover animation and action menu.
 - App states for closed/open/minimized or hidden.
 - Internal panels no longer remain visually active after closing.
+- Hover/active visual residue was reduced so closed apps stop looking stuck.
 
 Launcher:
 
@@ -138,8 +144,12 @@ Stats:
 uNexus Files:
 
 - Embedded file manager panel, not a standalone process yet.
+- Header title is `File Manager` / `Gerenciador de Arquivos`.
 - Common places sidebar.
 - Directory navigation.
+- Breadcrumb navigation.
+- Sorting by name, type, date and size.
+- Folder rows use a simpler folder visual and type label instead of huge `DIR` text.
 - Open files through desktop services.
 - Create folder.
 - Rename item.
@@ -153,37 +163,51 @@ Localization:
 - `UserSettings.languageCode` persists `en` or `pt-BR`.
 - QML uses `root.tr(...)`, `root.trAppMessage(...)` and `root.trLabelMessage(...)`.
 
+Assets:
+
+- Old screenshots/demo media with previous branding were removed.
+- Official PNG logo variants were added under `assets/logo`.
+- Runtime QML uses `qrc:/UNexusShell/assets/logo/4.png` through `brandLogoSource`.
+- `assets/logo/uNexus Logo Creation.pdf` may exist locally as an untracked design/source file; it was intentionally left out of the last UI commit unless the owner decides to track it.
+
 ---
 
 ## Recent Commits
 
-- `b119e2f feat(shell): add pt-br localization`
-- `3da4335 fix(dock): recalculate internal app state`
-- `9d7d4af fix(dock): clear internal panel state`
-- `9113bea feat(dock): add app window states`
-- `dbb81b7 feat(files): add uNexus files mvp`
-- `a3761db feat(dock): extract side dock components`
-- `5300a24 feat(dock): polish side dock behavior`
-- `21ad426 docs: expand roadmap into detailed product plan`
+Latest known commits:
+
+- `d4f47a2 feat(ui): integrate official uNexus logo assets`
+- `0d10a86 fix(files): rename panel title`
+- `6cb7314 feat(files): add breadcrumbs and sorting`
+- `5037416 docs: simplify readme hero`
+- `3b0be70 fix(dock): reset stuck icon hover state`
+- `6503bd1 chore: rename remaining unexus placeholders`
+- `7689bb9 refactor: rename project to unexus`
+- `2efb0c6 docs: add dock active state issue`
+- `d93f5da fix(dock): make internal state reactive`
+- `e036f77 fix(dock): fix behavior`
+- `5e7f8b4 feat(dock): polish behavior`
+- `dd50ee4 docs: refresh project context`
 
 ---
 
 ## Latest Updates To Remember
 
-The most recent work added project-wide PT-BR localization:
+The most recent work focused on polish and identity:
 
-- `UserSettings` gained `languageCode`.
-- `SettingsPanel.qml` gained language selection.
-- `Main.qml` owns the current translation dictionary and helper functions.
-- Main shell, dock, launcher, settings, game settings, first setup, uNexus Files, context menu, login and stats overlay now route visible text through localization helpers.
-
-Docs were then updated to reflect:
-
-- uNexus Files MVP.
-- Dock open/minimized/closed state work.
-- PT-BR localization.
-- Arch + Hyprland as the real test target.
-- Windows as editing-only in this workflow.
+- Project name is now `uNexus`; old PED OS references should not return.
+- Package/module naming uses `unexus-shell` and `UNexusShell`.
+- Official logo PNGs are in `assets/logo`.
+- `Main.qml` exposes `brandLogoSource` and uses it on the desktop.
+- Login, First Setup and Settings About use the official logo.
+- `CMakeLists.txt` registers the brand asset with Qt resources.
+- README now uses the logo instead of old screenshots.
+- Old screenshot/demo files were removed from tracked assets.
+- uNexus Files gained breadcrumbs and sorting.
+- uNexus Files title is now `File Manager` / `Gerenciador de Arquivos`.
+- uNexus Files folder rows are simpler and use a type label rather than oversized `DIR` text.
+- Main shell starts fullscreen for Hyprland testing.
+- The dock hover residue was reduced; active state bugs were previously tracked in `docs/issue-dock-active-hover-state.md`.
 
 ---
 
@@ -191,9 +215,10 @@ Docs were then updated to reflect:
 
 - No full automated test/build validation was run on Windows.
 - Real validation should happen on Arch + Hyprland.
+- The Qt resource path for the logo should be validated on Arch after a clean build.
 - Localization is currently a simple QML dictionary, not Qt `.ts/.qm` translation files.
 - English strings are still the stable source keys, so changing English display text can break PT-BR lookup unless dictionary keys are updated too.
-- uNexus Files is an MVP and does not yet have copy/cut/paste, sorting, breadcrumbs, preview, delete confirmation or multi-select.
+- uNexus Files is still an MVP and does not yet have copy/cut/paste, delete confirmations, multi-select, preview/details pane or keyboard navigation.
 - Some icons are still text/emoji fallbacks when the original app icon cannot be found.
 - GameMode/MangoHud integration needs more real-game validation.
 - Install flows copy commands; they do not yet run privileged or Flatpak installs directly.
@@ -205,20 +230,19 @@ Docs were then updated to reflect:
 
 Recommended next priorities:
 
-1. Test the PT-BR selector on Arch + Hyprland:
-   - Open uNexus Settings.
-   - Switch to Português.
-   - Confirm dock, launcher, panels, notifications and uNexus Files update.
-   - Restart shell and confirm language persists.
+1. Validate the latest UI/logo changes on Arch + Hyprland:
+   - Clean build from `packages/unexus-shell`.
+   - Confirm the logo renders on desktop, login, First Setup and Settings About.
+   - Confirm fullscreen startup behaves correctly.
+   - Confirm README logo path is valid on GitHub after push.
 
 2. Continue uNexus Files toward a real `unexus-files`:
-   - Breadcrumb navigation.
-   - Sorting by name/type/date/size.
    - Copy/cut/paste.
    - Delete/trash confirmations.
    - Multi-select.
    - Preview pane or details pane.
    - Keyboard navigation.
+   - Better empty/error states.
 
 3. Improve Settings:
    - Better control center structure.
@@ -290,6 +314,7 @@ mangohud gamemoderun %command%
 - `docs/building.md`: build/run instructions and dependency notes.
 - `docs/roadmap.md`: staged product/OS roadmap.
 - `docs/contributing.md`: contribution guidance.
+- `docs/issue-dock-active-hover-state.md`: issue writeup for the dock active/hover residue problem.
 
 ---
 

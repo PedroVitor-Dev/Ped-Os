@@ -41,11 +41,11 @@ uNexus currently has a working Qt6/QML shell running on Arch Linux + Hyprland re
 - [x] English/PT-BR language selection
 - [x] Persistent user settings through `QSettings`
 - [x] Auto-start through Hyprland `exec-once`
-- [x] Project docs updated for the current shell state
+- [x] Project docs updated for the current shell state`r`n- [x] Official logo assets tracked and used in core shell surfaces
 
 ### Known Gaps
 
-- [ ] No official visual identity yet
+- [x] Official logo assets are now tracked and used in the shell
 - [ ] No proper packaged install flow yet
 - [ ] No bootable ISO yet
 - [ ] No real installer yet
@@ -63,7 +63,7 @@ Goal: make the current shell feel intentional, original and pleasant enough to u
 
 ### Visual and UX
 
-- [ ] Design the official uNexus logo
+- [x] Add official uNexus logo assets and integrate them into shell surfaces
 - [ ] Define the core visual language: spacing, shadows, borders, motion and typography
 - [ ] Create the first official wallpaper set
 - [ ] Replace temporary text/icon fallbacks with consistent visual app icons
@@ -86,7 +86,8 @@ Goal: make the current shell feel intentional, original and pleasant enough to u
 - [ ] Add quick toggles for stats overlay, Game Mode and theme
 - [ ] Add notification actions where useful instead of passive messages only
 - [ ] Improve the desktop context menu with real actions
-- [ ] Continue uNexus Files with copy/cut/paste, delete confirmations, sorting, breadcrumbs and richer previews
+- [x] Add breadcrumbs and sorting to uNexus Files
+- [ ] Continue uNexus Files with copy/cut/paste, delete confirmations, multi-select and richer previews
 
 ### Real OS Foundation
 
@@ -101,7 +102,8 @@ Goal: make the current shell feel intentional, original and pleasant enough to u
 ### Exit Criteria
 
 - [ ] A user can boot into Hyprland, see uNexus Shell, open apps, close apps and understand the interface without reading code
-- [ ] The shell has a recognizable visual identity beyond "Qt prototype"
+- [x] The shell has an official logo integrated into core surfaces
+- [ ] The full shell visual language is cohesive beyond the first logo pass
 - [ ] The current feature set works after a clean clone/build on the target Arch machine
 
 ---
@@ -275,7 +277,8 @@ Goal: stop treating uNexus Shell as a manually built project and make it install
 
 - [ ] Create Arch `PKGBUILD` for `unexus-shell`
 - [ ] Package Qt/QML dependencies correctly
-- [ ] Package runtime assets correctly
+- [x] Register the current logo through Qt resources
+- [ ] Package all runtime assets correctly
 - [ ] Add a clean uninstall path
 - [ ] Add CI or repeatable local release script
 - [ ] Add package signing plan later

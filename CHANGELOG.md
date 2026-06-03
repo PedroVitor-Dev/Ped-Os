@@ -9,25 +9,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Official uNexus logo PNG variants under `assets/logo`.
+- Official logo usage on the desktop, login screen, First Setup, Settings About and README.
+- Qt resource registration for the current logo asset.
 - uNexus Files MVP with local directory navigation, places sidebar, file opening, folder creation, rename and move-to-trash actions.
+- uNexus Files breadcrumbs and sorting by name, type, date and size.
 - System and gaming side dock app states for open, minimized/hidden and closed apps.
 - PT-BR interface localization with English/PT-BR language selection in uNexus Settings.
 - Persistent language preference through `QSettings`.
 
 ### Changed
+- README now uses the official logo instead of old screenshots/demo media.
+- uNexus Files panel title is now `File Manager` / `Gerenciador de Arquivos`.
+- uNexus Files folder rows now use a simpler folder visual and type label instead of oversized `DIR` text.
+- Shell startup now requests fullscreen for Hyprland testing.
 - Launcher, dock, settings, game settings, first setup, context menu, login, stats overlay and uNexus Files now route user-facing text through the shell localization helper.
 - Internal panel dock state is recalculated when panels open/close so closed internal apps no longer remain visually active.
 
+### Removed
+- Old tracked screenshots and demo GIFs with previous branding.
+
 ### Planned
-- Game Mode (auto performance boost)
 - GPU driver manager
-- FPS overlay with MangoHud
-- Steam / Lutris integration
 - Controller support out of the box
 - Per-game performance profiles
-- Close window via hyprctl
-- Auto-start uNexus Shell on login
-
+- Arch packaging and installable shell
+- Bootable ISO path
 ---
 
 ## [0.3.0] — 2026-05-31

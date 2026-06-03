@@ -73,7 +73,8 @@ The QML layer calls these objects directly from `Main.qml`, `Launcher.qml`, `Set
 - uNexus Settings;
 - Game Settings;
 - First Setup.
-- uNexus Files.
+- uNexus Files;
+- shared brand logo resource.
 
 The current dock is composed from `SideDock.qml` and `DockButton.qml`, with `Main.qml` owning app metadata and high-level actions.
 
@@ -81,6 +82,29 @@ Dock state is a mix of external app state from `AppLauncher` and internal panel 
 
 ---
 
+## Visual Identity and Assets
+
+Official uNexus logo PNG variants live in `assets/logo`.
+
+`Main.qml` exposes a shared `brandLogoSource` property pointing at:
+
+```qml
+qrc:/UNexusShell/assets/logo/4.png
+```
+
+`packages/unexus-shell/CMakeLists.txt` registers that logo through Qt resources so QML can load it at runtime without depending on an absolute filesystem path.
+
+The current logo is used on:
+
+- desktop center mark;
+- login screen;
+- First Setup badge;
+- Settings About section;
+- README hero.
+
+Old screenshot/demo assets with previous branding were removed from tracked media.
+
+---
 ## App Launching and Window Control
 
 `AppLauncher` is the central bridge between QML and the real desktop session.
