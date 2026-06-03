@@ -12,6 +12,8 @@ Item {
     property bool selectedIsDir: false
     property var entries: []
     property var places: []
+    property string sortKey: "name"
+    property bool sortAscending: true
     property string mode: "browse"
     property bool dockActive: false
 
@@ -28,6 +30,82 @@ Item {
         hideAnim.start()
     }
 
+    function displayNameForPath(path) {
+        if (!path || path === "/")
+            return "/"
+
+        var clean = path
+        while (clean.length > 1 && clean.endsWith("/"))
+            clean = clean.slice(0, -1)
+
+        var parts = clean.split("/")
+        return parts.length > 0 && parts[parts.length - 1].length > 0 ? parts[parts.length - 1] : clean
+    }
+
+    function breadcrumbParts() {
+        var clean = currentPath || "/"
+        while (clean.length > 1 && clean.endsWith("/"))
+            clean = clean.slice(0, -1)
+
+        if (clean === "/")
+            return [{ label: "/", path: "/" }]
+
+        var parts = clean.split("/")
+        var result = [{ label: "/", path: "/" }]
+        var built = ""
+
+        for (var i = 0; i < parts.length; i++) {
+            if (parts[i].length === 0)
+                continue
+
+            built += "/" + parts[i]
+            result.push({ label: parts[i], path: built })
+        }
+
+        return result
+    }
+
+    function valueForSort(entry) {
+        if (sortKey === "kind")
+            return (entry.kind || "").toLowerCase()
+        if (sortKey === "size")
+            return entry.isDir ? -1 : (entry.size || "").toLowerCase()
+        if (sortKey === "modified")
+            return entry.modified || ""
+        return (entry.name || "").toLowerCase()
+    }
+
+    function sortedEntries(items) {
+        var list = items ? items.slice() : []
+        list.sort(function(a, b) {
+            if (a.isDir !== b.isDir)
+                return a.isDir ? -1 : 1
+
+            var left = valueForSort(a)
+            var right = valueForSort(b)
+            if (left < right)
+                return sortAscending ? -1 : 1
+            if (left > right)
+                return sortAscending ? 1 : -1
+            return 0
+        })
+        return list
+    }
+
+    function sortBy(key) {
+        if (sortKey === key) {
+            sortAscending = !sortAscending
+        } else {
+            sortKey = key
+            sortAscending = true
+        }
+        entries = sortedEntries(entries)
+    }
+
+    function sortLabel(key, label) {
+        return root.tr(label) + (sortKey === key ? (sortAscending ? " ^" : " v") : "")
+    }
+
     function loadPath(path) {
         currentPath = path
         pathInput.text = currentPath
@@ -35,7 +113,7 @@ Item {
         selectedName = ""
         selectedIsDir = false
         mode = "browse"
-        entries = fileManager.listDirectory(currentPath)
+        entries = sortedEntries(fileManager.listDirectory(currentPath))
     }
 
     function openSelected() {
@@ -212,6 +290,35 @@ Item {
             }
 
             Rectangle {
+                width: parent.width
+                height: 30
+                radius: 8
+                color: "#111a28"
+                border.color: "#223247"
+                border.width: 1
+                clip: true
+
+                Row {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.leftMargin: 8
+                    anchors.rightMargin: 8
+                    spacing: 4
+
+                    Repeater {
+                        model: { filesPanel.currentPath; return filesPanel.breadcrumbParts() }
+
+                        delegate: BreadcrumbButton {
+                            label: modelData.label
+                            active: modelData.path === filesPanel.currentPath
+                            onClicked: filesPanel.loadPath(modelData.path)
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
                 visible: filesPanel.mode !== "browse"
                 width: parent.width
                 height: visible ? 42 : 0
@@ -270,7 +377,7 @@ Item {
 
             Row {
                 width: parent.width
-                height: parent.height - 145 - (filesPanel.mode !== "browse" ? 42 : 0)
+                height: parent.height - 187 - (filesPanel.mode !== "browse" ? 42 : 0)
                 spacing: 12
 
                 Rectangle {
@@ -327,7 +434,7 @@ Item {
                             height: 24
 
                             Text {
-                                width: parent.width - selectedActions.width
+                                width: Math.max(120, parent.width - selectedActions.width - sortActions.width - 8)
                                 text: root.tr("{count} items").replace("{count}", filesPanel.entries.length)
                                 color: "#8ea4bd"
                                 font.pixelSize: 11
@@ -335,7 +442,35 @@ Item {
                             }
 
                             Row {
+                                id: sortActions
+                                width: childrenRect.width
+                                height: parent.height
+                                spacing: 6
+
+                                MiniAction {
+                                    label: { filesPanel.sortKey; filesPanel.sortAscending; return filesPanel.sortLabel("name", "Name") }
+                                    onClicked: filesPanel.sortBy("name")
+                                }
+
+                                MiniAction {
+                                    label: { filesPanel.sortKey; filesPanel.sortAscending; return filesPanel.sortLabel("kind", "Type") }
+                                    onClicked: filesPanel.sortBy("kind")
+                                }
+
+                                MiniAction {
+                                    label: { filesPanel.sortKey; filesPanel.sortAscending; return filesPanel.sortLabel("modified", "Date") }
+                                    onClicked: filesPanel.sortBy("modified")
+                                }
+
+                                MiniAction {
+                                    label: { filesPanel.sortKey; filesPanel.sortAscending; return filesPanel.sortLabel("size", "Size") }
+                                    onClicked: filesPanel.sortBy("size")
+                                }
+                            }
+
+                            Row {
                                 id: selectedActions
+                                width: visible ? childrenRect.width : 0
                                 height: parent.height
                                 spacing: 6
                                 visible: filesPanel.selectedPath.length > 0
@@ -409,6 +544,36 @@ Item {
         }
     }
 
+    component BreadcrumbButton: Rectangle {
+        id: breadcrumbButton
+        property string label: ""
+        property bool active: false
+        signal clicked()
+
+        width: Math.max(28, breadcrumbText.width + 18)
+        height: 22
+        radius: 6
+        color: active ? "#1e2d45" : (breadcrumbMouse.containsMouse ? "#172233" : "transparent")
+        border.color: active ? root.themeAccent : "transparent"
+        border.width: active ? 1 : 0
+
+        Text {
+            id: breadcrumbText
+            anchors.centerIn: parent
+            text: breadcrumbButton.label
+            color: breadcrumbButton.active ? "#ffffff" : "#8ea4bd"
+            font.pixelSize: 10
+            font.family: root.uiFont
+            elide: Text.ElideRight
+        }
+
+        MouseArea {
+            id: breadcrumbMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: breadcrumbButton.clicked()
+        }
+    }
     component ToolButton: Rectangle {
         id: toolButton
         property string label: ""
@@ -539,10 +704,33 @@ Item {
             border.color: fileRow.isDir ? root.themeAccent : "#2a3a55"
             border.width: 1
 
+            Rectangle {
+                visible: fileRow.isDir
+                x: 7
+                y: 7
+                width: 10
+                height: 5
+                radius: 2
+                color: root.themeAccent
+                opacity: 0.9
+            }
+
+            Rectangle {
+                visible: fileRow.isDir
+                x: 5
+                y: 11
+                width: 18
+                height: 12
+                radius: 3
+                color: root.themeAccent
+                opacity: 0.75
+            }
+
             Text {
                 anchors.centerIn: parent
+                visible: !fileRow.isDir
                 text: fileRow.icon
-                color: fileRow.isDir ? root.themeAccent : "#8ea4bd"
+                color: "#8ea4bd"
                 font.pixelSize: 9
                 font.family: root.uiFont
                 font.bold: true

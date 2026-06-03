@@ -4,6 +4,7 @@ import QtQuick.Window 2.15
 Window {
     id: root
     visible: true
+    visibility: Window.FullScreen
     width: 1280
     height: 720
     title: root.tr("uNexus Shell")
@@ -77,6 +78,9 @@ Window {
         "Open First Setup": "Abrir configuração inicial",
         "About": "Sobre",
         "Name": "Nome",
+        "Type": "Tipo",
+        "Date": "Data",
+        "Size": "Tamanho",
         "Shell": "Shell",
         "License": "Licença",
         "Copy repository URL": "Copiar URL do repositório",
