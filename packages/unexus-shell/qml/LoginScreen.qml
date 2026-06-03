@@ -79,10 +79,12 @@ Item {
             border.color: root.themeAccent
             border.width: 2
 
-            Text {
-                anchors.centerIn: parent
-                text: "👤"
-                font.pixelSize: 42
+            Image {
+                anchors.fill: parent
+                anchors.margins: 12
+                source: root.brandLogoSource
+                fillMode: Image.PreserveAspectFit
+                smooth: true
             }
         }
 

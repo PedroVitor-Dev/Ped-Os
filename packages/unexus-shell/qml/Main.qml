@@ -11,6 +11,7 @@ Window {
     color: "#0a0a0a"
 
     property string uiFont: "Exo 2"
+    property string brandLogoSource: "qrc:/UNexusShell/assets/logo/4.png"
     property int themeIndex: 0
     property string themeName: "Neon Blue"
     property color themeBgTop: "#04050d"
@@ -710,14 +711,14 @@ Window {
             NumberAnimation { from: 0.0; to: 1.0; duration: 1000; easing.type: Easing.OutCubic }
         }
 
-        Text {
+        Image {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "uNexus"
-            color: "#ffffff"
-            font.pixelSize: 48
-            font.letterSpacing: 8
-            font.family: root.uiFont
-            opacity: 0.9
+            width: Math.min(360, root.width * 0.28)
+            height: Math.max(120, width * 0.56)
+            source: root.brandLogoSource
+            fillMode: Image.PreserveAspectFit
+            smooth: true
+            opacity: 0.92
         }
 
         Text {

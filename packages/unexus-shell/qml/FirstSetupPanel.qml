@@ -84,13 +84,12 @@ Item {
                     border.color: root.themeAccent
                     border.width: 1
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: "uNexus"
-                        color: root.themeAccent
-                        font.pixelSize: 11
-                        font.bold: true
-                        font.family: root.uiFont
+                    Image {
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        source: root.brandLogoSource
+                        fillMode: Image.PreserveAspectFit
+                        smooth: true
                     }
                 }
 

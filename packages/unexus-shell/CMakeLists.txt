@@ -42,6 +42,13 @@ qt_add_qml_module(unexus-shell
         qml/FilesPanel.qml
 )
 
+qt_add_resources(unexus-shell "unexus_brand_assets"
+    PREFIX "/UNexusShell"
+    BASE "${CMAKE_CURRENT_SOURCE_DIR}/../.."
+    FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../assets/logo/4.png"
+)
+
 target_include_directories(unexus-shell PRIVATE include)
 
 target_link_libraries(unexus-shell PRIVATE

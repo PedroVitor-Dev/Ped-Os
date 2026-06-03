@@ -272,6 +272,23 @@ Item {
                         width: parent.width
                         title: root.tr("About")
 
+                        Rectangle {
+                            width: parent.width
+                            height: 70
+                            radius: 8
+                            color: "#172233"
+                            border.color: "#223247"
+                            border.width: 1
+
+                            Image {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                source: root.brandLogoSource
+                                fillMode: Image.PreserveAspectFit
+                                smooth: true
+                            }
+                        }
+
                         SettingsOptionRow {
                             width: parent.width
                             label: root.tr("Name")
