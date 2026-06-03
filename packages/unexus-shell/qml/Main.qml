@@ -58,7 +58,6 @@ Window {
         "Install on Arch: sudo pacman -S gamemode lib32-gamemode": "Instale no Arch: sudo pacman -S gamemode lib32-gamemode",
         "Game Mode OFF": "Modo Jogo desligado",
         "System back to normal.": "Sistema voltou ao normal.",
-        "gaming on linux, effortless.": "jogar no linux, sem esforço.",
         "minimized": "minimizado",
         "System preferences, language, shell status and about": "Preferências do sistema, idioma, status do shell e sobre",
         "Language": "Idioma",
@@ -723,7 +722,7 @@ Window {
 
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
-            text: root.tr("gaming on linux, effortless.")
+            text: "Open Source. Linux Powered. Gamer Focused."
             color: root.themeAccent
             font.pixelSize: 14
             font.letterSpacing: 2

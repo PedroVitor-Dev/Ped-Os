@@ -15,7 +15,7 @@
 
 ## Philosophy
 
-> "Gaming on Linux should be effortless. No tweaking. No struggling. Just play."
+> "Open Source. Linux Powered. Gamer Focused."
 
 uNexus is built around one goal: make Linux gaming feel immediate, focused, and polished out of the box.
 
@@ -190,5 +190,5 @@ See [docs/contributing.md](docs/contributing.md).
 ---
 
 <div align="center">
-  <sub>Built for gamers. Powered by Linux.</sub>
+  <sub>Open Source. Linux Powered. Gamer Focused.</sub>
 </div>

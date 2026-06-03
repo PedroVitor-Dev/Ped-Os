@@ -64,6 +64,6 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## Philosophy Reminder
 
-> "Gaming on Linux should be effortless. No tweaking. No struggling. Just play."
+> "Open Source. Linux Powered. Gamer Focused."
 
 Every contribution should serve this principle.
