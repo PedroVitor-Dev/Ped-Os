@@ -210,7 +210,7 @@ Item {
                     spacing: 2
 
                     Text {
-                        text: root.tr("uNexus Files")
+                        text: root.tr("File Manager")
                         color: "#ffffff"
                         font.pixelSize: 22
                         font.family: root.uiFont

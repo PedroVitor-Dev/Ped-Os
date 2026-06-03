@@ -24,6 +24,7 @@ Window {
 
     property var ptBr: ({
         "uNexus Files": "Arquivos uNexus",
+        "File Manager": "Gerenciador de Arquivos",
         "Browser": "Navegador",
         "uNexus Settings": "Configurações uNexus",
         "Terminal": "Terminal",
