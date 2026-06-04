@@ -12,6 +12,42 @@ Window {
 
     property string uiFont: "Exo 2"
     property string brandLogoSource: "qrc:/UNexusShell/assets/logo/SF%20White.png"
+
+    // Core visual language
+    property int spaceXs: 4
+    property int spaceSm: 8
+    property int spaceMd: 12
+    property int spaceLg: 16
+    property int spaceXl: 18
+    property int radiusSm: 6
+    property int radiusMd: 8
+    property int radiusLg: 12
+    property int radiusXl: 14
+    property int radiusDock: 16
+    property int borderHairline: 1
+    property int motionQuick: 120
+    property int motionBase: 160
+    property int motionExpressive: 220
+    property int motionEntrance: 300
+    property int textMicro: 9
+    property int textTiny: 10
+    property int textSmall: 12
+    property int textBody: 13
+    property int textUi: 15
+    property int textLg: 16
+    property int textTitle: 22
+    property color surfaceBase: "#0e1520"
+    property color surfacePanel: "#111111"
+    property color surfaceRaised: "#172233"
+    property color surfaceHover: "#1e2d45"
+    property color surfaceStrongHover: "#2a3a55"
+    property color borderSubtle: "#1e2d45"
+    property color borderMuted: "#2a3a55"
+    property color textPrimary: "#ffffff"
+    property color textSecondary: "#aaaaaa"
+    property color textMuted: "#8ea4bd"
+    property color shadowSoft: "#66000000"
+
     property int themeIndex: 0
     property string themeName: "Neon Blue"
     property color themeBgTop: "#04050d"
@@ -554,19 +590,19 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             width: logoText.width + 16
             height: 22
-            radius: 6
-            color: logoMouse.containsMouse ? "#1e2d45" : "transparent"
+            radius: root.radiusSm
+            color: logoMouse.containsMouse ? root.surfaceHover : "transparent"
 
             Behavior on color {
-                ColorAnimation { duration: 150 }
+                ColorAnimation { duration: root.motionBase }
             }
 
             Text {
                 id: logoText
                 anchors.centerIn: parent
                 text: "uNexus"
-                color: "#ffffff"
-                font.pixelSize: 12
+                color: root.textPrimary
+                font.pixelSize: root.textSmall
                 font.letterSpacing: 4
                 font.family: root.uiFont
                 opacity: 0.7
@@ -614,10 +650,10 @@ Window {
             Rectangle {
                 width: 26
                 height: 22
-                radius: 6
-                color: gameMode.active ? "#ff4d00" : "#1a2030"
-                border.color: gameMode.active ? "#ff6a00" : "#2a3a55"
-                border.width: 1
+                radius: root.radiusSm
+                color: gameMode.active ? "#ff4d00" : root.surfaceRaised
+                border.color: gameMode.active ? "#ff6a00" : root.borderMuted
+                border.width: root.borderHairline
                 anchors.verticalCenter: parent.verticalCenter
 
                 Text {
@@ -664,8 +700,8 @@ Window {
             Text {
                 visible: systemInfo.hasBattery
                 text: systemInfo.batteryLevel + "%"
-                color: systemInfo.batteryLevel < 20 ? "#ff4d4d" : "#ffffff"
-                font.pixelSize: 12
+                color: systemInfo.batteryLevel < 20 ? "#ff4d4d" : root.textPrimary
+                font.pixelSize: root.textSmall
                 font.family: root.uiFont
                 opacity: 0.7
                 anchors.verticalCenter: parent.verticalCenter
@@ -673,8 +709,8 @@ Window {
 
             Text {
                 id: dateText
-                color: "#ffffff"
-                font.pixelSize: 12
+                color: root.textPrimary
+                font.pixelSize: root.textSmall
                 font.family: root.uiFont
                 opacity: 0.5
                 anchors.verticalCenter: parent.verticalCenter
@@ -780,13 +816,25 @@ Window {
     }
 
     Rectangle {
+        x: dockActionMenu.x + root.spaceXs
+        y: dockActionMenu.y + root.spaceSm
+        width: dockActionMenu.width
+        height: dockActionMenu.height
+        radius: dockActionMenu.radius
+        color: root.shadowSoft
+        opacity: dockActionMenu.visible ? 0.35 : 0.0
+        visible: dockActionMenu.visible
+        z: dockActionMenu.z - 1
+    }
+
+    Rectangle {
         id: dockActionMenu
         width: 150
         height: actionColumn.height + 12
-        radius: 8
-        color: "#0e1520"
-        border.color: "#2a3a55"
-        border.width: 1
+        radius: root.radiusMd
+        color: root.surfaceBase
+        border.color: root.borderMuted
+        border.width: root.borderHairline
         visible: false
         z: 180
 
@@ -812,21 +860,21 @@ Window {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.top: parent.top
-            anchors.topMargin: 6
+            anchors.topMargin: root.radiusSm
             spacing: 2
 
             Rectangle {
                 width: parent.width
                 height: 34
-                color: openMouse.containsMouse ? "#1e2d45" : "transparent"
+                color: openMouse.containsMouse ? root.surfaceHover : "transparent"
 
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    anchors.leftMargin: 12
+                    anchors.leftMargin: root.spaceMd
                     text: root.tr("Open / Focus")
-                    color: "#ffffff"
-                    font.pixelSize: 12
+                    color: root.textPrimary
+                    font.pixelSize: root.textSmall
                     font.family: root.uiFont
                 }
 
@@ -852,10 +900,10 @@ Window {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    anchors.leftMargin: 12
+                    anchors.leftMargin: root.spaceMd
                     text: root.tr("Close")
                     color: "#ff8a8a"
-                    font.pixelSize: 12
+                    font.pixelSize: root.textSmall
                     font.family: root.uiFont
                 }
 
@@ -882,10 +930,10 @@ Window {
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
-                    anchors.leftMargin: 12
+                    anchors.leftMargin: root.spaceMd
                     text: root.tr("Copy Options")
                     color: "#ffbd7a"
-                    font.pixelSize: 12
+                    font.pixelSize: root.textSmall
                     font.family: root.uiFont
                 }
 

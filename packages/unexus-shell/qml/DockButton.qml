@@ -49,11 +49,11 @@ Rectangle {
 
     width: hovered ? 56 : 48
     height: hovered ? 56 : 48
-    radius: 14
-    color: hovered ? "#2a2a2a" : "transparent"
+    radius: root.radiusXl
+    color: hovered ? root.surfaceHover : "transparent"
 
-    Behavior on width { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-    Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+    Behavior on width { NumberAnimation { duration: root.motionBase; easing.type: Easing.OutCubic } }
+    Behavior on height { NumberAnimation { duration: root.motionBase; easing.type: Easing.OutCubic } }
 
     transform: Translate { id: dockBounce; y: 0 }
 
@@ -89,8 +89,8 @@ Rectangle {
 
     SequentialAnimation {
         id: dockBounceAnim
-        NumberAnimation { target: dockBounce; property: "y"; to: -10; duration: 95; easing.type: Easing.OutCubic }
-        NumberAnimation { target: dockBounce; property: "y"; to: 0; duration: 110; easing.type: Easing.InBounce }
+        NumberAnimation { target: dockBounce; property: "y"; to: -10; duration: root.motionQuick; easing.type: Easing.OutCubic }
+        NumberAnimation { target: dockBounce; property: "y"; to: 0; duration: root.motionQuick; easing.type: Easing.InBounce }
     }
 
     Rectangle {
@@ -99,7 +99,7 @@ Rectangle {
         color: dockButton.accentColor
         opacity: dockButton.active && !dockButton.closed ? 0.08 : 0.0
 
-        Behavior on opacity { NumberAnimation { duration: 180 } }
+        Behavior on opacity { NumberAnimation { duration: root.motionExpressive } }
     }
 
     Image {
@@ -117,7 +117,7 @@ Rectangle {
         anchors.centerIn: parent
         text: app.icon || "?"
         color: "#ffffff"
-        font.pixelSize: dockButton.hovered ? 18 : 15
+        font.pixelSize: dockButton.hovered ? 18 : root.textUi
         font.family: dockButton.fontFamily
         font.bold: true
         visible: appIcon.status !== Image.Ready
@@ -135,7 +135,7 @@ Rectangle {
         anchors.leftMargin: 2
         anchors.rightMargin: 2
 
-        Behavior on height { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+        Behavior on height { NumberAnimation { duration: root.motionExpressive; easing.type: Easing.OutCubic } }
     }
 
     Rectangle {
@@ -149,8 +149,8 @@ Rectangle {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 4
 
-        Behavior on width { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-        Behavior on opacity { NumberAnimation { duration: 180 } }
+        Behavior on width { NumberAnimation { duration: root.motionExpressive; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: root.motionExpressive } }
         SequentialAnimation on scale {
             running: dockButton.minimized
             loops: Animation.Infinite
@@ -161,19 +161,19 @@ Rectangle {
 
     Rectangle {
         id: dockLabel
-        width: dockLabelText.width + 16
+        width: dockLabelText.width + root.spaceLg
         height: 24
-        radius: 8
-        color: "#1e1e1e"
+        radius: root.radiusMd
+        color: root.surfaceBase
         opacity: dockButton.hovered ? 1.0 : 0.0
         visible: opacity > 0
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: dockButton.leftSide ? parent.right : undefined
         anchors.right: dockButton.leftSide ? undefined : parent.left
-        anchors.leftMargin: 10
-        anchors.rightMargin: 10
+        anchors.leftMargin: root.spaceMd
+        anchors.rightMargin: root.spaceMd
 
-        Behavior on opacity { NumberAnimation { duration: 120 } }
+        Behavior on opacity { NumberAnimation { duration: root.motionQuick } }
 
         onVisibleChanged: {
             if (!visible) opacity = 0
@@ -185,8 +185,8 @@ Rectangle {
                 text: dockButton.minimized
                       ? root.tr(dockButton.app.label) + " - " + root.tr("minimized")
                       : root.tr(dockButton.app.label)
-                color: dockButton.minimized ? "#ffbd7a" : "#ffffff"
-            font.pixelSize: 12
+                color: dockButton.minimized ? "#ffbd7a" : root.textPrimary
+            font.pixelSize: root.textSmall
             font.family: dockButton.fontFamily
         }
     }

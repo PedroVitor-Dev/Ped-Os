@@ -16,9 +16,9 @@ Item {
 
         // Ajusta pra não sair da tela
         if (menuX + menuRect.width > parent.width)
-            menuX = parent.width - menuRect.width - 8
+            menuX = parent.width - menuRect.width - root.spaceSm
         if (menuY + menuRect.height > parent.height)
-            menuY = parent.height - menuRect.height - 8
+            menuY = parent.height - menuRect.height - root.spaceSm
 
         visible = true
         showAnim.start()
@@ -34,7 +34,7 @@ Item {
         property: "opacity"
         from: 0.0
         to: 1.0
-        duration: 150
+        duration: root.motionBase
         easing.type: Easing.OutCubic
     }
 
@@ -45,9 +45,21 @@ Item {
             property: "opacity"
             from: 1.0
             to: 0.0
-            duration: 100
+            duration: root.motionQuick
         }
         ScriptAction { script: contextMenu.visible = false }
+    }
+
+    Rectangle {
+        id: menuShadow
+        x: menuRect.x + root.spaceXs
+        y: menuRect.y + root.spaceSm
+        width: menuRect.width
+        height: menuRect.height
+        radius: menuRect.radius
+        color: root.shadowSoft
+        opacity: menuRect.opacity * 0.35
+        visible: menuRect.visible
     }
 
     Rectangle {
@@ -55,11 +67,11 @@ Item {
         x: contextMenu.menuX
         y: contextMenu.menuY
         width: 200
-        height: menuColumn.height + 16
-        radius: 10
-        color: "#0e1520"
-        border.color: "#1e2d45"
-        border.width: 1
+        height: menuColumn.height + root.spaceLg
+        radius: root.radiusLg
+        color: root.surfaceBase
+        border.color: root.borderSubtle
+        border.width: root.borderHairline
         opacity: 0.0
 
         Column {
@@ -67,9 +79,9 @@ Item {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.topMargin: 8
+            anchors.topMargin: root.spaceSm
             spacing: 2
-            padding: 6
+            padding: root.radiusSm
 
             Repeater {
                 model: [
@@ -81,20 +93,20 @@ Item {
                 ]
 
                 delegate: Rectangle {
-                    width: menuColumn.width - 12
+                    width: menuColumn.width - root.spaceMd
                     height: 36
-                    radius: 6
-                    color: itemMouse.containsMouse ? "#1e2d45" : "transparent"
+                    radius: root.radiusSm
+                    color: itemMouse.containsMouse ? root.surfaceHover : "transparent"
 
                     Behavior on color {
-                        ColorAnimation { duration: 100 }
+                        ColorAnimation { duration: root.motionQuick }
                     }
 
                     Row {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
-                        anchors.leftMargin: 10
-                        spacing: 10
+                        anchors.leftMargin: root.spaceMd
+                        spacing: root.spaceMd
 
                         Text {
                             text: modelData.icon
@@ -104,8 +116,8 @@ Item {
 
                         Text {
                             text: root.tr(modelData.label)
-                            color: "#ffffff"
-                            font.pixelSize: 13
+                            color: root.textPrimary
+                            font.pixelSize: root.textBody
                             opacity: 0.85
                             anchors.verticalCenter: parent.verticalCenter
                         }

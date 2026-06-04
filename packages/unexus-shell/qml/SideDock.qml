@@ -37,8 +37,8 @@ Item {
     height: dockPanel.height
     y: Math.max(56, ((parent ? parent.height : 720) - height) / 2)
     x: leftSide
-       ? (expanded ? 12 : -60)
-       : (expanded ? (parent ? parent.width : 1280) - width - 12 : (parent ? parent.width : 1280) - 12)
+       ? (expanded ? root.spaceMd : -60)
+       : (expanded ? (parent ? parent.width : 1280) - width - root.spaceMd : (parent ? parent.width : 1280) - root.spaceMd)
 
     onShouldExpandChanged: {
         if (shouldExpand) {
@@ -57,7 +57,7 @@ Item {
     }
 
     Behavior on x {
-        NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
+        NumberAnimation { duration: root.motionExpressive; easing.type: Easing.OutCubic }
     }
 
     MouseArea {
@@ -72,27 +72,27 @@ Item {
     Rectangle {
         id: dockPanel
         width: sideDock.width
-        height: dockColumn.height + 18
-        radius: 16
+        height: dockColumn.height + root.spaceXl
+        radius: root.radiusDock
         color: sideDock.panelColor
         opacity: sideDock.expanded ? 0.92 : 0.78
         border.color: sideDock.accentColor
-        border.width: 1
+        border.width: root.borderHairline
 
-        Behavior on opacity { NumberAnimation { duration: 160 } }
+        Behavior on opacity { NumberAnimation { duration: root.motionBase } }
 
         Column {
             id: dockColumn
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
-            anchors.topMargin: 9
-            spacing: 8
+            anchors.topMargin: root.spaceSm + 1
+            spacing: root.spaceSm
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: sideDock.title
                 color: sideDock.accentColor
-                font.pixelSize: 9
+                font.pixelSize: root.textMicro
                 font.family: sideDock.fontFamily
                 font.bold: true
                 opacity: 0.85

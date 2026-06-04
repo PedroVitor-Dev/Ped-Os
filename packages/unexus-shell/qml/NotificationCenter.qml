@@ -33,8 +33,8 @@ Item {
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.topMargin: 44
-        anchors.rightMargin: 12
-        spacing: 8
+        anchors.rightMargin: root.spaceMd
+        spacing: root.spaceSm
 
         Repeater {
             model: notificationCenter.notifications
@@ -42,18 +42,18 @@ Item {
             delegate: Rectangle {
                 id: notifItem
                 width: 300
-                height: notifColumn.height + 20
-                radius: 12
-                color: "#0e1520"
-                border.color: "#1e2d45"
-                border.width: 1
+                height: notifColumn.height + root.spaceXl
+                radius: root.radiusLg
+                color: root.surfaceBase
+                border.color: root.borderSubtle
+                border.width: root.borderHairline
                 anchors.right: parent ? parent.right : undefined
                 opacity: 0.0
 
                 NumberAnimation on opacity {
                     from: 0.0
                     to: 1.0
-                    duration: 300
+                    duration: root.motionEntrance
                     easing.type: Easing.OutCubic
                     running: true
                 }
@@ -61,7 +61,7 @@ Item {
                 NumberAnimation on anchors.rightMargin {
                     from: -320
                     to: 0
-                    duration: 300
+                    duration: root.motionEntrance
                     easing.type: Easing.OutCubic
                     running: true
                 }
@@ -71,23 +71,23 @@ Item {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.top: parent.top
-                    anchors.margins: 12
-                    spacing: 4
+                    anchors.margins: root.spaceMd
+                    spacing: root.spaceXs
 
                     Row {
-                        spacing: 8
+                        spacing: root.spaceSm
                         width: parent.width
 
                         Text {
                             text: modelData.icon
-                            font.pixelSize: 16
+                            font.pixelSize: root.textLg
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
                         Text {
                             text: modelData.title
-                            color: "#ffffff"
-                            font.pixelSize: 13
+                            color: root.textPrimary
+                            font.pixelSize: root.textBody
                             font.bold: true
                             opacity: 0.95
                             anchors.verticalCenter: parent.verticalCenter
@@ -100,14 +100,14 @@ Item {
                             width: 20
                             height: 20
                             radius: 10
-                            color: closeMouse.containsMouse ? "#2a3a55" : "transparent"
+                            color: closeMouse.containsMouse ? root.surfaceStrongHover : "transparent"
                             anchors.verticalCenter: parent.verticalCenter
 
                             Text {
                                 anchors.centerIn: parent
                                 text: "✕"
-                                color: "#ffffff"
-                                font.pixelSize: 10
+                                color: root.textPrimary
+                                font.pixelSize: root.textTiny
                                 opacity: 0.6
                             }
 
@@ -122,8 +122,8 @@ Item {
 
                     Text {
                         text: modelData.message
-                        color: "#aaaaaa"
-                        font.pixelSize: 12
+                        color: root.textSecondary
+                        font.pixelSize: root.textSmall
                         width: parent.width
                         wrapMode: Text.WordWrap
                         opacity: 0.8

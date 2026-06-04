@@ -68,7 +68,7 @@ Item {
     Column {
         anchors.centerIn: parent
         anchors.verticalCenterOffset: 28
-        spacing: 28
+        spacing: root.spaceXl + root.spaceMd
 
         // Logo
         Image {
@@ -89,18 +89,18 @@ Item {
             Rectangle {
                 anchors.left: parent.left
                 anchors.right: enterBtn.left
-                anchors.rightMargin: 12
+                anchors.rightMargin: root.spaceMd
                 anchors.bottom: parent.bottom
-                height: 1
+                height: root.borderHairline
                 color: passwordInput.activeFocus ? root.themeAccent : "#ffffff"
                 opacity: passwordInput.activeFocus ? 0.75 : 0.24
 
                 Behavior on color {
-                    ColorAnimation { duration: 150 }
+                    ColorAnimation { duration: root.motionBase }
                 }
 
                 Behavior on opacity {
-                    NumberAnimation { duration: 150 }
+                    NumberAnimation { duration: root.motionBase }
                 }
             }
 
@@ -108,10 +108,11 @@ Item {
                 id: passwordInput
                 anchors.left: parent.left
                 anchors.right: enterBtn.left
-                anchors.rightMargin: 12
+                anchors.rightMargin: root.spaceMd
                 anchors.verticalCenter: parent.verticalCenter
-                color: "#ffffff"
-                font.pixelSize: 15
+                color: root.textPrimary
+                font.pixelSize: root.textUi
+                font.family: root.uiFont
                 echoMode: TextInput.Password
                 passwordCharacter: "\u25cf"
                 focus: true
@@ -124,8 +125,9 @@ Item {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.tr("Password")
-                color: "#ffffff"
-                font.pixelSize: 15
+                color: root.textPrimary
+                font.pixelSize: root.textUi
+                font.family: root.uiFont
                 opacity: 0.34
                 visible: passwordInput.text.length === 0
             }
@@ -141,12 +143,12 @@ Item {
                 Text {
                     anchors.centerIn: parent
                     text: "→"
-                    color: "#ffffff"
+                    color: root.textPrimary
                     font.pixelSize: 18
                     opacity: enterMouse.containsMouse ? 0.95 : 0.45
 
                     Behavior on opacity {
-                        NumberAnimation { duration: 150 }
+                        NumberAnimation { duration: root.motionBase }
                     }
                 }
 
@@ -165,12 +167,13 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             text: root.tr("Wrong password. Try again.")
             color: "#ff4d4d"
-            font.pixelSize: 12
+            font.pixelSize: root.textSmall
+            font.family: root.uiFont
             opacity: 0.0
             visible: opacity > 0
 
             Behavior on opacity {
-                NumberAnimation { duration: 200 }
+                NumberAnimation { duration: root.motionExpressive }
             }
         }
     }
@@ -181,8 +184,9 @@ Item {
         anchors.top: parent.top
         anchors.topMargin: 60
         text: Qt.formatDateTime(new Date(), "hh:mm")
-        color: "#ffffff"
+        color: root.textPrimary
         font.pixelSize: 64
+        font.family: root.uiFont
         font.letterSpacing: 4
         opacity: 0.9
 
@@ -200,8 +204,9 @@ Item {
         anchors.top: parent.top
         anchors.topMargin: 140
         text: Qt.formatDateTime(new Date(), "dddd, dd MMMM")
-        color: "#ffffff"
-        font.pixelSize: 16
+        color: root.textPrimary
+        font.pixelSize: root.textLg
+        font.family: root.uiFont
         font.letterSpacing: 2
         opacity: 0.5
     }
