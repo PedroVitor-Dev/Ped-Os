@@ -48,6 +48,28 @@ Item {
         }
     }
 
+    function runtimeReadyCount() {
+        var count = 0
+        if (appLauncher.isMangoHudInstalled())
+            count++
+        if (appLauncher.isGameModeRunInstalled())
+            count++
+        return count
+    }
+
+    function launcherReadyCount() {
+        var count = 0
+        if (appLauncher.isInstalled("steam") || appLauncher.isFlatpakInstalled("com.valvesoftware.Steam"))
+            count++
+        if (appLauncher.isInstalled("lutris") || appLauncher.isFlatpakInstalled("net.lutris.Lutris"))
+            count++
+        if (appLauncher.isInstalled("heroic") || appLauncher.isInstalled("heroicgameslauncher") || appLauncher.isFlatpakInstalled("com.heroicgameslauncher.hgl"))
+            count++
+        if (appLauncher.isInstalled("bottles") || appLauncher.isFlatpakInstalled("com.usebottles.bottles"))
+            count++
+        return count
+    }
+
     ParallelAnimation {
         id: showAnim
         NumberAnimation { target: settingsPanel; property: "opacity"; to: 1.0; duration: root.motionExpressive; easing.type: Easing.OutCubic }
@@ -163,8 +185,39 @@ Item {
             }
 
             Row {
+                id: dashboardRow
                 width: parent.width
-                height: parent.height - 72 - gameSettingsStateView.height
+                height: 76
+                spacing: root.panelGap
+
+                DashboardCard {
+                    width: Math.floor((parent.width - root.panelGap * 2) / 3)
+                    title: root.tr("Game Mode")
+                    value: gameMode.active ? root.tr("ON") : root.tr("OFF")
+                    detail: gameMode.active ? root.tr("Performance optimized for gaming.") : root.tr("Use normal system behavior")
+                    active: gameMode.active
+                }
+
+                DashboardCard {
+                    width: Math.floor((parent.width - root.panelGap * 2) / 3)
+                    title: root.tr("Stats Overlay")
+                    value: systemStats.visible ? root.tr("ON") : root.tr("OFF")
+                    detail: systemStats.visible ? root.tr("CPU, RAM, GPU and temperature visible") : root.tr("Overlay hidden")
+                    active: systemStats.visible
+                }
+
+                DashboardCard {
+                    width: parent.width - Math.floor((parent.width - root.panelGap * 2) / 3) * 2 - root.panelGap * 2
+                    title: root.tr("Runtime")
+                    value: settingsPanel.runtimeReadyCount() + "/2"
+                    detail: root.tr("Gaming Launchers") + ": " + settingsPanel.launcherReadyCount() + "/4"
+                    active: settingsPanel.runtimeReadyCount() === 2
+                }
+            }
+
+            Row {
+                width: parent.width
+                height: parent.height - 72 - gameSettingsStateView.height - dashboardRow.height - root.panelGap
                 spacing: root.panelGap
 
                 Column {
@@ -291,6 +344,53 @@ Item {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    component DashboardCard: Rectangle {
+        id: dashboardCard
+        property string title: ""
+        property string value: ""
+        property string detail: ""
+        property bool active: false
+
+        height: 76
+        radius: root.radiusLg
+        color: active ? "#14281f" : "#111a28"
+        border.color: active ? "#2d8f62" : "#223247"
+        border.width: 1
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 10
+            spacing: 3
+
+            Text {
+                text: dashboardCard.title
+                color: root.textMuted
+                font.pixelSize: root.textTiny
+                font.family: root.uiFont
+                font.bold: true
+                elide: Text.ElideRight
+                width: parent.width
+            }
+
+            Text {
+                text: dashboardCard.value
+                color: dashboardCard.active ? "#00ff88" : root.textPrimary
+                font.pixelSize: 20
+                font.family: root.uiFont
+                font.bold: true
+            }
+
+            Text {
+                text: dashboardCard.detail
+                color: root.textMuted
+                font.pixelSize: root.textTiny
+                font.family: root.uiFont
+                elide: Text.ElideRight
+                width: parent.width
             }
         }
     }

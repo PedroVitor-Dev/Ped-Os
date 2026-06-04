@@ -253,7 +253,11 @@ Window {
         "Setup error": "Erro no setup",
         "Setup partially unavailable": "Setup parcialmente indisponivel",
         "No setup steps pending": "Nenhuma etapa pendente",
-        "Your gaming essentials are ready.": "Seus essenciais de jogos estao prontos."
+        "Your gaming essentials are ready.": "Seus essenciais de jogos estao prontos.",
+        "ON": "LIGADO",
+        "OFF": "DESLIGADO",
+        "Stats Overlay": "Overlay de estatisticas",
+        "Gaming tools ready": "Ferramentas de jogos prontas"
     })
 
     function tr(text) {
