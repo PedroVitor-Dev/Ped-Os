@@ -10,6 +10,10 @@ UserSettings::UserSettings(QObject *parent)
         m_languageCode = "en";
     m_statsOverlayVisible = m_settings.value("appearance/statsOverlayVisible", false).toBool();
     m_firstSetupCompleted = m_settings.value("setup/firstSetupCompleted", false).toBool();
+    m_controlCenterSection = m_settings.value("controlCenter/section", "system").toString();
+    if (m_controlCenterSection != "system" && m_controlCenterSection != "appearance" &&
+        m_controlCenterSection != "language" && m_controlCenterSection != "about")
+        m_controlCenterSection = "system";
 }
 
 void UserSettings::setThemeIndex(int themeIndex)
@@ -58,4 +62,19 @@ void UserSettings::setFirstSetupCompleted(bool completed)
     m_firstSetupCompleted = completed;
     m_settings.setValue("setup/firstSetupCompleted", m_firstSetupCompleted);
     emit firstSetupCompletedChanged();
+}
+
+void UserSettings::setControlCenterSection(const QString &section)
+{
+    QString normalizedSection = section;
+    if (normalizedSection != "system" && normalizedSection != "appearance" &&
+        normalizedSection != "language" && normalizedSection != "about")
+        normalizedSection = "system";
+
+    if (m_controlCenterSection == normalizedSection)
+        return;
+
+    m_controlCenterSection = normalizedSection;
+    m_settings.setValue("controlCenter/section", m_controlCenterSection);
+    emit controlCenterSectionChanged();
 }

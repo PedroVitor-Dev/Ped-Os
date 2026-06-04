@@ -9,11 +9,13 @@ Item {
     property bool loading: false
     property string errorMessage: ""
     property string unavailableMessage: ""
+    property string activeSection: "system"
 
     function show() {
         hideAnim.stop()
         visible = true
         dockActive = true
+        activeSection = userSettings.controlCenterSection
         loading = false
         errorMessage = ""
         unavailableMessage = systemInfo.hasBattery ? "" : root.tr("Battery data is unavailable on this device.")
@@ -29,6 +31,11 @@ Item {
         showAnim.stop()
         dockActive = false
         hideAnim.start()
+    }
+
+    function setSection(section) {
+        activeSection = section
+        userSettings.controlCenterSection = section
     }
 
     ParallelAnimation {
@@ -150,154 +157,85 @@ Item {
                 height: parent.height - 74 - settingsStateView.height
                 spacing: root.panelGap
 
-                Column {
-                    width: Math.floor((parent.width - root.panelGap) / 2)
-                    spacing: 10
+                Rectangle {
+                    width: root.compactLayout ? 142 : 170
+                    height: parent.height
+                    radius: root.radiusLg
+                    color: "#101927"
+                    border.color: "#223247"
+                    border.width: 1
 
-                    SettingsSection {
-                        width: parent.width
-                        title: root.tr("Language")
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        spacing: 6
 
-                        SettingsOptionRow {
-                            width: parent.width
-                            label: root.tr("System language")
-                            value: root.languageCode === "pt-BR" ? "Português (Brasil)" : "English"
-                        }
-
-                        SettingsOptionRow {
-                            width: parent.width
-                            label: root.tr("Region")
-                            value: root.tr("Auto")
-                        }
-
-                        Row {
-                            width: parent.width
-                            spacing: 8
-
-                            LanguageButton {
-                                label: "English"
-                                active: root.languageCode === "en"
-                                onClicked: root.setLanguage("en")
-                            }
-
-                            LanguageButton {
-                                label: "Português"
-                                active: root.languageCode === "pt-BR"
-                                onClicked: root.setLanguage("pt-BR")
-                            }
-                        }
-                    }
-
-                    SettingsSection {
-                        width: parent.width
-                        title: root.tr("Appearance")
-
-                        SettingsOptionRow {
-                            width: parent.width
-                            label: root.tr("Theme")
-                            value: root.themeName
-                        }
-
-                        Row {
-                            width: parent.width
-                            spacing: 8
-
-                            ThemeButton {
-                                label: "Neon"
-                                swatch: "#4d9eff"
-                                active: root.themeIndex === 0
-                                onClicked: root.applyTheme(0, true)
-                            }
-
-                            ThemeButton {
-                                label: "Violet"
-                                swatch: "#b86cff"
-                                active: root.themeIndex === 1
-                                onClicked: root.applyTheme(1, true)
-                            }
-
-                            ThemeButton {
-                                label: "Toxic"
-                                swatch: "#00ff88"
-                                active: root.themeIndex === 2
-                                onClicked: root.applyTheme(2, true)
-                            }
-
-                            ThemeButton {
-                                label: "Ember"
-                                swatch: "#ff6a2a"
-                                active: root.themeIndex === 3
-                                onClicked: root.applyTheme(3, true)
-                            }
-                        }
-
-                        SettingsOptionRow {
-                            width: parent.width
-                            label: root.tr("Font")
-                            value: root.uiFont
-                        }
-
-                        SettingsToggle {
-                            width: parent.width
-                            label: root.tr("uNexus Stats Overlay")
-                            detail: systemStats.visible ? root.tr("Visible on desktop") : root.tr("Hidden")
-                            checked: systemStats.visible
-                            onClicked: systemStats.visible = !systemStats.visible
-                        }
+                        ControlNavButton { width: parent.width; label: root.tr("System"); value: "system"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
+                        ControlNavButton { width: parent.width; label: root.tr("Appearance"); value: "appearance"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
+                        ControlNavButton { width: parent.width; label: root.tr("Language"); value: "language"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
+                        ControlNavButton { width: parent.width; label: root.tr("About"); value: "about"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                     }
                 }
 
                 Column {
-                    width: Math.floor((parent.width - root.panelGap) / 2)
+                    width: parent.width - (root.compactLayout ? 142 : 170) - root.panelGap
+                    height: parent.height
                     spacing: 10
 
                     SettingsSection {
                         width: parent.width
+                        collapsed: settingsPanel.activeSection !== "system"
                         title: root.tr("System")
 
-                        SettingsOptionRow {
+                        SettingsOptionRow { width: parent.width; label: root.tr("Network"); value: systemInfo.networkConnected ? root.tr("Online") : root.tr("Offline") }
+                        SettingsOptionRow { width: parent.width; label: root.tr("Battery"); value: systemInfo.hasBattery ? systemInfo.batteryLevel + "%" : root.tr("Not available") }
+                        SettingsToggle { width: parent.width; label: root.tr("uNexus Stats Overlay"); detail: systemStats.visible ? root.tr("Visible on desktop") : root.tr("Hidden"); checked: systemStats.visible; onClicked: systemStats.visible = !systemStats.visible }
+                        SettingsActionButton { width: parent.width; label: root.tr("Open First Setup"); onClicked: firstSetup.show() }
+                    }
+
+                    SettingsSection {
+                        width: parent.width
+                        collapsed: settingsPanel.activeSection !== "appearance"
+                        title: root.tr("Appearance")
+
+                        SettingsOptionRow { width: parent.width; label: root.tr("Theme"); value: root.themeName }
+
+                        Row {
                             width: parent.width
-                            label: root.tr("Network")
-                            value: systemInfo.networkConnected ? root.tr("Online") : root.tr("Offline")
+                            spacing: 8
+                            ThemeButton { label: "Neon"; swatch: "#4d9eff"; active: root.themeIndex === 0; onClicked: root.applyTheme(0, true) }
+                            ThemeButton { label: "Violet"; swatch: "#b86cff"; active: root.themeIndex === 1; onClicked: root.applyTheme(1, true) }
+                            ThemeButton { label: "Toxic"; swatch: "#00ff88"; active: root.themeIndex === 2; onClicked: root.applyTheme(2, true) }
+                            ThemeButton { label: "Ember"; swatch: "#ff6a2a"; active: root.themeIndex === 3; onClicked: root.applyTheme(3, true) }
                         }
 
-                        SettingsOptionRow {
-                            width: parent.width
-                            label: root.tr("Battery")
-                            value: systemInfo.hasBattery ? systemInfo.batteryLevel + "%" : root.tr("Not available")
-                        }
-                        Rectangle {
-                            width: parent.width
-                            height: 34
-                            radius: 7
-                            color: setupMouse.containsMouse ? "#254160" : "#172233"
-                            border.color: root.themeAccent
-                            border.width: 1
+                        SettingsOptionRow { width: parent.width; label: root.tr("Font"); value: root.uiFont }
+                    }
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: root.tr("Open First Setup")
-                                color: "#b7ddff"
-                                font.pixelSize: 12
-                                font.family: root.uiFont
-                            }
+                    SettingsSection {
+                        width: parent.width
+                        collapsed: settingsPanel.activeSection !== "language"
+                        title: root.tr("Language")
 
-                            MouseArea {
-                                id: setupMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onClicked: firstSetup.show()
-                            }
+                        SettingsOptionRow { width: parent.width; label: root.tr("System language"); value: root.languageCode === "pt-BR" ? "Portuguese (Brasil)" : "English" }
+                        SettingsOptionRow { width: parent.width; label: root.tr("Region"); value: root.tr("Auto") }
+
+                        Row {
+                            width: parent.width
+                            spacing: 8
+                            LanguageButton { label: "English"; active: root.languageCode === "en"; onClicked: root.setLanguage("en") }
+                            LanguageButton { label: "Portugues"; active: root.languageCode === "pt-BR"; onClicked: root.setLanguage("pt-BR") }
                         }
                     }
 
                     SettingsSection {
                         width: parent.width
+                        collapsed: settingsPanel.activeSection !== "about"
                         title: root.tr("About")
 
                         Rectangle {
                             width: parent.width
-                            height: 70
+                            height: 86
                             radius: 8
                             color: "#172233"
                             border.color: "#223247"
@@ -312,48 +250,15 @@ Item {
                             }
                         }
 
-                        SettingsOptionRow {
+                        SettingsOptionRow { width: parent.width; label: root.tr("Name"); value: "uNexus" }
+                        SettingsOptionRow { width: parent.width; label: root.tr("Shell"); value: "unexus-shell 0.1.0" }
+                        SettingsOptionRow { width: parent.width; label: root.tr("License"); value: "GPL-3.0" }
+                        SettingsActionButton {
                             width: parent.width
-                            label: root.tr("Name")
-                            value: "uNexus"
-                        }
-
-                        SettingsOptionRow {
-                            width: parent.width
-                            label: root.tr("Shell")
-                            value: "unexus-shell 0.1.0"
-                        }
-
-                        SettingsOptionRow {
-                            width: parent.width
-                            label: root.tr("License")
-                            value: "GPL-3.0"
-                        }
-
-                        Rectangle {
-                            width: parent.width
-                            height: 34
-                            radius: 7
-                            color: repoMouse.containsMouse ? "#254160" : "#172233"
-                            border.color: root.themeAccent
-                            border.width: 1
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: root.tr("Copy repository URL")
-                                color: "#b7ddff"
-                                font.pixelSize: 12
-                                font.family: root.uiFont
-                            }
-
-                            MouseArea {
-                                id: repoMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onClicked: {
-                                    appLauncher.copyToClipboard("https://github.com/PedroVitor-Dev/uNexus")
-                                    notifCenter.send(root.tr("Repository copied"), root.tr("uNexus repository URL copied."), "INFO")
-                                }
+                            label: root.tr("Copy repository URL")
+                            onClicked: {
+                                appLauncher.copyToClipboard("https://github.com/PedroVitor-Dev/uNexus")
+                                notifCenter.send(root.tr("Repository copied"), root.tr("uNexus repository URL copied."), "INFO")
                             }
                         }
                     }
@@ -362,12 +267,77 @@ Item {
         }
     }
 
+    component ControlNavButton: Rectangle {
+        id: navButton
+        property string label: ""
+        property string value: ""
+        property bool active: false
+        signal clicked()
+
+        height: 38
+        radius: root.radiusMd
+        color: active ? "#1e2d45" : (navMouse.containsMouse ? "#172233" : "transparent")
+        border.color: active ? root.themeAccent : "transparent"
+        border.width: active ? 1 : 0
+
+        Text {
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            text: navButton.label
+            color: navButton.active ? root.textPrimary : root.textMuted
+            font.pixelSize: root.textSmall
+            font.family: root.uiFont
+            font.bold: navButton.active
+            elide: Text.ElideRight
+        }
+
+        MouseArea {
+            id: navMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: navButton.clicked()
+        }
+    }
+
+    component SettingsActionButton: Rectangle {
+        id: actionButton
+        property string label: ""
+        signal clicked()
+
+        height: 34
+        radius: 7
+        color: actionMouse.containsMouse ? "#254160" : "#172233"
+        border.color: root.themeAccent
+        border.width: 1
+
+        Text {
+            anchors.centerIn: parent
+            text: actionButton.label
+            color: "#b7ddff"
+            font.pixelSize: 12
+            font.family: root.uiFont
+            font.bold: true
+        }
+
+        MouseArea {
+            id: actionMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: actionButton.clicked()
+        }
+    }
+
     component SettingsSection: Rectangle {
         id: section
         default property alias content: contentColumn.data
         property string title: ""
+        property bool collapsed: false
 
-        height: contentColumn.height + 22
+        visible: !collapsed
+        height: collapsed ? 0 : contentColumn.height + 22
         radius: 10
         color: "#111a28"
         border.color: "#223247"
