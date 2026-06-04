@@ -9,6 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- `unexus-session` install flow with generated Hyprland session config.
+- `uNexus Recovery` Wayland session for terminal-only recovery.
+- `unexus-doctor` install validation command.
+- `unexusctl` with `init`, `paths`, `doctor`, `session-info`, `logs`, `backup`, `rollback`, `update` and `version`.
+- Persistent XDG state, cache, data, config and log directories under the user's home.
+- Session, install, doctor and update log paths under `~/.local/state/unexus/logs`.
+- Arch `PKGBUILD` and package helper script.
+- Panel state views for empty, loading, error and unavailable states.
+- Reusable `StatusChip`, `ControlButton` and `SegmentedControl` QML controls.
+- OS Provisioning checklist inside `Settings > System`.
+- Recovery and update/rollback workflow documentation through CLI output.
 - Official uNexus logo PNG variants under `assets/logo`.
 - Official logo usage on the desktop, login screen, First Setup, Settings About and README.
 - Qt resource registration for the current logo asset.
@@ -17,8 +28,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - System and gaming side dock app states for open, minimized/hidden and closed apps.
 - PT-BR interface localization with English/PT-BR language selection in uNexus Settings.
 - Persistent language preference through `QSettings`.
+- Persistent Settings control center section through `QSettings`.
 
 ### Changed
+- Lock screen now uses a larger centered white logo without the old rounded logo card.
+- Settings was redesigned as a control center with section navigation.
+- Game Settings now has a compact gaming dashboard summary.
+- Launcher, Settings, Game Settings, First Setup and Files panels use faster consistent transitions.
+- Panels now respond better to compact laptop and desktop resolutions.
+- Dock icons now use real icon lookup with drawn fallbacks instead of text initials.
+- Gaming dock now follows the active theme accent instead of a fixed orange accent.
+- First Setup header no longer shows the small logo badge.
+- System commands that close apps, finish setup or trash files now use confirmation states.
+- `scripts/setup.sh` now logs install steps and runs validation after install.
+- `unexus-session` writes persistent session logs and falls back to a terminal if the shell fails.
 - README now uses the official logo instead of old screenshots/demo media.
 - uNexus Files panel title is now `File Manager` / `Gerenciador de Arquivos`.
 - uNexus Files folder rows now use a simpler folder visual and type label instead of oversized `DIR` text.
@@ -28,8 +51,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 - Old tracked screenshots and demo GIFs with previous branding.
+- First Setup dock item from the system dock.
 
 ### Planned
+- `unexusctl provision` profiles with dry-run support
 - GPU driver manager
 - Controller support out of the box
 - Per-game performance profiles

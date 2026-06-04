@@ -10,6 +10,14 @@ uNexus is a Linux gaming desktop shell built on top of Wayland and Hyprland.
 
 The current prototype is `unexus-shell`, a Qt6/QML application with C++ backends for system information, app launching, window control, Game Mode, stats and persistent user settings.
 
+Around the shell there is now a small OS support layer:
+
+- installable Wayland session entries;
+- a recovery Hyprland session;
+- `unexus-doctor` for validation;
+- `unexusctl` for state, logs, backup, rollback and update workflows;
+- XDG user directories for config, data, cache, state and logs.
+
 ---
 
 ## Layer Stack
@@ -26,6 +34,9 @@ The current prototype is `unexus-shell`, a Qt6/QML application with C++ backends
 +--------------------------------------+
 | C++ integration layer                |
 | SystemInfo, AppLauncher, Stats       |
++--------------------------------------+
+| uNexus OS control scripts            |
+| unexusctl, doctor, session launchers |
 +--------------------------------------+
 | Hyprland / Wayland                   |
 +--------------------------------------+
@@ -72,13 +83,19 @@ The QML layer calls these objects directly from `Main.qml`, `Launcher.qml`, `Set
 - stats overlay;
 - uNexus Settings;
 - Game Settings;
-- First Setup.
+- First Setup;
 - uNexus Files;
 - shared brand logo resource.
 
 The current dock is composed from `SideDock.qml` and `DockButton.qml`, with `Main.qml` owning app metadata and high-level actions.
 
-Dock state is a mix of external app state from `AppLauncher` and internal panel state from `Main.qml`. Internal apps such as uNexus Files, uNexus Settings, Game Settings and First Setup report `active` only while their panel is open, so the dock can return to a closed visual state after the panel closes. Dock buttons also expose a minimized/hidden visual state for external windows when the compositor reports them that way.
+Dock state is a mix of external app state from `AppLauncher` and internal panel state from `Main.qml`. Internal apps such as uNexus Files, uNexus Settings and Game Settings report `active` only while their panel is open, so the dock can return to a closed visual state after the panel closes. Dock buttons also expose a minimized/hidden visual state for external windows when the compositor reports them that way.
+
+Dock icon behavior:
+
+- real app icons are resolved through `AppLauncher::findIcon`;
+- if the current icon theme does not provide an app icon, `DockButton.qml` draws a compact line-art fallback;
+- both system and gaming docks use the active theme accent.
 
 ---
 
@@ -89,7 +106,7 @@ Official uNexus logo PNG variants live in `assets/logo`.
 `Main.qml` exposes a shared `brandLogoSource` property pointing at:
 
 ```qml
-qrc:/UNexusShell/assets/logo/4.png
+qrc:/UNexusShell/assets/logo/SF%20White.png
 ```
 
 `packages/unexus-shell/CMakeLists.txt` registers that logo through Qt resources so QML can load it at runtime without depending on an absolute filesystem path.
@@ -98,9 +115,10 @@ The current logo is used on:
 
 - desktop center mark;
 - login screen;
-- First Setup badge;
 - Settings About section;
 - README hero.
+
+The First Setup header intentionally no longer includes a small logo badge; the panel is kept text-first and minimal.
 
 Old screenshot/demo assets with previous branding were removed from tracked media.
 
@@ -198,9 +216,86 @@ Current settings:
 - selected theme index;
 - selected interface language (`en` or `pt-BR`);
 - stats overlay visibility;
-- first setup completion state.
+- first setup completion state;
+- active Settings control center section.
 
 These values are restored when `unexus-shell` starts.
+
+## OS Session and Control Layer
+
+The installed OS-facing layer is intentionally simple and shell-script based for now.
+
+| File | Purpose |
+|---|---|
+| `packaging/linux/unexus-session` | Normal Hyprland session wrapper that starts `unexus-shell` and logs failures |
+| `packaging/linux/unexus-recovery-session` | Terminal-only Hyprland recovery session |
+| `packaging/linux/unexus.desktop` | Display manager session entry |
+| `packaging/linux/unexus-recovery.desktop` | Display manager recovery session entry |
+| `scripts/unexus-doctor.sh` | Install and dependency validator |
+| `scripts/unexusctl.sh` | User control command for state, diagnostics, logs, backup, rollback and update |
+
+The normal session generates a Hyprland config in:
+
+```text
+${XDG_RUNTIME_DIR:-/tmp}/unexus/hyprland.conf
+```
+
+Persistent logs live in:
+
+```text
+~/.local/state/unexus/logs/
+```
+
+The recovery session starts Hyprland with only a terminal and basic keybinds, giving a safe path back into the system if the shell breaks.
+
+## uNexus Control CLI
+
+`unexusctl` is the command-line control surface for the OS layer.
+
+Current commands:
+
+| Command | Purpose |
+|---|---|
+| `unexusctl init` | Create XDG config/data/cache/state/log directories |
+| `unexusctl paths` | Print all uNexus state and log paths |
+| `unexusctl doctor` | Run `unexus-doctor` and save `doctor.log` |
+| `unexusctl session-info` | Show session, runtime and binary paths |
+| `unexusctl reset-settings` | Move shell settings aside safely |
+| `unexusctl logs` | Print log locations |
+| `unexusctl backup` | Snapshot user config controlled by uNexus |
+| `unexusctl rollback [backup]` | Restore a uNexus-created config backup |
+| `unexusctl update --yes` | Pull, build and install from the Git repository |
+| `unexusctl version` | Show repo, branch, commit and shell binary status |
+
+The next architectural step is to add `unexusctl provision` so Settings can apply named provisioning profiles instead of copying individual commands.
+
+## Settings Control Center and OS Provisioning
+
+`SettingsPanel.qml` now uses section navigation with persisted active section:
+
+- System;
+- Appearance;
+- Language;
+- About.
+
+The System section includes an OS Provisioning checklist. It detects available tools through `AppLauncher::isInstalled` and copies command recipes for:
+
+- global dark mode;
+- Hyprland keyboard workflow;
+- minimal metrics/status;
+- Kitty/Alacritty;
+- Zsh/Fish;
+- Starship;
+- Git SSH + GitHub CLI;
+- Python venv + SQL clients;
+- Neovim/VSCode;
+- dotfiles repository;
+- post-install restore;
+- package cleanup;
+- btop/htop;
+- power and network tools.
+
+For safety, this panel currently copies commands instead of executing privileged system changes directly.
 
 ## Localization
 
@@ -260,6 +355,8 @@ It shows install status and copies install commands for the user to run.
 | `unexus-settings` | Implemented as `SettingsPanel.qml` and `GameSettingsPanel.qml` |
 | `unexus-store` | Planned |
 | `unexus-files` | MVP embedded as `FilesPanel.qml` backed by `FileManager` |
+| `unexusctl` | Implemented as the current OS control CLI |
+| `unexus-recovery-session` | Implemented as the safe session fallback |
 
 ---
 
@@ -280,8 +377,10 @@ Future versions may add D-Bus or direct compositor protocols where needed.
 
 Near-term architecture work:
 
+- add `unexusctl provision` with manifest-driven profiles and dry-run;
+- connect Settings provisioning rows to safe backend actions;
+- add systemd user service definitions for session health and startup tasks;
 - move repeated app metadata into a model or config file;
-- package `unexus-shell` for Arch;
 - start an `archiso` profile;
 - eventually replace ad hoc command wrappers with stronger service APIs.
 

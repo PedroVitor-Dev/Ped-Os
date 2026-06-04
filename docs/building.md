@@ -26,7 +26,7 @@ Windows is currently used only as a coding/editing environment in this workflow.
 Install core dependencies:
 
 ```bash
-sudo pacman -S git cmake qt6-base qt6-declarative base-devel wget noto-fonts-emoji
+sudo pacman -S git cmake qt6-base qt6-declarative qt6-wayland base-devel wget noto-fonts-emoji hyprland
 ```
 
 Install gaming and diagnostics dependencies:
@@ -39,6 +39,12 @@ Optional test utilities:
 
 ```bash
 sudo pacman -S mesa-utils
+```
+
+Optional OS provisioning tools shown in `Settings > System`:
+
+```bash
+sudo pacman -S kitty alacritty zsh fish zsh-syntax-highlighting zsh-autosuggestions starship github-cli openssh python python-pip python-virtualenv sqlite postgresql-libs neovim code btop htop power-profiles-daemon tlp networkmanager
 ```
 
 Enable Flathub for Flatpak gaming apps:
@@ -61,9 +67,44 @@ fc-cache -fv
 ## Clone the Repository
 
 ```bash
-git clone https://github.com/PedroVitor-Dev/uNexus.git
-cd uNexus
+git clone https://github.com/PedroVitor-Dev/uNexus-OS.git
+cd uNexus-OS
 ```
+
+---
+
+## Install the Shell Session
+
+The preferred local install path is:
+
+```bash
+sudo sh scripts/setup.sh
+```
+
+This script:
+
+- configures and builds `unexus-shell`;
+- installs the shell binary;
+- installs `uNexus` and `uNexus Recovery` Wayland sessions;
+- installs `unexusctl` and `unexus-doctor`;
+- initializes user XDG state directories;
+- writes an install log;
+- validates the install.
+
+After install:
+
+```bash
+unexusctl doctor
+unexusctl paths
+unexusctl session-info
+```
+
+Display managers should show:
+
+- `uNexus`;
+- `uNexus Recovery`.
+
+Use `uNexus Recovery` when the normal shell fails and you need terminal access.
 
 ---
 
@@ -89,10 +130,24 @@ Default password: `1234` or blank.
 
 ## Rebuild After Updates
 
-Use a clean rebuild after C++ or CMake changes:
+For installed systems, use:
 
 ```bash
-cd ~/uNexus/packages/unexus-shell
+cd ~/uNexus-OS
+git pull
+sudo sh scripts/setup.sh
+```
+
+After `unexusctl` is installed, this can also be done with:
+
+```bash
+unexusctl update --yes
+```
+
+For a manual clean rebuild after C++ or CMake changes:
+
+```bash
+cd ~/uNexus-OS/packages/unexus-shell
 rm -rf build
 cmake -B build
 cmake --build build
@@ -103,12 +158,14 @@ cmake --build build
 
 ## Hyprland Auto-start
 
-Add an `exec-once` line to your Hyprland config.
+The installed session wrapper is preferred.
+
+Manual development testing can still use an `exec-once` line in your Hyprland config.
 
 Example:
 
 ```ini
-exec-once = /home/<user>/uNexus/packages/unexus-shell/build/unexus-shell
+exec-once = /home/<user>/uNexus-OS/packages/unexus-shell/build/unexus-shell
 ```
 
 The shell currently relies on Hyprland for the best window-management behavior.
@@ -183,6 +240,47 @@ Some features may not behave the same on GNOME Wayland:
 ---
 
 ## Troubleshooting
+
+**Validate an installed system**
+
+```bash
+unexusctl doctor
+```
+
+`flatpak not found` can be a warning if Flatpak gaming app support is not required yet.
+
+**Find logs**
+
+```bash
+unexusctl logs
+```
+
+Current logs:
+
+- `~/.local/state/unexus/logs/session.log`;
+- `~/.local/state/unexus/logs/install.log`;
+- `~/.local/state/unexus/logs/doctor.log`;
+- `~/.local/state/unexus/logs/update.log`.
+
+**Recover from a broken shell**
+
+Pick `uNexus Recovery` in the display manager. It starts Hyprland with a terminal only.
+
+**Reset settings**
+
+```bash
+unexusctl reset-settings
+```
+
+This moves known uNexus settings aside instead of deleting them.
+
+**Rollback user config**
+
+```bash
+unexusctl rollback
+```
+
+Rollback restores the latest backup created by `unexusctl backup` or `unexusctl update --yes`.
 
 **CMake cannot find Qt6**
 

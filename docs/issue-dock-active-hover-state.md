@@ -1,4 +1,12 @@
-# Dock icon keeps active background after internal panel closes
+# Resolved: Dock icon kept active background after internal panel closed
+
+## Status
+
+Resolved in the current shell.
+
+Internal panel dock state is now driven by each panel's `dockActive` property and `Main.qml` increments state versions on `dockActiveChanged`. Internal apps no longer fall back to process/window detection, so panels return to the closed visual state when they close.
+
+This file is kept as historical debugging context.
 
 ## Summary
 

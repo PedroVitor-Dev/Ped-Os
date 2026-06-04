@@ -34,6 +34,31 @@ Open an issue with the `enhancement` label and describe:
 4. Push: `git push origin feat/your-feature`
 5. Open a Pull Request
 
+### Local Validation
+
+For shell/UI changes on the target Arch + Hyprland machine:
+
+```bash
+sudo sh scripts/setup.sh
+unexusctl doctor
+```
+
+Useful follow-up checks:
+
+```bash
+unexusctl session-info
+unexusctl logs
+unexusctl version
+```
+
+For risky settings/config work, create a backup first:
+
+```bash
+unexusctl backup
+```
+
+If the normal shell session fails, use the `uNexus Recovery` session from the display manager.
+
 ---
 
 ## Commit Convention

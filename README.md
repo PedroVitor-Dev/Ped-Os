@@ -28,19 +28,23 @@ uNexus Shell is currently running natively on **Arch Linux + Hyprland** on real 
 The current prototype manages:
 
 - desktop wallpaper and top bar;
-- login screen;
+- fullscreen login screen;
 - system and gaming side docks;
-- app launcher with search and install status;
+- themed system and gaming side docks with real icon lookup and drawn icon fallbacks;
+- app launcher with search, categories and installed/running/missing status chips;
 - uNexus Files file manager MVP;
 - right-click desktop context menu;
 - notifications;
-- uNexus Settings and Game Settings panels;
+- uNexus Settings control center with OS Provisioning checklist;
+- Game Settings dashboard;
 - first-run setup checklist;
 - PT-BR / English interface language selection;
 - CPU/GPU/RAM stats overlay;
-- real app launch/focus/close through C++ and `hyprctl`.
+- real app launch/focus/close through C++ and `hyprctl`;
+- installable Hyprland session and recovery session;
+- `unexusctl` for doctor, logs, backup, rollback, update and state management.
 
-The shell can auto-start from `hyprland.conf` through `exec-once`.
+The shell can be installed as a Wayland session through `scripts/setup.sh`.
 
 ---
 
@@ -67,6 +71,8 @@ The shell can auto-start from `hyprland.conf` through `exec-once`.
 | Missing GPU metrics shown as N/A | Done |
 | System side dock | Done |
 | Gaming side dock | Done |
+| Theme-synced dock accents | Done |
+| Dock icon lookup and drawn fallbacks | Done |
 | Dock hover, tooltip, bounce and active indicator | Done |
 | Dock open, minimized and closed app states | Done |
 | Real app launch through C++ | Done |
@@ -79,14 +85,21 @@ The shell can auto-start from `hyprland.conf` through `exec-once`.
 | Flatpak fallback for gaming apps | Done |
 | MangoHud/GameMode launch path for gaming apps | Done |
 | uNexus Settings panel | Done |
+| Settings control center sections with persistent active section | Done |
+| Settings OS Provisioning checklist | Done |
 | Game Settings panel | Done |
+| Game Settings dashboard summary | Done |
 | First Setup panel | Done |
 | uNexus Files file manager MVP | Done |
 | PT-BR / English language selection in Settings | Done |
 | Persistent user settings through `QSettings` | Done |
 | Notification system | Done |
 | Desktop context menu | Done |
-| Auto-start through Hyprland config | Done |
+| Installable uNexus Hyprland session | Done |
+| uNexus Recovery session | Done |
+| `unexus-doctor` install validation | Done |
+| `unexusctl` state, logs, backup, rollback and update controls | Done |
+| Arch PKGBUILD | Done |
 | GPU driver manager | Planned |
 | Per-game performance profiles | Planned |
 | Bootable ISO | Planned |
@@ -118,9 +131,11 @@ The shell can auto-start from `hyprland.conf` through `exec-once`.
 | `packages/unexus-shell/src` | C++ system integration backends |
 | `packages/unexus-shell/include` | C++ headers exposed to Qt/QML |
 | `packages/unexus-shell/qml` | Shell UI, docks, launcher, settings and overlays |
+| `packaging/linux` | Desktop entries, Wayland sessions and session launchers |
+| `packaging/arch` | Arch Linux PKGBUILD |
 | `docs` | Architecture, build guide, roadmap and contribution docs |
 | `assets` | Visual and media assets |
-| `scripts` | Project helper scripts |
+| `scripts` | Build, install, package, uninstall, doctor and control scripts |
 
 ---
 
@@ -134,10 +149,12 @@ The shell can auto-start from `hyprland.conf` through `exec-once`.
 | Notifications | `qml/NotificationCenter.qml` | Toast notifications |
 | Desktop menu | `qml/ContextMenu.qml` | Right-click desktop actions |
 | Stats overlay | `qml/FpsOverlay.qml`, `systemstats.cpp` | CPU, GPU, RAM and temperature overlay |
-| uNexus Settings | `qml/SettingsPanel.qml`, `usersettings.cpp` | Appearance and shell preferences |
-| Game Settings | `qml/GameSettingsPanel.qml` | MangoHud, GameMode and gaming launchers |
+| uNexus Settings | `qml/SettingsPanel.qml`, `usersettings.cpp` | Control center sections, OS provisioning, appearance and shell preferences |
+| Game Settings | `qml/GameSettingsPanel.qml` | Dashboard, MangoHud, GameMode and gaming launchers |
 | First Setup | `qml/FirstSetupPanel.qml` | First-run checklist and install commands |
 | uNexus Files | `qml/FilesPanel.qml`, `filemanager.cpp` | Local file navigation, open, create folder, rename and trash |
+| Session control | `packaging/linux/unexus-session`, `unexus-recovery-session` | Normal and recovery Hyprland sessions |
+| CLI control | `scripts/unexusctl.sh`, `scripts/unexus-doctor.sh` | State management, diagnostics, update, rollback and logs |
 | System info | `systeminfo.cpp` | Battery and network data |
 | App launcher | `applauncher.cpp` | Launch, focus, close, Flatpak and MangoHud helpers |
 | Game Mode | `gamemode.cpp` | Game Mode state and integration |
@@ -149,13 +166,16 @@ The shell can auto-start from `hyprland.conf` through `exec-once`.
 
 See [docs/building.md](docs/building.md).
 
-Quick Arch setup:
+Quick Arch install from the repository:
 
 ```bash
-sudo pacman -S git cmake qt6-base qt6-declarative base-devel wget noto-fonts-emoji gamemode lib32-gamemode mangohud lib32-mangohud flatpak vulkan-tools
+cd ~/uNexus-OS
+git pull
+sudo sh scripts/setup.sh
+unexusctl doctor
 ```
 
-Build:
+Manual build:
 
 ```bash
 cd packages/unexus-shell
@@ -174,11 +194,10 @@ See [docs/roadmap.md](docs/roadmap.md).
 
 Current near-term focus:
 
-- refine GPU stats on more hardware;
-- validate MangoHud with real games;
-- improve uNexus Settings and localization coverage;
+- turn OS Provisioning from copied commands into `unexusctl provision` profiles;
+- connect maintenance actions in Settings to safe backend commands;
+- add systemd user services and startup health checks;
 - continue evolving uNexus Files into a richer file manager;
-- prepare Arch packaging;
 - start the bootable ISO path with `archiso`.
 
 ---

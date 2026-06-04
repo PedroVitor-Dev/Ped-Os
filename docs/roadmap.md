@@ -40,13 +40,19 @@ uNexus currently has a working Qt6/QML shell running on Arch Linux + Hyprland re
 - [x] uNexus Files MVP
 - [x] English/PT-BR language selection
 - [x] Persistent user settings through `QSettings`
-- [x] Auto-start through Hyprland `exec-once`
-- [x] Project docs updated for the current shell state`r`n- [x] Official logo assets tracked and used in core shell surfaces
+- [x] Installable uNexus Hyprland session
+- [x] uNexus Recovery session
+- [x] `unexus-doctor` install validation
+- [x] `unexusctl` state, logs, backup, rollback and update controls
+- [x] OS Provisioning checklist in Settings
+- [x] Project docs updated for the current shell state
+- [x] Official logo assets tracked and used in core shell surfaces
 
 ### Known Gaps
 
 - [x] Official logo assets are now tracked and used in the shell
-- [ ] No proper packaged install flow yet
+- [x] Basic packaged install flow exists through CMake install target and `scripts/setup.sh`
+- [x] Arch `PKGBUILD` exists
 - [ ] No bootable ISO yet
 - [ ] No real installer yet
 - [ ] No dedicated app/library data model yet
@@ -64,14 +70,14 @@ Goal: make the current shell feel intentional, original and pleasant enough to u
 ### Visual and UX
 
 - [x] Add official uNexus logo assets and integrate them into shell surfaces
-- [ ] Define the core visual language: spacing, shadows, borders, motion and typography
+- [x] Define the core visual language: spacing, shadows, borders, motion and typography
 - [ ] Create the first official wallpaper set
-- [ ] Replace temporary text/icon fallbacks with consistent visual app icons
+- [x] Replace temporary text/icon fallbacks with consistent visual app icons
 - [x] Polish the side docks so system and gaming areas feel distinct but related
-- [ ] Refine panel transitions for Launcher, Settings, Game Settings and First Setup
-- [ ] Add empty, loading, error and unavailable states to every panel
-- [ ] Make the shell look good at common laptop and desktop resolutions
-- [ ] Add subtle motion rules so animations feel fast, not decorative
+- [x] Refine panel transitions for Launcher, Settings, Game Settings and First Setup
+- [x] Add empty, loading, error and unavailable states to every panel
+- [x] Make the shell look good at common laptop and desktop resolutions
+- [x] Add subtle motion rules so animations feel fast, not decorative
 
 ### Features
 
@@ -81,7 +87,7 @@ Goal: make the current shell feel intentional, original and pleasant enough to u
 - [x] Keep Close behavior available from the dock action menu
 - [x] Add uNexus Files MVP with local directory navigation
 - [x] Add PT-BR interface localization selectable from uNexus Settings
-- [ ] Add keyboard shortcuts for Launcher, Settings, Game Settings and stats overlay
+- [x] Add keyboard shortcuts for Launcher, Settings, Game Settings and stats overlay
 - [ ] Add a visible shortcut help panel inside uNexus Settings
 - [ ] Add quick toggles for stats overlay, Game Mode and theme
 - [ ] Add notification actions where useful instead of passive messages only
@@ -93,10 +99,11 @@ Goal: make the current shell feel intentional, original and pleasant enough to u
 
 - [x] Shell runs on Arch + Hyprland real hardware
 - [x] Shell can auto-start through Hyprland config
-- [ ] Create a clean `.desktop` entry for `unexus-shell`
-- [ ] Create a dedicated Hyprland session file for uNexus Shell
+- [x] Create a clean `.desktop` entry for `unexus-shell`
+- [x] Create a dedicated Hyprland session file for uNexus Shell
+- [x] Create a recovery session for safe terminal access
 - [ ] Document exact Hyprland config needed for daily testing
-- [ ] Add a simple health check screen for missing dependencies
+- [x] Add a simple health check command for missing dependencies
 - [ ] Keep all runtime assumptions documented in `docs/building.md`
 
 ### Exit Criteria
@@ -117,11 +124,11 @@ Goal: make uNexus Settings and Game Settings useful, not just informational.
 - [x] uNexus Settings panel exists
 - [x] Game Settings panel exists
 - [x] First Setup panel exists
-- [ ] Redesign Settings as a real control center with sections and persistent state
-- [ ] Give Game Settings a gaming-dashboard feel without becoming noisy
-- [ ] Add clear installed, missing, running and needs-restart states
-- [ ] Add confirmation states for commands that affect the system
-- [ ] Use consistent controls: toggles, segmented controls, buttons and status chips
+- [x] Redesign Settings as a real control center with sections and persistent state
+- [x] Give Game Settings a gaming-dashboard feel without becoming noisy
+- [x] Add clear installed, missing, running and needs-restart states
+- [x] Add confirmation states for commands that affect the system
+- [x] Use consistent controls: toggles, segmented controls, buttons and status chips
 
 ### Features
 
@@ -135,7 +142,7 @@ Goal: make uNexus Settings and Game Settings useful, not just informational.
 - [ ] Add Flatpak remote detection and Flathub setup status
 - [ ] Add MangoHud configuration status
 - [ ] Add GameMode service status
-- [ ] Add a reset settings action
+- [x] Add a reset settings action through `unexusctl reset-settings`
 - [ ] Add theme preview before applying a theme
 - [ ] Add per-user preferences for dock behavior
 - [ ] Add per-user preferences for file manager behavior
@@ -144,10 +151,12 @@ Goal: make uNexus Settings and Game Settings useful, not just informational.
 
 - [ ] Decide which settings are user-level and which require admin privileges
 - [ ] Add a safe privileged-action strategy instead of running random shell commands
-- [ ] Define where uNexus stores user config
+- [x] Define where uNexus stores user config
 - [ ] Define where uNexus stores system config
 - [ ] Add config migration rules for future versions
-- [ ] Add documentation for every setting that changes system behavior
+- [ ] Add documentation for every privileged provisioning action
+- [ ] Add `unexusctl provision` with profile manifests and dry-run
+- [ ] Connect Settings OS Provisioning to safe backend provisioning profiles
 
 ### Exit Criteria
 
@@ -265,22 +274,22 @@ Goal: stop treating uNexus Shell as a manually built project and make it install
 
 ### Features
 
-- [ ] Add release build configuration
-- [ ] Add install target in CMake
-- [ ] Install binary, QML files and assets to correct system paths
-- [ ] Add `.desktop` launcher file
-- [ ] Add uNexus session file
-- [ ] Add version display in Settings
+- [x] Add release build configuration
+- [x] Add install target in CMake
+- [x] Install binary, QML files and assets to correct system paths
+- [x] Add `.desktop` launcher file
+- [x] Add uNexus session file
+- [x] Add CLI version display through `unexusctl version`
 - [ ] Add changelog display or release notes link
 
 ### Real OS Foundation
 
-- [ ] Create Arch `PKGBUILD` for `unexus-shell`
+- [x] Create Arch `PKGBUILD` for `unexus-shell`
 - [ ] Package Qt/QML dependencies correctly
 - [x] Register the current logo through Qt resources
 - [ ] Package all runtime assets correctly
-- [ ] Add a clean uninstall path
-- [ ] Add CI or repeatable local release script
+- [x] Add a clean uninstall path
+- [x] Add repeatable local setup/package scripts
 - [ ] Add package signing plan later
 - [ ] Decide package naming and versioning policy
 
