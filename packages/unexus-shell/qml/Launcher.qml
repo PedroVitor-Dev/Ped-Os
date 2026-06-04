@@ -147,12 +147,12 @@ function launchApp(app) {
 
     Rectangle {
         id: panel
-        width: 600
+        width: Math.min(root.compactLayout ? 560 : 640, parent.width - root.panelMargin * 2)
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: 100
-        height: categoryRow.height + searchBox.height + resultsList.height + 56
-        radius: 16
+        anchors.topMargin: Math.min(root.panelTopMargin, Math.max(56, parent.height * 0.12))
+        height: Math.min(categoryRow.height + searchBox.height + resultsList.height + root.panelPadding * 3, parent.height - anchors.topMargin - root.panelMargin)
+        radius: root.radiusDock
         color: "#0e1520"
         border.color: "#4d9eff"
         border.width: 1
@@ -183,7 +183,7 @@ function launchApp(app) {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.margins: 16
+            anchors.margins: root.panelPadding
             height: 48
             radius: 10
             color: "#1a2030"
@@ -228,9 +228,9 @@ function launchApp(app) {
             id: categoryRow
             anchors.top: searchBox.bottom
             anchors.left: parent.left
-            anchors.leftMargin: 16
-            anchors.topMargin: 8
-            spacing: 8
+            anchors.leftMargin: root.panelPadding
+            anchors.topMargin: root.spaceSm
+            spacing: root.spaceSm
 
             Repeater {
                 model: ["All", "Gaming", "System", "Media"]
@@ -266,8 +266,8 @@ function launchApp(app) {
             anchors.top: categoryRow.bottom
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.topMargin: 8
-            padding: 8
+            anchors.topMargin: root.spaceSm
+            padding: root.spaceSm
             spacing: 2
 
             PanelStateView {

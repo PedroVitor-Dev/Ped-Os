@@ -20,6 +20,11 @@ Window {
     property int spaceMd: 12
     property int spaceLg: 16
     property int spaceXl: 18
+    property bool compactLayout: width < 1100 || height < 760
+    property int panelMargin: compactLayout ? 14 : 32
+    property int panelPadding: compactLayout ? 14 : 18
+    property int panelGap: compactLayout ? 10 : 14
+    property int panelTopMargin: compactLayout ? 72 : 100
     property int radiusSm: 6
     property int radiusMd: 8
     property int radiusLg: 12

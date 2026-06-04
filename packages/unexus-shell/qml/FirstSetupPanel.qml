@@ -76,8 +76,8 @@ Item {
 
     Rectangle {
         id: panel
-        width: Math.min(820, parent.width - 32)
-        height: Math.min(590, parent.height - 56)
+        width: Math.min(860, parent.width - root.panelMargin * 2)
+        height: Math.min(root.compactLayout ? 620 : 590, parent.height - root.panelMargin * 2)
         anchors.centerIn: parent
         radius: 14
         color: "#0e1520"
@@ -87,13 +87,13 @@ Item {
 
         Column {
             anchors.fill: parent
-            anchors.margins: 18
-            spacing: 14
+            anchors.margins: root.panelPadding
+            spacing: root.panelGap
 
             Row {
                 width: parent.width
                 height: 44
-                spacing: 10
+                spacing: root.panelGap
 
                 Rectangle {
                     width: 42
@@ -157,10 +157,10 @@ Item {
             Row {
                 width: parent.width
                 height: parent.height - 116 - firstSetupStateView.height
-                spacing: 14
+                spacing: root.panelGap
 
                 Column {
-                    width: Math.floor((parent.width - 14) / 2)
+                    width: Math.floor((parent.width - root.panelGap) / 2)
                     spacing: 10
 
                     SetupSection {
@@ -207,7 +207,7 @@ Item {
                 }
 
                 Column {
-                    width: Math.floor((parent.width - 14) / 2)
+                    width: Math.floor((parent.width - root.panelGap) / 2)
                     spacing: 10
 
                     SetupSection {
@@ -248,10 +248,10 @@ Item {
             Row {
                 width: parent.width
                 height: 40
-                spacing: 10
+                spacing: root.panelGap
 
                 Rectangle {
-                    width: parent.width - doneButton.width - 10
+                    width: parent.width - doneButton.width - root.panelGap
                     height: 38
                     radius: 8
                     color: "#101927"

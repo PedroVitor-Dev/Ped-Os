@@ -199,8 +199,8 @@ Item {
 
     Rectangle {
         id: panel
-        width: Math.min(980, parent.width - 32)
-        height: Math.min(620, parent.height - 72)
+        width: Math.min(1040, parent.width - root.panelMargin * 2)
+        height: Math.min(root.compactLayout ? 640 : 620, parent.height - root.panelMargin * 2)
         anchors.centerIn: parent
         radius: 14
         color: "#0e1520"
@@ -211,16 +211,16 @@ Item {
 
         Column {
             anchors.fill: parent
-            anchors.margins: 18
-            spacing: 12
+            anchors.margins: root.panelPadding
+            spacing: root.compactLayout ? 8 : 12
 
             Row {
                 width: parent.width
                 height: 38
-                spacing: 10
+                spacing: root.panelGap
 
                 Column {
-                    width: parent.width - closeButton.width - 10
+                    width: parent.width - closeButton.width - root.panelGap
                     spacing: 2
 
                     Text {
@@ -251,7 +251,7 @@ Item {
             Row {
                 width: parent.width
                 height: 38
-                spacing: 8
+                spacing: root.spaceSm
 
                 ToolButton {
                     label: root.tr("UP")
@@ -392,10 +392,10 @@ Item {
             Row {
                 width: parent.width
                 height: parent.height - 187 - (filesPanel.mode !== "browse" ? 42 : 0)
-                spacing: 12
+                spacing: root.panelGap
 
                 Rectangle {
-                    width: 170
+                    width: root.compactLayout ? 150 : 170
                     height: parent.height
                     radius: 10
                     color: "#111a28"
@@ -444,7 +444,7 @@ Item {
                 }
 
                 Rectangle {
-                    width: parent.width - 182
+                    width: parent.width - (root.compactLayout ? 150 : 170) - root.panelGap
                     height: parent.height
                     radius: 10
                     color: "#101927"

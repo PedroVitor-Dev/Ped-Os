@@ -78,8 +78,8 @@ Item {
 
     Rectangle {
         id: panel
-        width: Math.min(760, parent.width - 32)
-        height: Math.min(560, parent.height - 72)
+        width: Math.min(800, parent.width - root.panelMargin * 2)
+        height: Math.min(root.compactLayout ? 600 : 560, parent.height - root.panelMargin * 2)
         anchors.centerIn: parent
         radius: 14
         color: "#0e1520"
@@ -91,16 +91,16 @@ Item {
 
         Column {
             anchors.fill: parent
-            anchors.margins: 18
-            spacing: 14
+            anchors.margins: root.panelPadding
+            spacing: root.panelGap
 
             Row {
                 width: parent.width
                 height: 34
-                spacing: 10
+                spacing: root.panelGap
 
                 Column {
-                    width: parent.width - closeButton.width - 10
+                    width: parent.width - closeButton.width - root.panelGap
                     spacing: 2
 
                     Text {
@@ -165,10 +165,10 @@ Item {
             Row {
                 width: parent.width
                 height: parent.height - 72 - gameSettingsStateView.height
-                spacing: 14
+                spacing: root.panelGap
 
                 Column {
-                    width: Math.floor((parent.width - 14) / 2)
+                    width: Math.floor((parent.width - root.panelGap) / 2)
                     spacing: 10
 
                     SettingsSection {
@@ -238,7 +238,7 @@ Item {
                 }
 
                 Column {
-                    width: Math.floor((parent.width - 14) / 2)
+                    width: Math.floor((parent.width - root.panelGap) / 2)
                     spacing: 10
 
                     SettingsSection {
