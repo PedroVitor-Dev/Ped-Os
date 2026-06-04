@@ -19,6 +19,7 @@ Item {
     property bool loading: false
     property string errorMessage: ""
     property string unavailableMessage: ""
+    property string trashConfirmPath: ""
 
     function show(path) {
         hideAnim.stop()
@@ -37,7 +38,33 @@ Item {
             return
         showAnim.stop()
         dockActive = false
+        trashConfirmPath = ""
+        trashConfirmTimer.stop()
         hideAnim.start()
+    }
+
+    function requestTrashSelected() {
+        if (trashConfirmPath !== selectedPath) {
+            trashConfirmPath = selectedPath
+            trashConfirmTimer.restart()
+            return
+        }
+
+        trashConfirmTimer.stop()
+        trashConfirmPath = ""
+        if (fileManager.moveToTrash(selectedPath)) {
+            notifCenter.send(root.tr("Moved to trash"), selectedName, "FILES")
+            refresh()
+        } else {
+            notifCenter.send(root.tr("Trash failed"), root.tr("Install gio or check permissions."), "FILES")
+        }
+    }
+
+    Timer {
+        id: trashConfirmTimer
+        interval: 2600
+        repeat: false
+        onTriggered: filesPanel.trashConfirmPath = ""
     }
 
     function displayNameForPath(path) {
@@ -520,16 +547,9 @@ Item {
                                 }
 
                                 MiniAction {
-                                    label: root.tr("Trash")
+                                    label: filesPanel.trashConfirmPath === filesPanel.selectedPath ? root.tr("Confirm trash") : root.tr("Trash")
                                     danger: true
-                                    onClicked: {
-                                        if (fileManager.moveToTrash(filesPanel.selectedPath)) {
-                                            notifCenter.send(root.tr("Moved to trash"), filesPanel.selectedName, "FILES")
-                                            filesPanel.refresh()
-                                        } else {
-                                            notifCenter.send(root.tr("Trash failed"), root.tr("Install gio or check permissions."), "FILES")
-                                        }
-                                    }
+                                    onClicked: filesPanel.requestTrashSelected()
                                 }
                             }
                         }

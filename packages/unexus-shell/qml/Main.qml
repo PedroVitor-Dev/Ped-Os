@@ -81,6 +81,7 @@ Window {
         "GAMES": "JOGOS",
         "Open / Focus": "Abrir / Focar",
         "Close": "Fechar",
+        "Confirm close": "Confirmar fechar",
         "Copy Options": "Copiar Opções",
         "Launch options copied": "Opções de inicialização copiadas",
         "Paste into Steam game launch options.": "Cole nas opções de inicialização do jogo na Steam.",
@@ -144,6 +145,7 @@ Window {
         "Open": "Abrir",
         "Rename": "Renomear",
         "Trash": "Lixeira",
+        "Confirm trash": "Confirmar lixeira",
         "New folder": "Nova pasta",
         "Folder created": "Pasta criada",
         "Folder failed": "Falha ao criar pasta",
@@ -194,6 +196,7 @@ Window {
         "Game Launchers": "Launchers de jogos",
         "You can reopen this checklist later from uNexus Settings.": "Você pode reabrir esta checklist depois pelas Configurações uNexus.",
         "Finish setup": "Finalizar setup",
+        "Confirm finish": "Confirmar finalizar",
         "Command copied": "Comando copiado",
         "{label} copied.": "{label} copiado.",
         "Change Wallpaper": "Trocar papel de parede",
@@ -949,10 +952,13 @@ Window {
 
         property var currentApp: null
         property string currentSide: ""
+        property bool closeConfirming: false
 
         function showForApp(app, point, side) {
             currentApp = app
             currentSide = side || ""
+            closeConfirming = false
+            closeConfirmTimer.stop()
             x = Math.max(8, Math.min(root.width - width - 8, point.x - width / 2))
             y = Math.max(44, point.y - height - 10)
             visible = true
@@ -962,6 +968,15 @@ Window {
             visible = false
             currentApp = null
             currentSide = ""
+            closeConfirming = false
+            closeConfirmTimer.stop()
+        }
+
+        Timer {
+            id: closeConfirmTimer
+            interval: 2600
+            repeat: false
+            onTriggered: dockActionMenu.closeConfirming = false
         }
 
         Column {
@@ -1010,7 +1025,7 @@ Window {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
                     anchors.leftMargin: root.spaceMd
-                    text: root.tr("Close")
+                    text: dockActionMenu.closeConfirming ? root.tr("Confirm close") : root.tr("Close")
                     color: "#ff8a8a"
                     font.pixelSize: root.textSmall
                     font.family: root.uiFont
@@ -1022,6 +1037,12 @@ Window {
                     hoverEnabled: true
 
                     onClicked: {
+                        if (!dockActionMenu.closeConfirming) {
+                            dockActionMenu.closeConfirming = true
+                            closeConfirmTimer.restart()
+                            return
+                        }
+
                         if (dockActionMenu.currentApp)
                             root.closeDesktopApp(dockActionMenu.currentApp)
 

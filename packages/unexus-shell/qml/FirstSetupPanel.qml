@@ -9,11 +9,14 @@ Item {
     property bool loading: false
     property string errorMessage: ""
     property string unavailableMessage: ""
+    property bool finishConfirming: false
 
     function show() {
         hideAnim.stop()
         visible = true
         dockActive = true
+        finishConfirming = false
+        finishConfirmTimer.stop()
         loading = false
         errorMessage = ""
         unavailableMessage = appLauncher.isInstalled("flatpak") ? "" : root.tr("Flatpak is unavailable, so launcher installs may not work yet.")
@@ -29,6 +32,8 @@ Item {
             return
         showAnim.stop()
         dockActive = false
+        finishConfirming = false
+        finishConfirmTimer.stop()
         hideAnim.start()
     }
 
@@ -36,6 +41,25 @@ Item {
         userSettings.firstSetupCompleted = true
         hide()
         notifCenter.send(root.tr("Setup complete"), root.tr("uNexus gaming setup is ready."), "SETUP")
+    }
+
+    function requestComplete() {
+        if (!finishConfirming) {
+            finishConfirming = true
+            finishConfirmTimer.restart()
+            return
+        }
+
+        finishConfirmTimer.stop()
+        finishConfirming = false
+        complete()
+    }
+
+    Timer {
+        id: finishConfirmTimer
+        interval: 2600
+        repeat: false
+        onTriggered: firstSetup.finishConfirming = false
     }
 
     property bool refreshToken: false
@@ -281,7 +305,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: root.tr("Finish setup")
+                        text: firstSetup.finishConfirming ? root.tr("Confirm finish") : root.tr("Finish setup")
                         color: "#ffffff"
                         font.pixelSize: 12
                         font.family: root.uiFont
@@ -292,7 +316,7 @@ Item {
                         id: doneMouse
                         anchors.fill: parent
                         hoverEnabled: true
-                        onClicked: firstSetup.complete()
+                        onClicked: firstSetup.requestComplete()
                     }
                 }
             }
