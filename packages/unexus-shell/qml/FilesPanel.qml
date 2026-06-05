@@ -165,6 +165,11 @@ Item {
         contextMenuVisible = false
     }
 
+    function showEmptyContextMenu(x, y) {
+        clearSelection()
+        showContextMenu(x, y)
+    }
+
     function beginRenameSelected() {
         if (selectionCount() !== 1)
             return
@@ -850,6 +855,18 @@ Item {
                             onActionRequested: filesPanel.refresh()
                         }
 
+                        MouseArea {
+                            anchors.fill: parent
+                            visible: filesPanel.loading || filesPanel.errorMessage.length > 0 ||
+                                     filesPanel.unavailableMessage.length > 0 || filesPanel.entries.length === 0
+                            acceptedButtons: Qt.RightButton
+                            z: 18
+                            onClicked: function(mouse) {
+                                var point = mapToItem(filesPanel, mouse.x, mouse.y)
+                                filesPanel.showEmptyContextMenu(point.x, point.y)
+                            }
+                        }
+
                         ListView {
                             id: filesList
                             width: parent.width
@@ -859,6 +876,22 @@ Item {
                             clip: true
                             spacing: 2
                             model: filesPanel.entries
+
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.RightButton
+                                z: 18
+                                onClicked: function(mouse) {
+                                    var index = filesList.indexAt(mouse.x, mouse.y)
+                                    var point = mapToItem(filesPanel, mouse.x, mouse.y)
+                                    if (index >= 0 && index < filesPanel.entries.length) {
+                                        filesPanel.selectOnly(filesPanel.entries[index])
+                                        filesPanel.showContextMenu(point.x, point.y)
+                                    } else {
+                                        filesPanel.showEmptyContextMenu(point.x, point.y)
+                                    }
+                                }
+                            }
 
                             delegate: FileRow {
                                 width: filesList.width

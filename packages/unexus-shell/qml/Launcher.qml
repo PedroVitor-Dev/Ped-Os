@@ -188,11 +188,11 @@ function launchApp(app) {
 
     Rectangle {
         id: panel
-        width: Math.min(root.compactLayout ? 420 : 500, parent.width - root.panelMargin * 2)
+        width: Math.min(root.compactLayout ? 360 : 420, parent.width - root.panelMargin * 2)
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: Math.min(root.panelTopMargin, Math.max(56, parent.height * 0.12))
-        height: Math.min(categoryRow.height + searchBox.height + resultsList.height + root.panelPadding * 3, parent.height - anchors.topMargin - root.panelMargin)
+        height: Math.min(root.compactLayout ? 420 : 460, parent.height - anchors.topMargin - root.panelMargin)
         radius: root.radiusDock
         color: "#0e1520"
         border.color: "#4d9eff"
@@ -281,18 +281,23 @@ function launchApp(app) {
             onSelected: function(value) { launcher.activeCategory = value }
         }
 
-        Column {
+        Rectangle {
             id: resultsList
             anchors.top: categoryRow.bottom
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.margins: root.panelPadding
             anchors.topMargin: root.spaceSm
-            padding: root.spaceSm
-            spacing: 2
+            radius: 10
+            color: "#111a28"
+            border.color: "#223247"
+            border.width: 1
+            clip: true
 
             PanelStateView {
-                width: parent.width - 16
-                height: 112
+                anchors.fill: parent
+                anchors.margins: root.spaceSm
                 visible: launcher.loading || launcher.errorMessage.length > 0 ||
                          launcher.unavailableMessage.length > 0 || launcher.filteredApps().length === 0
                 state: launcher.loading ? "loading" : (launcher.errorMessage.length > 0 ? "error" : (launcher.unavailableMessage.length > 0 ? "unavailable" : "empty"))
@@ -313,11 +318,18 @@ function launchApp(app) {
                 }
             }
 
-            Repeater {
+            ListView {
+                id: appsList
+                anchors.fill: parent
+                anchors.margins: root.spaceSm
+                visible: !launcher.loading && launcher.errorMessage.length === 0 &&
+                         launcher.unavailableMessage.length === 0 && launcher.filteredApps().length > 0
+                clip: true
+                spacing: 2
                 model: launcher.filteredApps()
 
                 delegate: Rectangle {
-                    width: resultsList.width - 16
+                    width: appsList.width
                     height: 40
                     radius: 8
                     color: itemMouse.containsMouse ? "#1e2d45" : "transparent"
