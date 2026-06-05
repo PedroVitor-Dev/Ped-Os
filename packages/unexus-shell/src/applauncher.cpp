@@ -725,6 +725,82 @@ QVariantList AppLauncher::workspaces()
     return result;
 }
 
+QVariantList AppLauncher::workspaceWindows()
+{
+    QVariantList result;
+    const QJsonArray clients = hyprctlJsonArray({QStringLiteral("clients"), QStringLiteral("-j")});
+
+    for (const QJsonValue &value : clients) {
+        const QJsonObject client = value.toObject();
+        const QJsonObject workspace = client.value(QStringLiteral("workspace")).toObject();
+        const int workspaceId = workspace.value(QStringLiteral("id")).toInt(-1);
+        const QString workspaceName = workspace.value(QStringLiteral("name")).toString();
+        const QString address = client.value(QStringLiteral("address")).toString();
+        const bool hidden = client.value(QStringLiteral("hidden")).toBool(false);
+        const bool mapped = client.value(QStringLiteral("mapped")).toBool(true);
+
+        if (workspaceId < 0 || address.isEmpty() || hidden || !mapped ||
+            workspaceName.startsWith(QStringLiteral("special:"), Qt::CaseInsensitive)) {
+            continue;
+        }
+
+        const QJsonArray at = client.value(QStringLiteral("at")).toArray();
+        const QJsonArray size = client.value(QStringLiteral("size")).toArray();
+        QVariantMap item;
+        item.insert(QStringLiteral("address"), address);
+        item.insert(QStringLiteral("workspaceId"), workspaceId);
+        item.insert(QStringLiteral("workspaceName"), workspaceName.isEmpty() ? QString::number(workspaceId) : workspaceName);
+        item.insert(QStringLiteral("title"), client.value(QStringLiteral("title")).toString());
+        item.insert(QStringLiteral("className"), client.value(QStringLiteral("class")).toString());
+        item.insert(QStringLiteral("monitor"), client.value(QStringLiteral("monitor")).toInt(-1));
+        item.insert(QStringLiteral("floating"), client.value(QStringLiteral("floating")).toBool(false));
+        item.insert(QStringLiteral("x"), at.size() > 0 ? at.at(0).toDouble() : 0.0);
+        item.insert(QStringLiteral("y"), at.size() > 1 ? at.at(1).toDouble() : 0.0);
+        item.insert(QStringLiteral("width"), size.size() > 0 ? size.at(0).toDouble() : 800.0);
+        item.insert(QStringLiteral("height"), size.size() > 1 ? size.at(1).toDouble() : 500.0);
+        result << item;
+    }
+
+    return result;
+}
+
+bool AppLauncher::focusWorkspace(int workspaceId)
+{
+    if (workspaceId < 1)
+        return false;
+
+    return dispatchHyprctl({
+        QStringLiteral("dispatch"),
+        QStringLiteral("workspace"),
+        QString::number(workspaceId)
+    });
+}
+
+bool AppLauncher::focusWindowAddress(const QString &address)
+{
+    const QString normalizedAddress = address.trimmed();
+    if (normalizedAddress.isEmpty())
+        return false;
+
+    return dispatchHyprctl({
+        QStringLiteral("dispatch"),
+        QStringLiteral("focuswindow"),
+        QStringLiteral("address:") + normalizedAddress
+    });
+}
+
+bool AppLauncher::moveWindowAddressToWorkspace(const QString &address, int workspaceId)
+{
+    const QString normalizedAddress = address.trimmed();
+    if (normalizedAddress.isEmpty() || workspaceId < 1)
+        return false;
+
+    return dispatchHyprctl({
+        QStringLiteral("dispatch"),
+        QStringLiteral("movetoworkspacesilent"),
+        QStringLiteral("%1,address:%2").arg(workspaceId).arg(normalizedAddress)
+    });
+}
 int AppLauncher::activeWorkspace()
 {
     const QJsonObject workspace = hyprctlJsonObject({

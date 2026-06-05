@@ -374,7 +374,11 @@ Window {
         "ON": "LIGADO",
         "OFF": "DESLIGADO",
         "Stats Overlay": "Overlay de estatisticas",
-        "Gaming tools ready": "Ferramentas de jogos prontas"
+        "Gaming tools ready": "Ferramentas de jogos prontas",
+        "Workspaces": "Areas de trabalho",
+        "No windows": "Sem janelas",
+        "Window moved": "Janela movida",
+        "Window moved to workspace {label}.": "Janela movida para area {label}."
     })
 
     function tr(text) {
@@ -620,6 +624,7 @@ Window {
     property int dockStateVersion: 0
     property int panelStateVersion: 0
     property int workspaceStateVersion: 0
+    property bool workspaceSwitcherOpen: false
 
     Timer {
         interval: 1000
@@ -637,6 +642,47 @@ Window {
         return items.slice(0, root.compactLayout ? 5 : 8)
     }
 
+    function workspaceDetailModel() {
+        workspaceStateVersion
+        var workspaces = workspaceModel()
+        var windows = appLauncher.workspaceWindows()
+
+        for (var i = 0; i < workspaces.length; i++) {
+            workspaces[i].clients = []
+            for (var j = 0; j < windows.length; j++) {
+                if (windows[j].workspaceId === workspaces[i].id)
+                    workspaces[i].clients.push(windows[j])
+            }
+        }
+
+        return workspaces
+    }
+
+    function focusWorkspace(workspaceId) {
+        if (appLauncher.focusWorkspace(workspaceId)) {
+            workspaceStateVersion++
+            dockStateVersion++
+        }
+    }
+
+    function focusWindowAddress(address) {
+        if (appLauncher.focusWindowAddress(address)) {
+            workspaceSwitcherOpen = false
+            workspaceStateVersion++
+            dockStateVersion++
+        }
+    }
+
+    function moveWindowAddressToWorkspace(address, workspaceId, workspaceLabel) {
+        if (appLauncher.moveWindowAddressToWorkspace(address, workspaceId)) {
+            workspaceStateVersion++
+            dockStateVersion++
+            notifCenter.send(root.tr("Window moved"), root.trLabelMessage("Window moved to workspace {label}.", workspaceLabel), "SYS")
+            return true
+        }
+
+        return false
+    }
     function panelDockState(panel, stateVersion) {
         stateVersion
 
@@ -1034,6 +1080,36 @@ Window {
             anchors.verticalCenter: parent.verticalCenter
             spacing: 6
 
+            Rectangle {
+                width: root.compactLayout ? 88 : 112
+                height: 22
+                radius: root.radiusSm
+                color: workspaceMouse.containsMouse || root.workspaceSwitcherOpen ? root.surfaceHover : "transparent"
+                border.color: root.workspaceSwitcherOpen ? root.themeAccent : root.borderSubtle
+                border.width: root.workspaceSwitcherOpen ? 1 : 0
+
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: root.tr("Workspaces")
+                    color: root.textPrimary
+                    font.pixelSize: root.textTiny
+                    font.family: root.uiFont
+                    font.bold: root.workspaceSwitcherOpen
+                    elide: Text.ElideRight
+                    width: parent.width - 16
+                }
+
+                MouseArea {
+                    id: workspaceMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.workspaceSwitcherOpen = !root.workspaceSwitcherOpen
+                }
+            }
+
             Repeater {
                 model: root.workspaceModel()
 
@@ -1069,10 +1145,193 @@ Window {
                         radius: 2
                         color: modelData.active ? root.themeAccent : root.textMuted
                     }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            root.focusWorkspace(modelData.id)
+                            root.workspaceSwitcherOpen = true
+                        }
+                    }
                 }
             }
         }
 
+        LiquidGlass {
+            id: workspaceSwitcher
+            width: Math.min(root.width - 32, root.compactLayout ? 520 : 960)
+            height: root.workspaceSwitcherOpen ? 230 : 0
+            anchors.top: parent.bottom
+            anchors.left: parent.left
+            anchors.leftMargin: root.compactLayout ? 8 : 116
+            radius: root.radiusLg
+            tintColor: root.surfaceBase
+            accentColor: root.themeAccent
+            borderColor: root.borderMuted
+            materialOpacity: 0.82
+            borderOpacity: 0.58
+            highlightOpacity: 0.16
+            depth: 0.42
+            visible: root.workspaceSwitcherOpen
+            opacity: root.workspaceSwitcherOpen ? 1.0 : 0.0
+            clip: true
+            z: 300
+
+            Behavior on opacity { NumberAnimation { duration: root.motionQuick } }
+            Behavior on height { NumberAnimation { duration: root.motionQuick; easing.type: Easing.OutCubic } }
+
+            Row {
+                id: workspaceCards
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: 10
+                spacing: 8
+
+                Repeater {
+                    model: root.workspaceDetailModel()
+
+                    delegate: Rectangle {
+                        id: workspaceCard
+                        property var workspaceData: modelData
+                        property var clients: modelData.clients || []
+
+                        width: Math.max(root.compactLayout ? 86 : 104, Math.floor((workspaceSwitcher.width - 20 - 8 * Math.max(0, root.workspaceModel().length - 1)) / Math.max(1, root.workspaceModel().length)))
+                        height: 206
+                        radius: root.radiusMd
+                        color: workspaceDrop.containsDrag ? root.surfaceStrongHover : (modelData.active ? root.themeAccentDim : root.surfaceRaised)
+                        border.color: workspaceDrop.containsDrag ? root.themeAccent : (modelData.active ? root.themeAccent : root.borderMuted)
+                        border.width: modelData.active || workspaceDrop.containsDrag ? 1 : 0
+
+                        DropArea {
+                            id: workspaceDrop
+                            anchors.fill: parent
+                            keys: ["unexus-window"]
+                            onDropped: function(drop) {
+                                if (drop.source && drop.source.windowAddress)
+                                    root.moveWindowAddressToWorkspace(drop.source.windowAddress, workspaceCard.workspaceData.id, workspaceCard.workspaceData.name)
+                            }
+                        }
+
+                        Column {
+                            anchors.fill: parent
+                            anchors.margins: 8
+                            spacing: 6
+
+                            Row {
+                                width: parent.width
+                                height: 20
+
+                                Text {
+                                    width: parent.width - 36
+                                    text: workspaceCard.workspaceData.name || workspaceCard.workspaceData.id
+                                    color: root.textPrimary
+                                    font.pixelSize: root.textSmall
+                                    font.family: root.uiFont
+                                    font.bold: true
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    width: 36
+                                    horizontalAlignment: Text.AlignRight
+                                    text: workspaceCard.clients.length
+                                    color: workspaceCard.workspaceData.active ? root.themeAccent : root.textMuted
+                                    font.pixelSize: root.textTiny
+                                    font.family: root.uiFont
+                                    font.bold: workspaceCard.workspaceData.active
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: root.borderSubtle
+                            }
+
+                            Text {
+                                visible: workspaceCard.clients.length === 0
+                                width: parent.width
+                                height: 148
+                                verticalAlignment: Text.AlignVCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                text: root.tr("No windows")
+                                color: root.textMuted
+                                font.pixelSize: root.textTiny
+                                font.family: root.uiFont
+                            }
+
+                            Flow {
+                                visible: workspaceCard.clients.length > 0
+                                width: parent.width
+                                height: 148
+                                spacing: 5
+
+                                Repeater {
+                                    model: workspaceCard.clients
+
+                                    delegate: Rectangle {
+                                        id: windowThumb
+                                        property string windowAddress: modelData.address || ""
+
+                                        width: Math.max(50, Math.min(parent.width, (parent.width - 5) / 2))
+                                        height: Math.max(42, Math.min(68, 34 + Math.round((modelData.height || 500) / Math.max(1, modelData.width || 800) * 34)))
+                                        radius: root.radiusSm
+                                        color: windowDrag.containsMouse || windowDrag.drag.active ? root.surfaceHover : "#101927"
+                                        border.color: windowDrag.drag.active ? root.themeAccent : root.borderMuted
+                                        border.width: 1
+                                        Drag.active: windowDrag.drag.active
+                                        Drag.keys: ["unexus-window"]
+                                        Drag.source: windowThumb
+                                        Drag.hotSpot.x: width / 2
+                                        Drag.hotSpot.y: height / 2
+
+                                        Text {
+                                            anchors.left: parent.left
+                                            anchors.right: parent.right
+                                            anchors.top: parent.top
+                                            anchors.margins: 6
+                                            text: modelData.title && modelData.title.length > 0 ? modelData.title : modelData.className
+                                            color: root.textPrimary
+                                            font.pixelSize: 9
+                                            font.family: root.uiFont
+                                            font.bold: true
+                                            elide: Text.ElideRight
+                                        }
+
+                                        Text {
+                                            anchors.left: parent.left
+                                            anchors.right: parent.right
+                                            anchors.bottom: parent.bottom
+                                            anchors.margins: 6
+                                            text: modelData.className || root.tr("Window")
+                                            color: root.textMuted
+                                            font.pixelSize: 8
+                                            font.family: root.uiFont
+                                            elide: Text.ElideRight
+                                        }
+
+                                        MouseArea {
+                                            id: windowDrag
+                                            anchors.fill: parent
+                                            drag.target: windowThumb
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: root.focusWindowAddress(windowThumb.windowAddress)
+                                            onReleased: {
+                                                windowThumb.x = 0
+                                                windowThumb.y = 0
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         Row {
             anchors.right: parent.right
             anchors.rightMargin: 16

@@ -128,7 +128,7 @@
 
 **Goal:** make the shell behave less like an overlay and more like an operating-system desktop.
 
-- [ ] **UI:** Add visual workspace switcher with window thumbnails and drag-and-drop between workspaces
+- [x] **UI:** Add visual workspace switcher with window thumbnails and drag-and-drop between workspaces
 - [x] **Feature:** Add maximize/restore, move-to-workspace and special workspace actions through `hyprctl dispatch`
 - [ ] **Innovation:** **uNexus Spatial Memory:** remember app position, size and workspace per user and restore them on next launch
 - [~] **UI:** Workspace indicators exist in the top bar; hover previews with thumbnails are still planned

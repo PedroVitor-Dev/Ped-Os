@@ -51,6 +51,10 @@ public:
     Q_INVOKABLE bool restoreWindow(const QStringList &windowClasses);
     Q_INVOKABLE QVariantMap windowPreviewDirection(const QStringList &windowClasses);
     Q_INVOKABLE QVariantList workspaces();
+    Q_INVOKABLE QVariantList workspaceWindows();
+    Q_INVOKABLE bool focusWorkspace(int workspaceId);
+    Q_INVOKABLE bool focusWindowAddress(const QString &address);
+    Q_INVOKABLE bool moveWindowAddressToWorkspace(const QString &address, int workspaceId);
     Q_INVOKABLE int activeWorkspace();
 
 private:
