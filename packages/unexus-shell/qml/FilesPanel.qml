@@ -20,6 +20,7 @@ Item {
     property var places: []
     property string sortKey: "name"
     property bool sortAscending: true
+    property string viewMode: "list"
     property string mode: "browse"
     property bool dockActive: false
     property bool loading: false
@@ -30,6 +31,7 @@ Item {
     property bool contextMenuVisible: false
     property real contextMenuX: 0
     property real contextMenuY: 0
+    property string pendingPasteMode: ""
 
     function show(path) {
         hideAnim.stop()
@@ -198,9 +200,8 @@ Item {
         trashConfirmPath = ""
         deleteConfirmToken = ""
         hideContextMenu()
-        if (fileManager.movePathsToTrash(stringList(selectedPaths))) {
-            notifCenter.send(root.tr("Moved to trash"), selectionLabel(), "FILES")
-            refresh()
+        if (fileManager.movePathsToTrashAsync(stringList(selectedPaths)) >= 0) {
+            notifCenter.send(root.tr("Trash"), selectionLabel(), "FILES")
         } else {
             notifCenter.send(root.tr("Trash failed"), root.tr("Install gio or check permissions."), "FILES")
         }
@@ -415,19 +416,35 @@ Item {
             return
 
         hideContextMenu()
-        var ok = clipboardMode === "cut"
-            ? fileManager.movePaths(stringList(clipboardPaths), currentPath)
-            : fileManager.copyPaths(stringList(clipboardPaths), currentPath)
+        pendingPasteMode = clipboardMode
+        var operationId = clipboardMode === "cut"
+            ? fileManager.movePathsAsync(stringList(clipboardPaths), currentPath)
+            : fileManager.copyPathsAsync(stringList(clipboardPaths), currentPath)
 
-        if (ok) {
+        if (operationId >= 0) {
             notifCenter.send(root.tr("Pasted"), root.tr("{count} items").replace("{count}", clipboardPaths.length), "FILES")
-            if (clipboardMode === "cut") {
-                clipboardPaths = []
-                clipboardMode = ""
-            }
-            refresh()
         } else {
+            pendingPasteMode = ""
             notifCenter.send(root.tr("Paste failed"), root.tr("Could not paste selected items."), "FILES")
+        }
+    }
+
+    Connections {
+        target: fileManager
+
+        function onOperationFinished(id, ok, kind) {
+            if (ok) {
+                if (kind === "move" && filesPanel.pendingPasteMode === "cut") {
+                    filesPanel.clipboardPaths = []
+                    filesPanel.clipboardMode = ""
+                    filesPanel.pendingPasteMode = ""
+                }
+                filesPanel.refresh()
+            } else if (kind === "trash") {
+                notifCenter.send(root.tr("Trash failed"), root.tr("Install gio or check permissions."), "FILES")
+            } else {
+                notifCenter.send(root.tr("Paste failed"), root.tr("Could not paste selected items."), "FILES")
+            }
         }
     }
 
@@ -676,7 +693,7 @@ Item {
 
             Row {
                 width: parent.width
-                height: parent.height - 187 - (filesPanel.mode !== "browse" ? 42 : 0)
+                height: parent.height - 225 - (filesPanel.mode !== "browse" ? 42 : 0)
                 spacing: root.panelGap
 
                 Rectangle {
@@ -724,6 +741,11 @@ Item {
                                 active: modelData.path === filesPanel.currentPath
                                 onClicked: filesPanel.loadPath(modelData.path)
                             }
+                        }
+
+                        OperationQueue {
+                            width: parent.width
+                            operations: fileManager.operationQueue
                         }
                     }
                 }
@@ -786,6 +808,11 @@ Item {
                                         label: { filesPanel.sortKey; filesPanel.sortAscending; return filesPanel.sortLabel("size", "Size") }
                                         onClicked: filesPanel.sortBy("size")
                                     }
+
+                                    MiniAction {
+                                        label: filesPanel.viewMode === "list" ? root.tr("List") : root.tr("Grid")
+                                        onClicked: filesPanel.viewMode = filesPanel.viewMode === "list" ? "grid" : "list"
+                                    }
                                 }
                             }
                         }
@@ -842,7 +869,7 @@ Item {
                             ListView {
                                 id: filesList
                                 anchors.fill: parent
-                                visible: !filesPanel.loading && filesPanel.errorMessage.length === 0 &&
+                                visible: filesPanel.viewMode === "list" && !filesPanel.loading && filesPanel.errorMessage.length === 0 &&
                                          filesPanel.unavailableMessage.length === 0 && filesPanel.entries.length > 0
                                 clip: true
                                 spacing: 2
@@ -886,6 +913,52 @@ Item {
                                     }
                                 }
                             }
+
+                            GridView {
+                                id: filesGrid
+                                anchors.fill: parent
+                                visible: filesPanel.viewMode === "grid" && !filesPanel.loading && filesPanel.errorMessage.length === 0 &&
+                                         filesPanel.unavailableMessage.length === 0 && filesPanel.entries.length > 0
+                                clip: true
+                                cellWidth: 132
+                                cellHeight: 118
+                                model: filesPanel.entries
+
+                                TapHandler {
+                                    acceptedButtons: Qt.RightButton
+                                    onTapped: function(point) {
+                                        var index = filesGrid.indexAt(point.position.x, point.position.y)
+                                        var mapped = filesGrid.mapToItem(filesPanel, point.position.x, point.position.y)
+                                        if (index >= 0 && index < filesPanel.entries.length) {
+                                            filesPanel.selectOnly(filesPanel.entries[index])
+                                            filesPanel.showContextMenu(mapped.x, mapped.y)
+                                        } else {
+                                            filesPanel.showEmptyContextMenu(mapped.x, mapped.y)
+                                        }
+                                    }
+                                }
+
+                                delegate: FileTile {
+                                    width: filesGrid.cellWidth - 8
+                                    height: filesGrid.cellHeight - 8
+                                    name: modelData.name
+                                    path: modelData.path
+                                    icon: modelData.icon
+                                    kind: modelData.kind
+                                    isDir: modelData.isDir
+                                    selected: filesPanel.selectedPaths.indexOf(modelData.path) >= 0
+                                    cutMarked: filesPanel.clipboardMode === "cut" && filesPanel.clipboardPaths.indexOf(modelData.path) >= 0
+                                    onClicked: function(modifiers) { filesPanel.handleEntryClick(modelData, modifiers) }
+                                    onContextRequested: function(menuX, menuY) {
+                                        filesPanel.selectOnly(modelData)
+                                        filesPanel.showContextMenu(menuX, menuY)
+                                    }
+                                    onOpenRequested: {
+                                        filesPanel.selectOnly(modelData)
+                                        filesPanel.openSelected()
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -901,6 +974,27 @@ Item {
                         selectedCount: filesPanel.selectionCount()
                         selectionText: filesPanel.selectionLabel()
                     }
+                }
+            }
+
+            Rectangle {
+                width: parent.width
+                height: 30
+                radius: 8
+                color: "#101927"
+                border.color: "#223247"
+                border.width: 1
+
+                Row {
+                    anchors.fill: parent
+                    anchors.leftMargin: 10
+                    anchors.rightMargin: 10
+                    spacing: 14
+
+                    StatusText { text: root.tr("{count} items").replace("{count}", filesPanel.entries.length) }
+                    StatusText { text: filesPanel.selectionLabel() }
+                    StatusText { text: filesPanel.viewMode === "list" ? root.tr("List") : root.tr("Grid") }
+                    StatusText { text: filesPanel.clipboardPaths.length > 0 ? (root.tr("Clipboard") + ": " + root.tr(filesPanel.clipboardMode === "cut" ? "Cut" : "Copy") + " " + filesPanel.clipboardPaths.length) : root.tr("Clipboard") + ": -" }
                 }
             }
         }
@@ -941,6 +1035,99 @@ Item {
             ContextMenuAction { label: filesPanel.deleteConfirmToken === filesPanel.selectedPaths.join("|") && filesPanel.selectionCount() > 0 ? root.tr("Confirm trash") : root.tr("Trash"); enabled: filesPanel.selectionCount() > 0; danger: true; onTriggered: filesPanel.requestTrashSelected() }
         }
     }
+
+    component StatusText: Text {
+        color: "#8ea4bd"
+        font.pixelSize: 10
+        font.family: root.uiFont
+        elide: Text.ElideRight
+        verticalAlignment: Text.AlignVCenter
+    }
+
+    component OperationQueue: Rectangle {
+        id: queueRoot
+        property var operations: []
+
+        height: operations.length > 0 ? Math.min(142, queueColumn.height + 16) : 0
+        visible: operations.length > 0
+        radius: 9
+        color: "#101927"
+        border.color: "#223247"
+        border.width: 1
+
+        Column {
+            id: queueColumn
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.margins: 8
+            spacing: 6
+
+            Text {
+                width: parent.width
+                text: root.tr("Operations")
+                color: root.themeAccent
+                font.pixelSize: 10
+                font.family: root.uiFont
+                font.bold: true
+            }
+
+            Repeater {
+                model: queueRoot.operations
+
+                delegate: Rectangle {
+                    width: parent.width
+                    height: 34
+                    radius: 7
+                    color: "#172233"
+
+                    Column {
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        spacing: 4
+
+                        Row {
+                            width: parent.width
+                            spacing: 6
+
+                            Text {
+                                width: parent.width - progressLabel.width - 6
+                                text: root.tr(modelData.kind === "copy" ? "Copy" : (modelData.kind === "move" ? "Move" : "Trash")) + ": " + modelData.label
+                                color: modelData.done && !modelData.ok ? "#ff9a9a" : root.textPrimary
+                                font.pixelSize: 10
+                                font.family: root.uiFont
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                id: progressLabel
+                                text: modelData.done ? (modelData.ok ? "OK" : "ERR") : (modelData.current + "/" + modelData.total)
+                                color: modelData.done ? (modelData.ok ? "#8dffbf" : "#ff9a9a") : root.textMuted
+                                font.pixelSize: 9
+                                font.family: root.uiFont
+                                font.bold: true
+                            }
+                        }
+
+                        Rectangle {
+                            width: parent.width
+                            height: 3
+                            radius: 2
+                            color: "#0e1520"
+
+                            Rectangle {
+                                width: parent.width * Math.max(0, Math.min(100, modelData.progress || 0)) / 100
+                                height: parent.height
+                                radius: parent.radius
+                                color: modelData.done && !modelData.ok ? "#ff6a6a" : root.themeAccent
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     component BreadcrumbButton: Rectangle {
         id: breadcrumbButton
         property string label: ""
@@ -1236,6 +1423,113 @@ Item {
                 fileRow.clicked(mouse.modifiers)
             }
             onDoubleClicked: fileRow.openRequested()
+        }
+    }
+
+    component FileTile: Rectangle {
+        id: fileTile
+        property string name: ""
+        property string path: ""
+        property string icon: ""
+        property string kind: ""
+        property bool isDir: false
+        property bool selected: false
+        property bool cutMarked: false
+        signal clicked(var modifiers)
+        signal contextRequested(real menuX, real menuY)
+        signal openRequested()
+
+        radius: 10
+        color: selected ? "#1e2d45" : (tileMouse.containsMouse ? "#172233" : "transparent")
+        border.color: selected ? root.themeAccent : "#223247"
+        border.width: selected ? 1 : 0
+        opacity: cutMarked ? 0.5 : 1.0
+
+        Column {
+            anchors.fill: parent
+            anchors.margins: 8
+            spacing: 6
+
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 44
+                height: 44
+                radius: 12
+                color: fileTile.isDir ? "#17304a" : "#1a2435"
+                border.color: fileTile.isDir ? root.themeAccent : "#2a3a55"
+                border.width: 1
+
+                Rectangle {
+                    visible: fileTile.isDir
+                    x: 11
+                    y: 12
+                    width: 16
+                    height: 7
+                    radius: 3
+                    color: root.themeAccent
+                    opacity: 0.9
+                }
+
+                Rectangle {
+                    visible: fileTile.isDir
+                    x: 8
+                    y: 18
+                    width: 28
+                    height: 18
+                    radius: 4
+                    color: root.themeAccent
+                    opacity: 0.75
+                }
+
+                Text {
+                    anchors.centerIn: parent
+                    visible: !fileTile.isDir
+                    text: fileTile.icon
+                    color: "#8ea4bd"
+                    font.pixelSize: 10
+                    font.family: root.uiFont
+                    font.bold: true
+                }
+            }
+
+            Text {
+                width: parent.width
+                text: fileTile.name
+                color: root.textPrimary
+                font.pixelSize: 11
+                font.family: root.uiFont
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                maximumLineCount: 2
+                wrapMode: Text.WordWrap
+                elide: Text.ElideRight
+            }
+
+            Text {
+                width: parent.width
+                text: root.tr(fileTile.kind)
+                color: root.textMuted
+                font.pixelSize: 9
+                font.family: root.uiFont
+                horizontalAlignment: Text.AlignHCenter
+                elide: Text.ElideRight
+            }
+        }
+
+        MouseArea {
+            id: tileMouse
+            anchors.fill: parent
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            hoverEnabled: true
+            onClicked: function(mouse) {
+                if (mouse.button === Qt.RightButton) {
+                    var point = tileMouse.mapToItem(filesPanel, mouse.x, mouse.y)
+                    fileTile.contextRequested(point.x, point.y)
+                    return
+                }
+                fileTile.clicked(mouse.modifiers)
+            }
+            onDoubleClicked: fileTile.openRequested()
         }
     }
 

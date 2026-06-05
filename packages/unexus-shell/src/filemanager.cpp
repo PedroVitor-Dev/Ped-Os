@@ -5,10 +5,13 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QMetaObject>
 #include <QProcess>
 #include <QStandardPaths>
 #include <QStringList>
+#include <QThread>
 #include <QUrl>
+#include <QtGlobal>
 #include <QVariantMap>
 
 namespace {
@@ -422,4 +425,212 @@ QVariantMap FileManager::previewInfo(const QString &path) const
     }
 
     return result;
+}
+
+int FileManager::enqueueOperation(const QString &kind, const QStringList &paths, const QString &targetDirectory)
+{
+    if (paths.isEmpty())
+        return -1;
+
+    const int id = m_nextOperationId++;
+    QVariantMap operation;
+    operation.insert(QStringLiteral("id"), id);
+    operation.insert(QStringLiteral("kind"), kind);
+    operation.insert(QStringLiteral("label"), QFileInfo(paths.first()).fileName());
+    operation.insert(QStringLiteral("target"), targetDirectory);
+    operation.insert(QStringLiteral("current"), 0);
+    operation.insert(QStringLiteral("total"), paths.size());
+    operation.insert(QStringLiteral("progress"), 0);
+    operation.insert(QStringLiteral("done"), false);
+    operation.insert(QStringLiteral("ok"), true);
+
+    m_operationQueue.prepend(operation);
+    while (m_operationQueue.size() > 5)
+        m_operationQueue.removeLast();
+
+    emit operationQueueChanged();
+    return id;
+}
+
+void FileManager::updateOperation(int id, int current, int total, const QString &label, bool done, bool ok)
+{
+    for (int i = 0; i < m_operationQueue.size(); ++i) {
+        QVariantMap operation = m_operationQueue.at(i).toMap();
+        if (operation.value(QStringLiteral("id")).toInt() != id)
+            continue;
+
+        operation.insert(QStringLiteral("current"), current);
+        operation.insert(QStringLiteral("total"), total);
+        operation.insert(QStringLiteral("label"), label);
+        operation.insert(QStringLiteral("progress"), total <= 0 ? 0 : qBound(0, (current * 100) / total, 100));
+        operation.insert(QStringLiteral("done"), done);
+        operation.insert(QStringLiteral("ok"), ok);
+        m_operationQueue[i] = operation;
+        emit operationQueueChanged();
+
+        if (done)
+            emit operationFinished(id, ok, operation.value(QStringLiteral("kind")).toString());
+        return;
+    }
+}
+
+int FileManager::copyPathsAsync(const QStringList &paths, const QString &targetDirectory)
+{
+    const QFileInfo targetInfo(cleanPath(targetDirectory));
+    if (!targetInfo.exists() || !targetInfo.isDir() || paths.isEmpty())
+        return -1;
+
+    const int id = enqueueOperation(QStringLiteral("copy"), paths, targetInfo.absoluteFilePath());
+    const QStringList sources = paths;
+    const QString target = targetInfo.absoluteFilePath();
+
+    QThread *thread = QThread::create([this, id, sources, target]() {
+        bool ok = true;
+        int current = 0;
+
+        for (const QString &path : sources) {
+            const QFileInfo sourceInfo(cleanPath(path));
+            const QString label = sourceInfo.fileName();
+            QMetaObject::invokeMethod(this, [this, id, current, sources, label]() {
+                updateOperation(id, current, sources.size(), label);
+            }, Qt::QueuedConnection);
+
+            if (!sourceInfo.exists() ||
+                (sourceInfo.isDir() && isInsideDirectory(sourceInfo.absoluteFilePath(), target))) {
+                ok = false;
+                break;
+            }
+
+            const QString targetPath = uniqueTargetPath(target, sourceInfo.fileName());
+            if (targetPath.isEmpty() || !copyRecursively(sourceInfo.absoluteFilePath(), targetPath)) {
+                ok = false;
+                break;
+            }
+
+            ++current;
+            QMetaObject::invokeMethod(this, [this, id, current, sources, label]() {
+                updateOperation(id, current, sources.size(), label);
+            }, Qt::QueuedConnection);
+        }
+
+        const QString finalLabel = sources.isEmpty() ? QString() : QFileInfo(sources.last()).fileName();
+        QMetaObject::invokeMethod(this, [this, id, current, sources, finalLabel, ok]() {
+            updateOperation(id, ok ? sources.size() : current, sources.size(), finalLabel, true, ok);
+        }, Qt::QueuedConnection);
+    });
+
+    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    thread->start();
+    return id;
+}
+
+int FileManager::movePathsAsync(const QStringList &paths, const QString &targetDirectory)
+{
+    const QFileInfo targetInfo(cleanPath(targetDirectory));
+    if (!targetInfo.exists() || !targetInfo.isDir() || paths.isEmpty())
+        return -1;
+
+    const int id = enqueueOperation(QStringLiteral("move"), paths, targetInfo.absoluteFilePath());
+    const QStringList sources = paths;
+    const QString target = targetInfo.absoluteFilePath();
+
+    QThread *thread = QThread::create([this, id, sources, target]() {
+        bool ok = true;
+        int current = 0;
+
+        for (const QString &path : sources) {
+            const QFileInfo sourceInfo(cleanPath(path));
+            const QString label = sourceInfo.fileName();
+            QMetaObject::invokeMethod(this, [this, id, current, sources, label]() {
+                updateOperation(id, current, sources.size(), label);
+            }, Qt::QueuedConnection);
+
+            if (!sourceInfo.exists() ||
+                sourceInfo.absolutePath() == target ||
+                (sourceInfo.isDir() && isInsideDirectory(sourceInfo.absoluteFilePath(), target))) {
+                ok = false;
+                break;
+            }
+
+            const QString targetPath = uniqueTargetPath(target, sourceInfo.fileName());
+            if (targetPath.isEmpty()) {
+                ok = false;
+                break;
+            }
+
+            if (!QFile::rename(sourceInfo.absoluteFilePath(), targetPath)) {
+                if (!copyRecursively(sourceInfo.absoluteFilePath(), targetPath)) {
+                    ok = false;
+                    break;
+                }
+
+                if (sourceInfo.isDir()) {
+                    QDir sourceDir(sourceInfo.absoluteFilePath());
+                    if (!sourceDir.removeRecursively()) {
+                        ok = false;
+                        break;
+                    }
+                } else if (!QFile::remove(sourceInfo.absoluteFilePath())) {
+                    ok = false;
+                    break;
+                }
+            }
+
+            ++current;
+            QMetaObject::invokeMethod(this, [this, id, current, sources, label]() {
+                updateOperation(id, current, sources.size(), label);
+            }, Qt::QueuedConnection);
+        }
+
+        const QString finalLabel = sources.isEmpty() ? QString() : QFileInfo(sources.last()).fileName();
+        QMetaObject::invokeMethod(this, [this, id, current, sources, finalLabel, ok]() {
+            updateOperation(id, ok ? sources.size() : current, sources.size(), finalLabel, true, ok);
+        }, Qt::QueuedConnection);
+    });
+
+    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    thread->start();
+    return id;
+}
+
+int FileManager::movePathsToTrashAsync(const QStringList &paths)
+{
+    if (paths.isEmpty())
+        return -1;
+
+    const int id = enqueueOperation(QStringLiteral("trash"), paths);
+    const QStringList sources = paths;
+
+    QThread *thread = QThread::create([this, id, sources]() {
+        bool ok = true;
+        int current = 0;
+
+        for (const QString &path : sources) {
+            const QFileInfo info(cleanPath(path));
+            const QString label = info.fileName();
+            QMetaObject::invokeMethod(this, [this, id, current, sources, label]() {
+                updateOperation(id, current, sources.size(), label);
+            }, Qt::QueuedConnection);
+
+            if (!info.exists() || QStandardPaths::findExecutable(QStringLiteral("gio")).isEmpty() ||
+                QProcess::execute(QStringLiteral("gio"), {QStringLiteral("trash"), info.absoluteFilePath()}) != 0) {
+                ok = false;
+                break;
+            }
+
+            ++current;
+            QMetaObject::invokeMethod(this, [this, id, current, sources, label]() {
+                updateOperation(id, current, sources.size(), label);
+            }, Qt::QueuedConnection);
+        }
+
+        const QString finalLabel = sources.isEmpty() ? QString() : QFileInfo(sources.last()).fileName();
+        QMetaObject::invokeMethod(this, [this, id, current, sources, finalLabel, ok]() {
+            updateOperation(id, ok ? sources.size() : current, sources.size(), finalLabel, true, ok);
+        }, Qt::QueuedConnection);
+    });
+
+    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
+    thread->start();
+    return id;
 }
