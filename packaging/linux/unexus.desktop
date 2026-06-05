@@ -1,6 +1,9 @@
 [Desktop Entry]
-Name=uNexus
-Comment=Gaming-first shell session powered by Hyprland
-Exec=unexus-session
 Type=Application
+Name=uNexus
+Comment=Start the uNexus gaming-first Wayland shell session
+Exec=unexus-session
+TryExec=unexus-session
 DesktopNames=uNexus;Hyprland
+Keywords=uNexus;Wayland;Hyprland;Gaming;Shell;
+X-GDM-SessionRegisters=true

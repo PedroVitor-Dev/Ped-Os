@@ -1,8 +1,10 @@
 [Desktop Entry]
+Version=1.0
 Type=Application
 Name=uNexus Shell
 Comment=Gaming-first Linux desktop shell
 Exec=unexus-shell
+TryExec=unexus-shell
 Icon=unexus-shell
 Terminal=false
 Categories=System;Utility;
