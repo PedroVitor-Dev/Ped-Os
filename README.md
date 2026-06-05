@@ -130,7 +130,7 @@ The shell can be installed as a Wayland session through `scripts/setup.sh`.
 | `packages/unexus-shell` | Main Qt/QML desktop shell |
 | `packages/unexus-shell/src` | C++ system integration backends |
 | `packages/unexus-shell/include` | C++ headers exposed to Qt/QML |
-| `packages/unexus-shell/qml` | Shell UI, docks, launcher, settings and overlays |
+| `packages/unexus-shell/qml` | Shell UI, design tokens, docks, launcher, settings and overlays |
 | `packaging/linux` | Desktop entries, Wayland sessions and session launchers |
 | `packaging/arch` | Arch Linux PKGBUILD |
 | `docs` | Architecture, build guide, roadmap and contribution docs |
@@ -158,6 +158,7 @@ See [docs/installer-technology.md](docs/installer-technology.md).
 | Component | File(s) | Description |
 |---|---|---|
 | Desktop shell | `qml/Main.qml` | Top bar, wallpaper, docks, panels and app orchestration |
+| Design tokens | `qml/DesignTokens.qml` | Shared spacing, radius, motion, type, surface, text and status values |
 | Launcher | `qml/Launcher.qml` | App search, categories and gaming app status |
 | Login screen | `qml/LoginScreen.qml` | Startup login flow |
 | Notifications | `qml/NotificationCenter.qml` | Toast notifications |

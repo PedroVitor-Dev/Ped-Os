@@ -103,6 +103,8 @@ Dock icon behavior:
 
 Official uNexus logo PNG variants live in `assets/logo`.
 
+The base visual system starts in `qml/DesignTokens.qml`. `Main.qml` binds those tokens into root aliases for spacing, radius, motion, typography, surfaces, borders, text, shadows and status colors. Panels should prefer the root aliases so visual changes can be made centrally.
+
 `Main.qml` exposes a shared `brandLogoSource` property pointing at:
 
 ```qml

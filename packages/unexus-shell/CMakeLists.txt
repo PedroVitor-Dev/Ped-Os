@@ -31,6 +31,7 @@ qt_add_qml_module(unexus-shell
     VERSION 1.0
     QML_FILES
         qml/Main.qml
+        qml/DesignTokens.qml
         qml/Launcher.qml
         qml/LoginScreen.qml
         qml/ContextMenu.qml

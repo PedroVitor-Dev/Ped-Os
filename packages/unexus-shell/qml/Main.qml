@@ -11,50 +11,54 @@ Window {
     title: root.tr("uNexus Shell")
     color: "#0a0a0a"
 
-    property string uiFont: "Exo 2"
+    DesignTokens {
+        id: tokens
+    }
+
+    property string uiFont: tokens.fontFamily
     property string brandLogoSource: "qrc:/UNexusShell/assets/logo/SF%20White.png"
 
     // Core visual language
-    property int spaceXs: 4
-    property int spaceSm: 8
-    property int spaceMd: 12
-    property int spaceLg: 16
-    property int spaceXl: 18
-    property bool compactLayout: width < 1100 || height < 760
-    property int panelMargin: compactLayout ? 14 : 32
-    property int panelPadding: compactLayout ? 14 : 18
-    property int panelGap: compactLayout ? 10 : 14
-    property int panelTopMargin: compactLayout ? 72 : 100
-    property int multiMonitorEdgeMargin: width >= 1800 ? 24 : spaceMd
-    property int multiMonitorTopMargin: compactLayout ? 48 : 58
-    property int radiusSm: 6
-    property int radiusMd: 8
-    property int radiusLg: 12
-    property int radiusXl: 14
-    property int radiusDock: 16
-    property int borderHairline: 1
-    property int motionQuick: 90
-    property int motionBase: 140
-    property int motionExpressive: 180
-    property int motionEntrance: 240
-    property int textMicro: 9
-    property int textTiny: 10
-    property int textSmall: 12
-    property int textBody: 13
-    property int textUi: 15
-    property int textLg: 16
-    property int textTitle: 22
-    property color surfaceBase: "#0e1520"
-    property color surfacePanel: "#111111"
-    property color surfaceRaised: "#172233"
-    property color surfaceHover: "#1e2d45"
-    property color surfaceStrongHover: "#2a3a55"
-    property color borderSubtle: "#1e2d45"
-    property color borderMuted: "#2a3a55"
-    property color textPrimary: "#ffffff"
-    property color textSecondary: "#aaaaaa"
-    property color textMuted: "#8ea4bd"
-    property color shadowSoft: "#66000000"
+    property int spaceXs: tokens.space.xs
+    property int spaceSm: tokens.space.sm
+    property int spaceMd: tokens.space.md
+    property int spaceLg: tokens.space.lg
+    property int spaceXl: tokens.space.xl
+    property bool compactLayout: width < tokens.layout.compactBreakpointWidth || height < tokens.layout.compactBreakpointHeight
+    property int panelMargin: compactLayout ? tokens.layout.panelMarginCompact : tokens.layout.panelMargin
+    property int panelPadding: compactLayout ? tokens.layout.panelPaddingCompact : tokens.layout.panelPadding
+    property int panelGap: compactLayout ? tokens.layout.panelGapCompact : tokens.layout.panelGap
+    property int panelTopMargin: compactLayout ? tokens.layout.panelTopMarginCompact : tokens.layout.panelTopMargin
+    property int multiMonitorEdgeMargin: width >= 1800 ? tokens.layout.multiMonitorEdgeMargin : spaceMd
+    property int multiMonitorTopMargin: compactLayout ? tokens.layout.multiMonitorTopMarginCompact : tokens.layout.multiMonitorTopMargin
+    property int radiusSm: tokens.radius.sm
+    property int radiusMd: tokens.radius.md
+    property int radiusLg: tokens.radius.lg
+    property int radiusXl: tokens.radius.xl
+    property int radiusDock: tokens.radius.dock
+    property int borderHairline: tokens.border.hairline
+    property int motionQuick: tokens.motion.quick
+    property int motionBase: tokens.motion.base
+    property int motionExpressive: tokens.motion.expressive
+    property int motionEntrance: tokens.motion.entrance
+    property int textMicro: tokens.type.micro
+    property int textTiny: tokens.type.tiny
+    property int textSmall: tokens.type.small
+    property int textBody: tokens.type.body
+    property int textUi: tokens.type.ui
+    property int textLg: tokens.type.lg
+    property int textTitle: tokens.type.title
+    property color surfaceBase: tokens.surface.base
+    property color surfacePanel: tokens.surface.panel
+    property color surfaceRaised: tokens.surface.raised
+    property color surfaceHover: tokens.surface.hover
+    property color surfaceStrongHover: tokens.surface.strongHover
+    property color borderSubtle: tokens.border.subtle
+    property color borderMuted: tokens.border.muted
+    property color textPrimary: tokens.text.primary
+    property color textSecondary: tokens.text.secondary
+    property color textMuted: tokens.text.muted
+    property color shadowSoft: tokens.shadow.soft
 
     property int themeIndex: 0
     property string themeName: "Neon Blue"
