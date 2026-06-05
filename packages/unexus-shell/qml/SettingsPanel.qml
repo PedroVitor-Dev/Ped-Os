@@ -38,6 +38,14 @@ Item {
         userSettings.controlCenterSection = section
     }
 
+    function resetShortcutsToDefaults() {
+        userSettings.launcherShortcut = "Meta+S"
+        userSettings.settingsShortcut = "Meta+I"
+        userSettings.gameSettingsShortcut = "Meta+Alt+G"
+        userSettings.statsShortcut = "Meta+G"
+        notifCenter.send(root.tr("Shortcuts restored"), root.tr("Default shortcuts applied."), "SYS")
+    }
+
     function cycleTheme() {
         root.applyTheme((root.themeIndex + 1) % 6, true)
     }
@@ -185,6 +193,7 @@ Item {
 
                         ControlNavButton { width: parent.width; label: root.tr("System"); value: "system"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("Shortcuts"); value: "shortcuts"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
+                        ControlNavButton { width: parent.width; label: root.tr("Help"); value: "help"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("Appearance"); value: "appearance"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("Language"); value: "language"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("About"); value: "about"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
@@ -256,6 +265,32 @@ Item {
                         ShortcutEditRow { width: parent.width; label: root.tr("Stats shortcut"); value: userSettings.statsShortcut; defaultValue: "Meta+G"; onShortcutAccepted: function(sequence) { userSettings.statsShortcut = sequence } }
                     }
 
+
+                    SettingsSection {
+                        width: parent.width
+                        collapsed: settingsPanel.activeSection !== "help"
+                        title: root.tr("Shortcut Help")
+
+                        SettingsHint { width: parent.width; text: root.tr("Windows-style shortcuts for daily shell control") }
+
+                        SettingsSubheader { width: parent.width; label: root.tr("Global shortcuts") }
+                        ShortcutRow { width: parent.width; label: root.tr("Open Launcher"); keys: userSettings.launcherShortcut }
+                        ShortcutRow { width: parent.width; label: root.tr("Open Settings"); keys: userSettings.settingsShortcut }
+                        ShortcutRow { width: parent.width; label: root.tr("Toggle Stats Overlay"); keys: userSettings.statsShortcut }
+                        ShortcutRow { width: parent.width; label: root.tr("Open Game Settings"); keys: userSettings.gameSettingsShortcut }
+
+                        SettingsSubheader { width: parent.width; label: root.tr("File Manager") }
+                        ShortcutRow { width: parent.width; label: root.tr("Copy selected"); keys: "Ctrl+C" }
+                        ShortcutRow { width: parent.width; label: root.tr("Cut selected"); keys: "Ctrl+X" }
+                        ShortcutRow { width: parent.width; label: root.tr("Paste here"); keys: "Ctrl+V" }
+                        ShortcutRow { width: parent.width; label: root.tr("Select all"); keys: "Ctrl+A" }
+                        ShortcutRow { width: parent.width; label: root.tr("Rename selected"); keys: "F2" }
+                        ShortcutRow { width: parent.width; label: root.tr("Trash selected"); keys: "Delete" }
+                        ShortcutRow { width: parent.width; label: root.tr("Open selected"); keys: "Enter" }
+                        ShortcutRow { width: parent.width; label: root.tr("Clear selection"); keys: "Esc" }
+
+                        SettingsActionButton { width: parent.width; label: root.tr("Restore default shortcuts"); onClicked: settingsPanel.resetShortcutsToDefaults() }
+                    }
                     SettingsSection {
                         width: parent.width
                         collapsed: settingsPanel.activeSection !== "appearance"
@@ -437,6 +472,27 @@ Item {
             color: "#8ea4bd"
             font.pixelSize: 11
             font.family: root.uiFont
+        }
+    }
+
+    component SettingsSubheader: Rectangle {
+        id: subheader
+        property string label: ""
+
+        height: 20
+        radius: 0
+        color: "transparent"
+
+        Text {
+            anchors.left: parent.left
+            anchors.leftMargin: 2
+            anchors.verticalCenter: parent.verticalCenter
+            text: subheader.label
+            color: root.themeAccent
+            font.pixelSize: root.textTiny
+            font.family: root.uiFont
+            font.bold: true
+            font.letterSpacing: root.trackingSection
         }
     }
 
