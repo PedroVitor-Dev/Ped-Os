@@ -480,6 +480,20 @@ Window {
         systemStats.visible = !systemStats.visible
     }
 
+    function handleGlobalShortcut(action) {
+        if (loginScreen && loginScreen.visible)
+            return
+
+        if (action === "launcher")
+            toggleLauncher()
+        else if (action === "settings")
+            toggleSettingsPanel()
+        else if (action === "stats")
+            toggleStatsOverlay()
+        else if (action === "gameSettings")
+            toggleGameSettingsPanel()
+    }
+
     function refreshDesktopState() {
         dockStateVersion++
         panelStateVersion++
@@ -488,26 +502,35 @@ Window {
         notifCenter.send(root.tr("Shell refreshed"), root.tr("Desktop state refreshed."), "SYS")
     }
 
+    Connections {
+        target: globalShortcuts
+        function onActionRequested(action) { root.handleGlobalShortcut(action) }
+    }
+
     Shortcut {
         sequence: userSettings.launcherShortcut
+        context: Qt.ApplicationShortcut
         enabled: !loginScreen || !loginScreen.visible
         onActivated: root.toggleLauncher()
     }
 
     Shortcut {
         sequence: userSettings.settingsShortcut
+        context: Qt.ApplicationShortcut
         enabled: !loginScreen || !loginScreen.visible
         onActivated: root.toggleSettingsPanel()
     }
 
     Shortcut {
         sequence: userSettings.gameSettingsShortcut
+        context: Qt.ApplicationShortcut
         enabled: !loginScreen || !loginScreen.visible
         onActivated: root.toggleGameSettingsPanel()
     }
 
     Shortcut {
         sequence: userSettings.statsShortcut
+        context: Qt.ApplicationShortcut
         enabled: !loginScreen || !loginScreen.visible
         onActivated: root.toggleStatsOverlay()
     }

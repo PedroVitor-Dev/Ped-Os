@@ -106,11 +106,12 @@ Core shell:
 - Top bar clock/date/network/battery/Game Mode toggle.
 - Notification center.
 - Desktop context menu.
-- Persistent theme, language, stats overlay and first setup preferences.
+- Persistent theme, language, stats overlay, shortcut and first setup preferences.
 - Official uNexus logo integrated into desktop, login, Settings About and README.
 - Shared design tokens define spacing, borders, shadows, typography, motion and surfaces.
 - Liquid Glass QML material is applied to docks, menus and notifications.
 - Spring physics drive panel and dock interactions.
+- Windows-like global shortcuts are bridged through Hyprland binds and `unexus-shell --shortcut`: `Super+S` launcher, `Super+I` Settings, `Super+G` Stats and `Super+Alt+G` Game Settings.
 - Current slogan: `Open Source. Linux Powered. Gamer Focused.`
 
 Dock:
@@ -138,7 +139,7 @@ Game/Setup:
 
 - Game Settings panel checks MangoHud, GameModeRun and gaming launchers.
 - First Setup checklist covers Flatpak, MangoHud, GameMode and gaming launchers.
-- Install commands are copied to clipboard instead of run directly.
+- Game Settings starts real Flatpak installs for Steam, Lutris, Heroic and Bottles. Pacman/tool installs still need manual/system-level handling.
 
 Stats:
 

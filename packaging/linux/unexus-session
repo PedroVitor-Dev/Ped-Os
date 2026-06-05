@@ -56,6 +56,11 @@ mkdir -p "$log_root"
         printf 'source = %s\n' "$user_config"
     fi
 
+    echo "bind = SUPER, S, exec, unexus-shell --shortcut launcher"
+    echo "bind = SUPER, SPACE, exec, unexus-shell --shortcut launcher"
+    echo "bind = SUPER, I, exec, unexus-shell --shortcut settings"
+    echo "bind = SUPER, G, exec, unexus-shell --shortcut stats"
+    echo "bind = SUPER ALT, G, exec, unexus-shell --shortcut gameSettings"
     if command -v unexus-shell >/dev/null 2>&1; then
         printf "exec-once = sh -lc 'unexus-shell >>\"%s\" 2>&1 || %s'\n" "$session_log" "${fallback_terminal:-true}"
     elif [ -n "$fallback_terminal" ]; then

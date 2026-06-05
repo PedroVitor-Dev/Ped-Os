@@ -13,18 +13,26 @@ UserSettings::UserSettings(QObject *parent)
     m_statsOverlayVisible = m_settings.value("appearance/statsOverlayVisible", false).toBool();
     m_firstSetupCompleted = m_settings.value("setup/firstSetupCompleted", false).toBool();
     m_notificationsEnabled = m_settings.value("notifications/enabled", true).toBool();
-    m_launcherShortcut = m_settings.value("shortcuts/launcher", "Meta+Space").toString();
+    m_launcherShortcut = m_settings.value("shortcuts/launcher", "Meta+S").toString();
     m_settingsShortcut = m_settings.value("shortcuts/settings", "Meta+I").toString();
-    m_gameSettingsShortcut = m_settings.value("shortcuts/gameSettings", "Meta+G").toString();
-    m_statsShortcut = m_settings.value("shortcuts/stats", "Meta+Alt+G").toString();
-    if (m_launcherShortcut.trimmed().isEmpty())
-        m_launcherShortcut = "Meta+Space";
+    m_gameSettingsShortcut = m_settings.value("shortcuts/gameSettings", "Meta+Alt+G").toString();
+    m_statsShortcut = m_settings.value("shortcuts/stats", "Meta+G").toString();
+    if (m_launcherShortcut.trimmed().isEmpty() || m_launcherShortcut == "Meta+Space")
+        m_launcherShortcut = "Meta+S";
     if (m_settingsShortcut.trimmed().isEmpty())
         m_settingsShortcut = "Meta+I";
     if (m_gameSettingsShortcut.trimmed().isEmpty())
-        m_gameSettingsShortcut = "Meta+G";
+        m_gameSettingsShortcut = "Meta+Alt+G";
+    if (m_gameSettingsShortcut == "Meta+G" && m_statsShortcut == "Meta+Alt+G") {
+        m_gameSettingsShortcut = "Meta+Alt+G";
+        m_statsShortcut = "Meta+G";
+    }
     if (m_statsShortcut.trimmed().isEmpty())
-        m_statsShortcut = "Meta+Alt+G";
+        m_statsShortcut = "Meta+G";
+    m_settings.setValue("shortcuts/launcher", m_launcherShortcut);
+    m_settings.setValue("shortcuts/settings", m_settingsShortcut);
+    m_settings.setValue("shortcuts/gameSettings", m_gameSettingsShortcut);
+    m_settings.setValue("shortcuts/stats", m_statsShortcut);
     m_controlCenterSection = m_settings.value("controlCenter/section", "system").toString();
     if (m_controlCenterSection != "system" && m_controlCenterSection != "shortcuts" &&
         m_controlCenterSection != "appearance" &&
@@ -92,7 +100,7 @@ void UserSettings::setNotificationsEnabled(bool enabled)
 
 void UserSettings::setLauncherShortcut(const QString &shortcut)
 {
-    const QString normalizedShortcut = shortcut.trimmed().isEmpty() ? QStringLiteral("Meta+Space") : shortcut.trimmed();
+    const QString normalizedShortcut = shortcut.trimmed().isEmpty() ? QStringLiteral("Meta+S") : shortcut.trimmed();
     if (m_launcherShortcut == normalizedShortcut)
         return;
 
@@ -114,7 +122,7 @@ void UserSettings::setSettingsShortcut(const QString &shortcut)
 
 void UserSettings::setGameSettingsShortcut(const QString &shortcut)
 {
-    const QString normalizedShortcut = shortcut.trimmed().isEmpty() ? QStringLiteral("Meta+G") : shortcut.trimmed();
+    const QString normalizedShortcut = shortcut.trimmed().isEmpty() ? QStringLiteral("Meta+Alt+G") : shortcut.trimmed();
     if (m_gameSettingsShortcut == normalizedShortcut)
         return;
 
@@ -125,7 +133,7 @@ void UserSettings::setGameSettingsShortcut(const QString &shortcut)
 
 void UserSettings::setStatsShortcut(const QString &shortcut)
 {
-    const QString normalizedShortcut = shortcut.trimmed().isEmpty() ? QStringLiteral("Meta+Alt+G") : shortcut.trimmed();
+    const QString normalizedShortcut = shortcut.trimmed().isEmpty() ? QStringLiteral("Meta+G") : shortcut.trimmed();
     if (m_statsShortcut == normalizedShortcut)
         return;
 

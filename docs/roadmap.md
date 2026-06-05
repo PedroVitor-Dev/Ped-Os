@@ -93,7 +93,7 @@ Goal: make the current shell feel intentional, original and pleasant enough to u
 - [x] Keep Close behavior available from the dock action menu
 - [x] Add uNexus Files MVP with local directory navigation
 - [x] Add PT-BR interface localization selectable from uNexus Settings
-- [x] Add keyboard shortcuts for Launcher, Settings, Game Settings and stats overlay
+- [x] Add global Hyprland keyboard shortcuts for Launcher, Settings, Game Settings and stats overlay
 - [x] Add a visible shortcut help panel inside uNexus Settings
 - [x] Add quick toggles for stats overlay, Game Mode and theme
 - [x] Add notification actions where useful instead of passive messages only

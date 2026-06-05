@@ -18,12 +18,14 @@ qt_add_executable(unexus-shell
     src/systemstats.cpp
     src/usersettings.cpp
     src/filemanager.cpp
+    src/globalshortcuts.cpp
     include/systeminfo.h
     include/gamemode.h
     include/applauncher.h
     include/systemstats.h
     include/usersettings.h
     include/filemanager.h
+    include/globalshortcuts.h
 )
 
 qt_add_qml_module(unexus-shell

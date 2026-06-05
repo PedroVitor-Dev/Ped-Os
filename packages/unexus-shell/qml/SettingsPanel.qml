@@ -250,10 +250,10 @@ Item {
                         title: root.tr("Keyboard Shortcuts")
 
                         SettingsHint { width: parent.width; text: root.tr("Customize shortcuts") }
-                        ShortcutEditRow { width: parent.width; label: root.tr("Launcher shortcut"); value: userSettings.launcherShortcut; defaultValue: "Meta+Space"; onShortcutAccepted: function(sequence) { userSettings.launcherShortcut = sequence } }
+                        ShortcutEditRow { width: parent.width; label: root.tr("Launcher shortcut"); value: userSettings.launcherShortcut; defaultValue: "Meta+S"; onShortcutAccepted: function(sequence) { userSettings.launcherShortcut = sequence } }
                         ShortcutEditRow { width: parent.width; label: root.tr("Settings shortcut"); value: userSettings.settingsShortcut; defaultValue: "Meta+I"; onShortcutAccepted: function(sequence) { userSettings.settingsShortcut = sequence } }
-                        ShortcutEditRow { width: parent.width; label: root.tr("Game Settings shortcut"); value: userSettings.gameSettingsShortcut; defaultValue: "Meta+G"; onShortcutAccepted: function(sequence) { userSettings.gameSettingsShortcut = sequence } }
-                        ShortcutEditRow { width: parent.width; label: root.tr("Stats shortcut"); value: userSettings.statsShortcut; defaultValue: "Meta+Alt+G"; onShortcutAccepted: function(sequence) { userSettings.statsShortcut = sequence } }
+                        ShortcutEditRow { width: parent.width; label: root.tr("Game Settings shortcut"); value: userSettings.gameSettingsShortcut; defaultValue: "Meta+Alt+G"; onShortcutAccepted: function(sequence) { userSettings.gameSettingsShortcut = sequence } }
+                        ShortcutEditRow { width: parent.width; label: root.tr("Stats shortcut"); value: userSettings.statsShortcut; defaultValue: "Meta+G"; onShortcutAccepted: function(sequence) { userSettings.statsShortcut = sequence } }
                     }
 
                     SettingsSection {

@@ -63,9 +63,9 @@ private:
     bool m_statsOverlayVisible = false;
     bool m_firstSetupCompleted = false;
     bool m_notificationsEnabled = true;
-    QString m_launcherShortcut = "Meta+Space";
+    QString m_launcherShortcut = "Meta+S";
     QString m_settingsShortcut = "Meta+I";
-    QString m_gameSettingsShortcut = "Meta+G";
-    QString m_statsShortcut = "Meta+Alt+G";
+    QString m_gameSettingsShortcut = "Meta+Alt+G";
+    QString m_statsShortcut = "Meta+G";
     QString m_controlCenterSection = "system";
 };
