@@ -159,6 +159,7 @@ See [docs/installer-technology.md](docs/installer-technology.md).
 |---|---|---|
 | Desktop shell | `qml/Main.qml` | Top bar, wallpaper, docks, panels and app orchestration |
 | Design tokens | `qml/DesignTokens.qml` | Shared spacing, radius, motion, type, surface, text and status values |
+| Liquid Glass material | `qml/LiquidGlass.qml` | Shared translucent depth material for docks, menus and notifications |
 | Launcher | `qml/Launcher.qml` | App search, categories and gaming app status |
 | Login screen | `qml/LoginScreen.qml` | Startup login flow |
 | Notifications | `qml/NotificationCenter.qml` | Toast notifications |

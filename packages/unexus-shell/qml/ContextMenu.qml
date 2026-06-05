@@ -68,16 +68,20 @@ Item {
         visible: menuRect.visible
     }
 
-    Rectangle {
+    LiquidGlass {
         id: menuRect
         x: contextMenu.menuX
         y: contextMenu.menuY
         width: 210
         height: menuColumn.height + root.spaceLg
         radius: root.radiusLg
-        color: root.surfaceBase
-        border.color: root.borderSubtle
-        border.width: root.borderHairline
+        tintColor: root.surfaceBase
+        accentColor: root.themeAccent
+        borderColor: root.borderSubtle
+        materialOpacity: 0.78
+        borderOpacity: 0.56
+        highlightOpacity: 0.16
+        depth: 0.40
         opacity: 0.0
 
         Column {

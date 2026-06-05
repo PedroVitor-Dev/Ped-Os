@@ -41,14 +41,18 @@ Item {
         Repeater {
             model: notificationCenter.notifications
 
-            delegate: Rectangle {
+            delegate: LiquidGlass {
                 id: notifItem
                 width: 300
                 height: notifColumn.height + root.spaceXl
                 radius: root.radiusLg
-                color: root.surfaceBase
-                border.color: root.borderSubtle
-                border.width: root.borderHairline
+                tintColor: root.surfaceBase
+                accentColor: root.themeAccent
+                borderColor: root.borderSubtle
+                materialOpacity: 0.80
+                borderOpacity: 0.52
+                highlightOpacity: 0.16
+                depth: 0.42
                 anchors.right: parent ? parent.right : undefined
                 opacity: 0.0
 

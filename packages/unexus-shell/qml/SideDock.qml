@@ -71,17 +71,18 @@ Item {
         hoverEnabled: true
     }
 
-    Rectangle {
+    LiquidGlass {
         id: dockPanel
         width: sideDock.width
         height: dockColumn.height + root.spaceXl
         radius: root.radiusDock
-        color: sideDock.panelColor
-        opacity: sideDock.expanded ? 0.92 : 0.78
-        border.color: sideDock.accentColor
-        border.width: root.borderHairline
-
-        Behavior on opacity { NumberAnimation { duration: root.motionBase } }
+        tintColor: sideDock.panelColor
+        accentColor: sideDock.accentColor
+        borderColor: sideDock.accentColor
+        materialOpacity: sideDock.expanded ? 0.76 : 0.62
+        borderOpacity: sideDock.expanded ? 0.62 : 0.42
+        highlightOpacity: sideDock.expanded ? 0.20 : 0.14
+        depth: sideDock.expanded ? 0.44 : 0.28
 
         Column {
             id: dockColumn

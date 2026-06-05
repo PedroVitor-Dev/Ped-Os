@@ -105,6 +105,8 @@ Official uNexus logo PNG variants live in `assets/logo`.
 
 The base visual system starts in `qml/DesignTokens.qml`. `Main.qml` binds those tokens into root aliases for spacing, radius, motion, typography, surfaces, borders, text, shadows and status colors. Panels should prefer the root aliases so visual changes can be made centrally.
 
+`qml/LiquidGlass.qml` is the first material layer for the long-term Liquid Glass direction. It gives docks, menus and notifications a shared translucent/depth treatment today, while leaving a stable QML API for future shader or compositor-backed blur/refraction.
+
 `Main.qml` exposes a shared `brandLogoSource` property pointing at:
 
 ```qml

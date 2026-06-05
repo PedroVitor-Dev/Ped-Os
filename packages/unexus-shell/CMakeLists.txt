@@ -32,6 +32,7 @@ qt_add_qml_module(unexus-shell
     QML_FILES
         qml/Main.qml
         qml/DesignTokens.qml
+        qml/LiquidGlass.qml
         qml/Launcher.qml
         qml/LoginScreen.qml
         qml/ContextMenu.qml

@@ -1102,14 +1102,18 @@ Window {
         z: dockActionMenu.z - 1
     }
 
-    Rectangle {
+    LiquidGlass {
         id: dockActionMenu
         width: 190
         height: actionColumn.height + 12
         radius: root.radiusMd
-        color: root.surfaceBase
-        border.color: root.borderMuted
-        border.width: root.borderHairline
+        tintColor: root.surfaceBase
+        accentColor: root.themeAccent
+        borderColor: root.borderMuted
+        materialOpacity: 0.78
+        borderOpacity: 0.58
+        highlightOpacity: 0.16
+        depth: 0.40
         visible: false
         z: 180
 
