@@ -250,6 +250,17 @@ Item {
                         SettingsOptionRow { width: parent.width; label: root.tr("Battery"); value: systemInfo.hasBattery ? systemInfo.batteryLevel + "%" : root.tr("Not available") }
                         SettingsToggle { width: parent.width; label: root.tr("uNexus Stats Overlay"); detail: systemStats.visible ? root.tr("Visible on desktop") : root.tr("Hidden"); checked: systemStats.visible; onClicked: systemStats.visible = !systemStats.visible }
                         SettingsToggle { width: parent.width; label: root.tr("Notifications"); detail: userSettings.notificationsEnabled ? root.tr("Notifications enabled") : root.tr("Notifications disabled"); checked: userSettings.notificationsEnabled; onClicked: userSettings.notificationsEnabled = !userSettings.notificationsEnabled }
+                        SettingsOptionRow { width: parent.width; label: root.tr("Notification timeout"); value: userSettings.notificationTimeoutSeconds + "s" }
+
+                        Row {
+                            width: parent.width
+                            spacing: 8
+                            TimeoutButton { seconds: 4; active: userSettings.notificationTimeoutSeconds === 4; onClicked: userSettings.notificationTimeoutSeconds = 4 }
+                            TimeoutButton { seconds: 7; active: userSettings.notificationTimeoutSeconds === 7; onClicked: userSettings.notificationTimeoutSeconds = 7 }
+                            TimeoutButton { seconds: 10; active: userSettings.notificationTimeoutSeconds === 10; onClicked: userSettings.notificationTimeoutSeconds = 10 }
+                            TimeoutButton { seconds: 15; active: userSettings.notificationTimeoutSeconds === 15; onClicked: userSettings.notificationTimeoutSeconds = 15 }
+                        }
+
                         SettingsActionButton { width: parent.width; label: root.tr("Open First Setup"); onClicked: firstSetup.show() }
                     }
 
@@ -702,6 +713,36 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             onClicked: quickToggle.clicked()
+        }
+    }
+
+    component TimeoutButton: Rectangle {
+        id: timeoutButton
+        property int seconds: 7
+        property bool active: false
+        signal clicked()
+
+        width: Math.floor((parent.width - 24) / 4)
+        height: 34
+        radius: 8
+        color: timeoutMouse.containsMouse ? "#1b2a40" : "#172233"
+        border.color: active ? root.themeAccent : "#223247"
+        border.width: active ? 2 : 1
+
+        Text {
+            anchors.centerIn: parent
+            text: timeoutButton.seconds + "s"
+            color: timeoutButton.active ? root.themeAccent : root.textPrimary
+            font.pixelSize: 11
+            font.family: root.uiFont
+            font.bold: true
+        }
+
+        MouseArea {
+            id: timeoutMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: timeoutButton.clicked()
         }
     }
 

@@ -38,6 +38,11 @@ UserSettings::UserSettings(QObject *parent)
     m_settings.setValue("shortcuts/gameSettings", m_gameSettingsShortcut);
     m_settings.setValue("shortcuts/stats", m_statsShortcut);
     m_controlCenterSection = m_settings.value("controlCenter/section", "system").toString();
+    m_notificationTimeoutSeconds = m_settings.value("notifications/timeoutSeconds", 7).toInt();
+    if (m_notificationTimeoutSeconds < 3)
+        m_notificationTimeoutSeconds = 3;
+    if (m_notificationTimeoutSeconds > 30)
+        m_notificationTimeoutSeconds = 30;
     if (m_controlCenterSection != "system" && m_controlCenterSection != "shortcuts" && m_controlCenterSection != "help" &&
         m_controlCenterSection != "appearance" &&
         m_controlCenterSection != "language" && m_controlCenterSection != "about")
@@ -174,4 +179,20 @@ void UserSettings::setControlCenterSection(const QString &section)
     m_controlCenterSection = normalizedSection;
     m_settings.setValue("controlCenter/section", m_controlCenterSection);
     emit controlCenterSectionChanged();
+}
+
+void UserSettings::setNotificationTimeoutSeconds(int seconds)
+{
+    if (seconds < 3)
+        seconds = 3;
+
+    if (seconds > 30)
+        seconds = 30;
+
+    if (m_notificationTimeoutSeconds == seconds)
+        return;
+
+    m_notificationTimeoutSeconds = seconds;
+    m_settings.setValue("notifications/timeoutSeconds", m_notificationTimeoutSeconds);
+    emit notificationTimeoutSecondsChanged();
 }

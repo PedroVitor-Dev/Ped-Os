@@ -18,6 +18,7 @@ class UserSettings : public QObject
     Q_PROPERTY(QString gameSettingsShortcut READ gameSettingsShortcut WRITE setGameSettingsShortcut NOTIFY gameSettingsShortcutChanged)
     Q_PROPERTY(QString statsShortcut READ statsShortcut WRITE setStatsShortcut NOTIFY statsShortcutChanged)
     Q_PROPERTY(QString controlCenterSection READ controlCenterSection WRITE setControlCenterSection NOTIFY controlCenterSectionChanged)
+    Q_PROPERTY(int notificationTimeoutSeconds READ notificationTimeoutSeconds WRITE setNotificationTimeoutSeconds NOTIFY notificationTimeoutSecondsChanged)
 
 public:
     explicit UserSettings(QObject *parent = nullptr);
@@ -33,6 +34,7 @@ public:
     QString gameSettingsShortcut() const { return m_gameSettingsShortcut; }
     QString statsShortcut() const { return m_statsShortcut; }
     QString controlCenterSection() const { return m_controlCenterSection; }
+    int notificationTimeoutSeconds() const { return m_notificationTimeoutSeconds; }
 
 public slots:
     void setThemeIndex(int themeIndex);
@@ -46,6 +48,7 @@ public slots:
     void setGameSettingsShortcut(const QString &shortcut);
     void setStatsShortcut(const QString &shortcut);
     void setControlCenterSection(const QString &section);
+    void setNotificationTimeoutSeconds(int seconds);
 
 signals:
     void themeIndexChanged();
@@ -59,6 +62,7 @@ signals:
     void gameSettingsShortcutChanged();
     void statsShortcutChanged();
     void controlCenterSectionChanged();
+    void notificationTimeoutSecondsChanged();
 
 private:
     QSettings m_settings;
@@ -73,4 +77,5 @@ private:
     QString m_gameSettingsShortcut = "Meta+Alt+G";
     QString m_statsShortcut = "Meta+G";
     QString m_controlCenterSection = "system";
+    int m_notificationTimeoutSeconds = 7;
 };

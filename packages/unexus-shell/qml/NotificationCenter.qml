@@ -6,36 +6,70 @@ Item {
     z: 120
 
     property var notifications: []
-    property int maxNotifications: 4
+    property int maxVisibleNotifications: 4
+    property int timeoutMs: 7000
     property bool notificationsEnabled: true
-
-    function send(title, message, icon, actionLabel, actionCallback) {
-        if (!notificationsEnabled)
-            return
-        var n = {
-            id: Date.now(),
-            title: title,
-            message: message,
-            actionLabel: actionLabel || "",
-            actionCallback: actionCallback || null,
-            icon: icon || "🔔"
-        }
-        var list = notifications.slice()
-        list.unshift(n)
-        if (list.length > maxNotifications)
-            list = list.slice(0, maxNotifications)
-        notifications = list
-    }
+    property double silencedUntil: 0
+    property int clockTick: 0
+    readonly property bool silenced: clockTick >= 0 && Date.now() < silencedUntil
+    readonly property int queuedCount: Math.max(0, notifications.length - maxVisibleNotifications)
 
     onNotificationsEnabledChanged: if (!notificationsEnabled) notifications = []
 
-    function dismiss(index) {
-        var list = notifications.slice()
-        list.splice(index, 1)
-        notifications = list
+    function nextId() {
+        return Date.now() + Math.floor(Math.random() * 100000)
     }
 
-    // Stack de notificações
+    function send(title, message, icon, actionLabel, actionCallback) {
+        if (!notificationsEnabled || silenced)
+            return false
+
+        var n = {
+            id: nextId(),
+            title: title,
+            message: message,
+            actionLabel: actionLabel || root.tr("Open"),
+            actionCallback: actionCallback || null,
+            hasAction: actionCallback !== undefined && actionCallback !== null,
+            icon: icon || "INFO",
+            timeoutMs: Math.max(3000, timeoutMs)
+        }
+
+        var list = notifications.slice()
+        list.unshift(n)
+        notifications = list
+        return true
+    }
+
+    function dismissById(id) {
+        var list = notifications.slice()
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].id === id) {
+                list.splice(i, 1)
+                notifications = list
+                return
+            }
+        }
+    }
+
+    function openNotification(notification) {
+        dismissById(notification.id)
+        if (notification.actionCallback)
+            notification.actionCallback()
+    }
+
+    function silenceForOneHour() {
+        silencedUntil = Date.now() + 60 * 60 * 1000
+        notifications = []
+    }
+
+    Timer {
+        interval: 30000
+        repeat: true
+        running: true
+        onTriggered: notificationCenter.clockTick++
+    }
+
     Column {
         anchors.top: parent.top
         anchors.right: parent.right
@@ -43,8 +77,80 @@ Item {
         anchors.rightMargin: root.spaceMd
         spacing: root.spaceSm
 
+        LiquidGlass {
+            width: 300
+            height: visible ? queueHeaderColumn.height + root.spaceMd : 0
+            radius: root.radiusMd
+            tintColor: root.surfaceBase
+            accentColor: root.themeAccent
+            borderColor: root.borderSubtle
+            materialOpacity: 0.72
+            borderOpacity: 0.48
+            highlightOpacity: 0.12
+            depth: 0.28
+            visible: notificationCenter.notifications.length > 0 || notificationCenter.silenced
+            opacity: visible ? 1.0 : 0.0
+
+            Behavior on opacity { NumberAnimation { duration: root.motionQuick; easing.type: Easing.OutCubic } }
+
+            Column {
+                id: queueHeaderColumn
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: root.spaceSm
+                spacing: 2
+
+                Row {
+                    width: parent.width
+                    spacing: root.spaceSm
+
+                    Text {
+                        text: root.tr("Notification queue")
+                        color: root.textPrimary
+                        font.pixelSize: root.textSmall
+                        font.family: root.uiFont
+                        font.bold: true
+                        width: parent.width - queueCountBadge.width - root.spaceSm
+                        elide: Text.ElideRight
+                    }
+
+                    Rectangle {
+                        id: queueCountBadge
+                        width: queueCountText.width + root.spaceSm
+                        height: 20
+                        radius: root.radiusSm
+                        color: root.surfaceRaised
+                        border.color: root.themeAccent
+                        border.width: 1
+
+                        Text {
+                            id: queueCountText
+                            anchors.centerIn: parent
+                            text: notificationCenter.silenced ? root.tr("Silenced") : notificationCenter.notifications.length
+                            color: root.themeAccent
+                            font.pixelSize: root.textTiny
+                            font.family: root.uiFont
+                            font.bold: true
+                        }
+                    }
+                }
+
+                Text {
+                    width: parent.width
+                    text: notificationCenter.silenced ? root.tr("Notifications silenced for 1h.") :
+                          (notificationCenter.queuedCount > 0 ? ("+" + notificationCenter.queuedCount + " " + root.tr("queued")) :
+                           root.tr("Open, dismiss or silence alerts."))
+                    color: root.textMuted
+                    font.pixelSize: root.textTiny
+                    font.family: root.uiFont
+                    elide: Text.ElideRight
+                }
+            }
+        }
+
         Repeater {
-            model: notificationCenter.notifications
+            model: notificationCenter.notifications.slice(0, notificationCenter.maxVisibleNotifications)
 
             delegate: LiquidGlass {
                 id: notifItem
@@ -91,7 +197,9 @@ Item {
 
                         Text {
                             text: modelData.icon
+                            color: root.themeAccent
                             font.pixelSize: root.textLg
+                            font.family: root.uiFont
                             anchors.verticalCenter: parent.verticalCenter
                         }
 
@@ -99,35 +207,12 @@ Item {
                             text: modelData.title
                             color: root.textPrimary
                             font.pixelSize: root.textBody
+                            font.family: root.uiFont
                             font.bold: true
                             opacity: 0.95
                             anchors.verticalCenter: parent.verticalCenter
                             width: parent.width - 60
                             elide: Text.ElideRight
-                        }
-
-                        // Botão fechar
-                        Rectangle {
-                            width: 20
-                            height: 20
-                            radius: 10
-                            color: closeMouse.containsMouse ? root.surfaceStrongHover : "transparent"
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: "✕"
-                                color: root.textPrimary
-                                font.pixelSize: root.textTiny
-                                opacity: 0.6
-                            }
-
-                            MouseArea {
-                                id: closeMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onClicked: notificationCenter.dismiss(index)
-                            }
                         }
                     }
 
@@ -135,51 +220,79 @@ Item {
                         text: modelData.message
                         color: root.textSecondary
                         font.pixelSize: root.textSmall
+                        font.family: root.uiFont
                         width: parent.width
                         wrapMode: Text.WordWrap
                         opacity: 0.8
                     }
 
-                    Rectangle {
-                        visible: modelData.actionLabel && modelData.actionLabel.length > 0
-                        width: actionText.width + root.spaceLg
-                        height: visible ? 26 : 0
-                        radius: root.radiusSm
-                        color: actionMouse.containsMouse ? root.surfaceHover : root.surfaceRaised
-                        border.color: root.themeAccent
-                        border.width: 1
+                    Row {
+                        width: parent.width
+                        spacing: root.spaceXs
 
-                        Text {
-                            id: actionText
-                            anchors.centerIn: parent
-                            text: modelData.actionLabel || ""
-                            color: "#b7ddff"
-                            font.pixelSize: root.textTiny
-                            font.family: root.uiFont
-                            font.bold: true
+                        NotificationActionButton {
+                            width: Math.floor((parent.width - root.spaceXs * 2) / 3)
+                            label: root.tr("Open")
+                            muted: !modelData.hasAction
+                            onClicked: notificationCenter.openNotification(modelData)
                         }
 
-                        MouseArea {
-                            id: actionMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onClicked: {
-                                var callback = modelData.actionCallback
-                                notificationCenter.dismiss(index)
-                                if (callback)
-                                    callback()
-                            }
+                        NotificationActionButton {
+                            width: Math.floor((parent.width - root.spaceXs * 2) / 3)
+                            label: root.tr("Dismiss")
+                            onClicked: notificationCenter.dismissById(modelData.id)
+                        }
+
+                        NotificationActionButton {
+                            width: parent.width - Math.floor((parent.width - root.spaceXs * 2) / 3) * 2 - root.spaceXs * 2
+                            label: root.tr("Silence 1h")
+                            accent: true
+                            onClicked: notificationCenter.silenceForOneHour()
                         }
                     }
                 }
 
-                // Auto dismiss depois de 4s
                 Timer {
-                    interval: modelData.actionLabel && modelData.actionLabel.length > 0 ? 7000 : 4000
-                    running: true
-                    onTriggered: notificationCenter.dismiss(index)
+                    interval: modelData.timeoutMs
+                    running: modelData.timeoutMs > 0
+                    onTriggered: notificationCenter.dismissById(modelData.id)
                 }
             }
+        }
+    }
+
+    component NotificationActionButton: Rectangle {
+        id: actionButton
+        property string label: ""
+        property bool accent: false
+        property bool muted: false
+        signal clicked()
+
+        height: 26
+        radius: root.radiusSm
+        opacity: muted ? 0.45 : 1.0
+        color: actionMouse.containsMouse && !muted ? root.surfaceHover : root.surfaceRaised
+        border.color: accent ? root.themeAccent : root.borderMuted
+        border.width: 1
+
+        Text {
+            anchors.centerIn: parent
+            text: actionButton.label
+            color: actionButton.accent ? root.themeAccent : root.textPrimary
+            font.pixelSize: root.textTiny
+            font.family: root.uiFont
+            font.bold: true
+            elide: Text.ElideRight
+            width: parent.width - root.spaceXs
+            horizontalAlignment: Text.AlignHCenter
+        }
+
+        MouseArea {
+            id: actionMouse
+            anchors.fill: parent
+            enabled: !actionButton.muted
+            hoverEnabled: enabled
+            onClicked: actionButton.clicked()
         }
     }
 }

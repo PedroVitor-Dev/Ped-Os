@@ -233,6 +233,14 @@ Window {
         "PLACES": "LOCAIS",
         "{count} items": "{count} itens",
         "Open": "Abrir",
+        "Dismiss": "Descartar",
+        "Silence 1h": "Silenciar 1h",
+        "Silenced": "Silenciado",
+        "Notification queue": "Fila de notificacoes",
+        "Notifications silenced for 1h.": "Notificacoes silenciadas por 1h.",
+        "Open, dismiss or silence alerts.": "Abra, descarte ou silencie alertas.",
+        "queued": "na fila",
+        "Notification timeout": "Tempo das notificacoes",
         "Rename": "Renomear",
         "Trash": "Lixeira",
         "Confirm trash": "Confirmar lixeira",
@@ -1836,6 +1844,7 @@ MouseArea {
         notificationsEnabled: userSettings.notificationsEnabled
         anchors.fill: parent
         z: 120
+        timeoutMs: userSettings.notificationTimeoutSeconds * 1000
     }
 
     LoginScreen {
