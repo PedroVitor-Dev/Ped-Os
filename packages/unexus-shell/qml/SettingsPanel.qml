@@ -498,6 +498,11 @@ Item {
         radius: 8
         color: "#172233"
 
+        function applyShortcut() {
+            shortcutRow.shortcutAccepted(shortcutInput.text)
+            shortcutInput.focus = false
+        }
+
         Text {
             anchors.left: parent.left
             anchors.leftMargin: 10
@@ -513,10 +518,10 @@ Item {
 
         Rectangle {
             id: shortcutInputBox
-            anchors.right: resetButton.left
+            anchors.right: applyButton.left
             anchors.rightMargin: 8
             anchors.verticalCenter: parent.verticalCenter
-            width: 150
+            width: root.compactLayout ? 112 : 136
             height: 28
             radius: 7
             color: "#101927"
@@ -535,9 +540,23 @@ Item {
                 font.pixelSize: 10
                 font.family: root.uiFont
                 font.bold: true
-                onAccepted: shortcutRow.shortcutAccepted(text)
-                onEditingFinished: shortcutRow.shortcutAccepted(text)
+                onAccepted: shortcutRow.applyShortcut()
             }
+        }
+
+        ControlButton {
+            id: applyButton
+            anchors.right: resetButton.left
+            anchors.rightMargin: 8
+            anchors.verticalCenter: parent.verticalCenter
+            width: 64
+            height: 28
+            label: root.tr("Apply")
+            variant: "primary"
+            fontFamily: root.uiFont
+            accentColor: root.themeAccent
+            motionDuration: root.motionQuick
+            onClicked: shortcutRow.applyShortcut()
         }
 
         ControlButton {

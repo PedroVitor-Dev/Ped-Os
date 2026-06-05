@@ -6,6 +6,7 @@ Item {
     anchors.fill: parent
     visible: false
     opacity: 0.0
+    focus: visible
 
     property string currentPath: fileManager.homePath()
     property string selectedPath: ""
@@ -33,6 +34,7 @@ Item {
     function show(path) {
         hideAnim.stop()
         visible = true
+        forceActiveFocus()
         dockActive = true
         opacity = 0.0
         panel.scale = 0.985
@@ -216,42 +218,49 @@ Item {
 
     Shortcut {
         sequence: "Ctrl+C"
+        context: Qt.ApplicationShortcut
         enabled: filesPanel.visible && filesPanel.mode === "browse"
         onActivated: filesPanel.copySelected()
     }
 
     Shortcut {
         sequence: "Ctrl+X"
+        context: Qt.ApplicationShortcut
         enabled: filesPanel.visible && filesPanel.mode === "browse"
         onActivated: filesPanel.cutSelected()
     }
 
     Shortcut {
         sequence: "Ctrl+V"
+        context: Qt.ApplicationShortcut
         enabled: filesPanel.visible && filesPanel.mode === "browse"
         onActivated: filesPanel.pasteClipboard()
     }
 
     Shortcut {
         sequence: "Ctrl+A"
+        context: Qt.ApplicationShortcut
         enabled: filesPanel.visible && filesPanel.mode === "browse"
         onActivated: filesPanel.selectAllEntries()
     }
 
     Shortcut {
         sequence: "Delete"
+        context: Qt.ApplicationShortcut
         enabled: filesPanel.visible && filesPanel.mode === "browse"
         onActivated: filesPanel.requestTrashSelected()
     }
 
     Shortcut {
         sequence: "Return"
+        context: Qt.ApplicationShortcut
         enabled: filesPanel.visible && filesPanel.mode === "browse"
         onActivated: filesPanel.openSelected()
     }
 
     Shortcut {
         sequence: "F2"
+        context: Qt.ApplicationShortcut
         enabled: filesPanel.visible && filesPanel.mode === "browse" && filesPanel.selectionCount() === 1
         onActivated: {
             filesPanel.mode = "rename"
@@ -263,6 +272,7 @@ Item {
 
     Shortcut {
         sequence: "Escape"
+        context: Qt.ApplicationShortcut
         enabled: filesPanel.visible
         onActivated: {
             if (filesPanel.mode !== "browse") {
