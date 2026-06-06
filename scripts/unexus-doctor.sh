@@ -78,6 +78,7 @@ info "checking install prefix: $prefix"
 
 need_command Hyprland required
 need_command unexus-shell required "${bindir}/unexus-shell"
+need_command unexus-installer required "${bindir}/unexus-installer"
 need_command unexusctl required "${bindir}/unexusctl"
 need_command flatpak optional
 need_command gamemoderun optional

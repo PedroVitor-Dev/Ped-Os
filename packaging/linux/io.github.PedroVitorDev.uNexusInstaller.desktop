@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=uNexus Installer
+Comment=Install, repair and diagnose the uNexus shell
+Exec=unexus-installer
+TryExec=unexus-installer
+Icon=unexus-shell
+Terminal=false
+Categories=System;Utility;
+Keywords=uNexus;Installer;Setup;Repair;Wayland;Hyprland;
+StartupNotify=true

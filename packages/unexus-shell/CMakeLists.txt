@@ -28,6 +28,16 @@ qt_add_executable(unexus-shell
     include/globalshortcuts.h
 )
 
+qt_add_executable(unexus-installer
+    ../unexus-installer/src/main.cpp
+    ../unexus-installer/src/installerbackend.cpp
+    ../unexus-installer/include/installerbackend.h
+)
+
+set_source_files_properties(../unexus-installer/qml/Main.qml PROPERTIES
+    QT_RESOURCE_ALIAS qml/Main.qml
+)
+
 qt_add_qml_module(unexus-shell
     URI UNexusShell
     VERSION 1.0
@@ -52,6 +62,13 @@ qt_add_qml_module(unexus-shell
         qml/SegmentedControl.qml
 )
 
+qt_add_qml_module(unexus-installer
+    URI UNexusInstaller
+    VERSION 1.0
+    QML_FILES
+        ../unexus-installer/qml/Main.qml
+)
+
 qt_add_resources(unexus-shell "unexus_brand_assets"
     PREFIX "/UNexusShell"
     BASE "${CMAKE_CURRENT_SOURCE_DIR}/../.."
@@ -65,7 +82,24 @@ qt_add_resources(unexus-shell "unexus_brand_assets"
         "${CMAKE_CURRENT_SOURCE_DIR}/../../assets/wallpapers/ember-circuit.png"
 )
 
+qt_add_resources(unexus-installer "unexus_installer_assets"
+    PREFIX "/UNexusInstaller"
+    BASE "${CMAKE_CURRENT_SOURCE_DIR}/../.."
+    FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../assets/logo/SF White.png"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../assets/wallpapers/unexus-core.png"
+)
+
 target_include_directories(unexus-shell PRIVATE include)
+target_include_directories(unexus-installer PRIVATE ../unexus-installer/include)
+
+target_compile_definitions(unexus-installer PRIVATE
+    UNEXUS_REPO_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/../.."
+)
+
+set_target_properties(unexus-installer PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 
 target_link_libraries(unexus-shell PRIVATE
     Qt6::Core
@@ -74,7 +108,18 @@ target_link_libraries(unexus-shell PRIVATE
     Qt6::Quick
 )
 
+target_link_libraries(unexus-installer PRIVATE
+    Qt6::Core
+    Qt6::Gui
+    Qt6::Qml
+    Qt6::Quick
+)
+
 install(TARGETS unexus-shell
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(TARGETS unexus-installer
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
@@ -98,6 +143,7 @@ install(PROGRAMS
 
 install(FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/../../packaging/linux/io.github.PedroVitorDev.uNexusShell.desktop"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../packaging/linux/io.github.PedroVitorDev.uNexusInstaller.desktop"
     DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
 )
 
