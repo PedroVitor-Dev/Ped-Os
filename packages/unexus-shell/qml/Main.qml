@@ -624,7 +624,7 @@ Window {
 
     property var systemDockApps: [
         { icon: "files", fallbackIcon: "files", iconNames: ["system-file-manager", "org.gnome.Nautilus", "nautilus"], label: "uNexus Files", internalAction: "files" },
-        { icon: "browser", fallbackIcon: "browser", iconNames: ["brave-browser", "brave", "com.brave.Browser"], label: "Browser", command: "brave", args: [], windowClasses: ["brave-browser", "Brave-browser", "brave", "Brave"], processNames: ["brave", "brave-browser"] },
+        { icon: "browser", fallbackIcon: "browser", iconNames: ["brave-browser", "brave", "com.brave.Browser"], label: "Browser", command: "brave-browser", args: [], flatpakId: "com.brave.Browser", windowClasses: ["brave-browser", "Brave-browser", "brave", "Brave", "com.brave.Browser"], processNames: ["brave", "brave-browser"] },
         { icon: "settings", fallbackIcon: "settings", iconNames: ["preferences-system", "org.gnome.Settings", "gnome-control-center"], label: "uNexus Settings", internalAction: "settings" },
         { icon: "terminal", fallbackIcon: "terminal", iconNames: ["utilities-terminal", "org.gnome.Terminal", "gnome-terminal"], label: "Terminal", command: "gnome-terminal", args: [], windowClasses: ["gnome-terminal", "Gnome-terminal"], processNames: ["gnome-terminal-server", "gnome-terminal"] }
     ]

@@ -17,7 +17,7 @@ Item {
         { icon: "⚙️", name: "Settings", category: "System", internalAction: "settings" },
         { icon: "🖥", name: "Terminal", category: "System", command: "gnome-terminal", args: [] },
         { icon: "🏪", name: "Store",    category: "System", command: "gnome-software", args: [] },
-        { icon: "🌐", name: "Browser",  category: "Media", command: "brave", args: [], windowClasses: ["brave-browser", "Brave-browser", "brave", "Brave"] },
+        { icon: "🌐", name: "Browser",  category: "Media", command: "brave-browser", args: [], flatpakId: "com.brave.Browser", windowClasses: ["brave-browser", "Brave-browser", "brave", "Brave", "com.brave.Browser"] },
         { icon: "🎵", name: "Music",    category: "Media", command: "rhythmbox", args: [] },
         { icon: "📷", name: "Camera",   category: "Media", command: "cheese", args: [] },
         { icon: "📝", name: "Notes",    category: "Media", command: "gedit", args: [] }
