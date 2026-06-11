@@ -108,6 +108,8 @@ Window {
     property color themeGlow: "#4d9eff"
     property string languageCode: "en"
     property int localeVersion: 0
+    property bool captureMode: false
+    property string captureScene: "login"
 
     property var ptBr: ({
         "uNexus Files": "Arquivos uNexus",
@@ -590,6 +592,41 @@ Window {
 
     function toggleStatsOverlay() {
         systemStats.visible = !systemStats.visible
+    }
+
+    function captureSetScene(scene) {
+        captureMode = true
+        captureScene = scene
+
+        dockActionMenu.hideMenu()
+        contextMenu.hide()
+
+        unexusLauncher.visible = false
+        unexusLauncher.opacity = 0.0
+        unexusSettings.visible = false
+        unexusSettings.opacity = 0.0
+        unexusSettings.dockActive = false
+        gameSettings.visible = false
+        gameSettings.opacity = 0.0
+        gameSettings.dockActive = false
+        unexusFiles.visible = false
+        unexusFiles.opacity = 0.0
+        unexusFiles.dockActive = false
+        firstSetup.visible = false
+        firstSetup.opacity = 0.0
+        firstSetup.dockActive = false
+
+        if (scene === "launcher") {
+            unexusLauncher.show()
+        } else if (scene === "files") {
+            unexusFiles.show()
+        } else if (scene === "settings") {
+            unexusSettings.show()
+        } else if (scene === "game-settings") {
+            gameSettings.show()
+        } else if (scene === "first-setup") {
+            firstSetup.show()
+        }
     }
 
     function handleGlobalShortcut(action) {
@@ -2028,6 +2065,8 @@ MouseArea {
         id: loginScreen
         anchors.fill: parent
         z: 200
+        visible: !root.captureMode || root.captureScene === "login"
+        opacity: visible ? 1.0 : 0.0
 
         onLoginSuccess: {
             loginScreen.destroy()
