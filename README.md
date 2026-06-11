@@ -15,6 +15,67 @@
 
 ---
 
+## Preview
+
+<div align="center">
+  <img src="assets/gifs/unexus-shell-tour.gif" width="900" alt="uNexus Shell tour">
+  <br>
+  <sub>Desktop, launcher, file manager, settings and gaming panels.</sub>
+</div>
+
+<br>
+
+<div align="center">
+  <img src="assets/screenshots/02-desktop.png" width="900" alt="uNexus desktop">
+</div>
+
+<br>
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="assets/screenshots/03-launcher.png" alt="uNexus Launcher">
+      <br>
+      <sub><b>Launcher</b> with categories, search and app state chips.</sub>
+    </td>
+    <td width="50%">
+      <img src="assets/screenshots/04-file-manager.png" alt="uNexus File Manager">
+      <br>
+      <sub><b>uNexus Files</b> with places, breadcrumbs, sorting and file actions.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="assets/screenshots/05-settings.png" alt="uNexus Settings">
+      <br>
+      <sub><b>Settings</b> for system, appearance, language and shortcuts.</sub>
+    </td>
+    <td width="50%">
+      <img src="assets/screenshots/06-game-settings.png" alt="uNexus Game Settings">
+      <br>
+      <sub><b>Game Settings</b> for launchers, GameMode and overlay tooling.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <img src="assets/screenshots/01-login.png" alt="uNexus login screen">
+      <br>
+      <sub><b>Login</b> with the same polished visual language as the desktop.</sub>
+    </td>
+    <td width="50%">
+      <img src="assets/screenshots/07-first-setup.png" alt="uNexus First Setup">
+      <br>
+      <sub><b>First Setup</b> for initial system and gaming readiness checks.</sub>
+    </td>
+  </tr>
+</table>
+
+<div align="center">
+  <img src="assets/gifs/unexus-panels.gif" width="900" alt="uNexus panels animation">
+</div>
+
+---
+
 ## Philosophy
 
 > "Open Source. Linux Powered. Gamer Focused."
@@ -49,6 +110,16 @@ The current prototype manages:
 
 The shell can be installed as a Wayland session through `scripts/setup.sh`.
 The first live ISO profile can be built with `ISO/0.0.1/build-iso.sh`.
+
+---
+
+## Test Release
+
+The first public ISO is available under [release v0.0.1](https://github.com/PedroVitor-Dev/uNexus-OS/releases/tag/v0.0.1).
+
+This build is **not recommended for daily use yet**. It was generated for boot, visual and workflow testing, and it should be treated as an early live-image snapshot while the installer, packaging and hardware validation continue to mature.
+
+Use it only in a VM, spare machine or disposable test environment.
 
 ---
 
