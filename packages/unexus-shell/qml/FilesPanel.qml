@@ -1892,7 +1892,12 @@ Item {
                 Image {
                     anchors.fill: parent
                     anchors.margins: 6
-                    visible: previewPaneRoot.selectedCount === 1 && previewPaneRoot.preview.previewMode === "image" && previewPaneRoot.preview.previewSource && previewPaneRoot.preview.previewSource.length > 0
+                    visible: previewPaneRoot.selectedCount === 1 &&
+                             (previewPaneRoot.preview.previewMode === "image" ||
+                              previewPaneRoot.preview.previewMode === "pdf" ||
+                              previewPaneRoot.preview.previewMode === "video") &&
+                             previewPaneRoot.preview.previewSource &&
+                             previewPaneRoot.preview.previewSource.length > 0
                     source: visible ? previewPaneRoot.preview.previewSource : ""
                     fillMode: Image.PreserveAspectFit
                     smooth: true
@@ -1924,7 +1929,9 @@ Item {
                     color: "#172233"
                     border.color: "#2a3a55"
                     border.width: 1
-                    visible: previewPaneRoot.selectedCount === 1 && (previewPaneRoot.preview.previewMode === "pdf" || previewPaneRoot.preview.previewMode === "video")
+                    visible: previewPaneRoot.selectedCount === 1 &&
+                             (previewPaneRoot.preview.previewMode === "pdf" || previewPaneRoot.preview.previewMode === "video") &&
+                             (!previewPaneRoot.preview.previewSource || previewPaneRoot.preview.previewSource.length === 0)
 
                     Column {
                         anchors.centerIn: parent

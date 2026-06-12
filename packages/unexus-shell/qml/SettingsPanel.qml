@@ -195,6 +195,7 @@ Item {
                         ControlNavButton { width: parent.width; label: root.tr("System"); value: "system"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("Shortcuts"); value: "shortcuts"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("Help"); value: "help"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
+                        ControlNavButton { width: parent.width; label: root.tr("Hardware"); value: "hardware"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("Appearance"); value: "appearance"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("Language"); value: "language"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
                         ControlNavButton { width: parent.width; label: root.tr("About"); value: "about"; active: settingsPanel.activeSection === value; onClicked: settingsPanel.setSection(value) }
@@ -305,6 +306,56 @@ Item {
 
                         SettingsActionButton { width: parent.width; label: root.tr("Restore default shortcuts"); onClicked: settingsPanel.resetShortcutsToDefaults() }
                     }
+
+                    SettingsSection {
+                        width: parent.width
+                        collapsed: settingsPanel.activeSection !== "hardware"
+                        title: root.tr("Hardware")
+
+                        Rectangle {
+                            width: parent.width
+                            height: 86
+                            radius: 8
+                            color: "#172233"
+                            border.color: "#223247"
+                            border.width: 1
+
+                            Column {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 12
+                                spacing: 5
+
+                                Text {
+                                    width: parent.width
+                                    text: systemInfo.gpuName
+                                    color: root.textPrimary
+                                    font.pixelSize: 15
+                                    font.family: root.uiFont
+                                    font.bold: true
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    width: parent.width
+                                    text: root.tr("Driver") + ": " + systemInfo.activeDriver + "  |  " + root.tr("VRAM") + ": " + systemInfo.vram
+                                    color: root.textMuted
+                                    font.pixelSize: 11
+                                    font.family: root.uiFont
+                                    elide: Text.ElideRight
+                                }
+                            }
+                        }
+
+                        SettingsOptionRow { width: parent.width; label: root.tr("GPU"); value: systemInfo.gpuName }
+                        SettingsOptionRow { width: parent.width; label: root.tr("VRAM"); value: systemInfo.vram }
+                        SettingsOptionRow { width: parent.width; label: root.tr("Active driver"); value: systemInfo.activeDriver }
+                        SettingsOptionRow { width: parent.width; label: root.tr("Kernel"); value: systemInfo.kernelVersion }
+                        SettingsOptionRow { width: parent.width; label: root.tr("Mesa"); value: systemInfo.mesaVersion }
+                    }
+
                     SettingsSection {
                         width: parent.width
                         collapsed: settingsPanel.activeSection !== "appearance"
@@ -536,6 +587,7 @@ Item {
         color: "#172233"
 
         Text {
+            id: optionLabel
             anchors.left: parent.left
             anchors.leftMargin: 10
             anchors.verticalCenter: parent.verticalCenter
@@ -546,6 +598,8 @@ Item {
         }
 
         Text {
+            anchors.left: optionLabel.right
+            anchors.leftMargin: 12
             anchors.right: parent.right
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
@@ -553,6 +607,8 @@ Item {
             color: "#8ea4bd"
             font.pixelSize: 11
             font.family: root.uiFont
+            horizontalAlignment: Text.AlignRight
+            elide: Text.ElideRight
         }
     }
 

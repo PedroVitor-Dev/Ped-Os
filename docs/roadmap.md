@@ -161,8 +161,8 @@ Project website: <https://unexus-os.vercel.app>
 
 - [x] **UI:** Redesign uNexus Files with sidebar, grid/list views and a bottom status bar
 - [~] **Feature:** Copy/cut/paste, multi-select, real file actions, visible operation queue, item progress and worker thread exist; cancel/retry and byte-level progress are still pending
-- [ ] **Innovation:** **uNexus Files Preview Engine:** render image, video, text and PDF previews without opening external apps
-- [~] **UI:** Clickable breadcrumbs exist; per-segment dropdown and direct path editing are still planned
+- [x] **Innovation:** **uNexus Files Preview Engine:** render image, video, text and PDF previews without opening external apps
+- [x] **UI:** Clickable breadcrumbs exist with per-segment dropdown and direct path editing
 - [ ] **Feature:** Add indexed file search with filters for type, date and size
 - [ ] **Innovation:** **Smart Game Data Folder:** detect known game save/config directories and expose them as a virtual Game Data location
 - [ ] **UI:** Add visual drag-and-drop with destination highlighting
@@ -177,7 +177,7 @@ Project website: <https://unexus-os.vercel.app>
 
 - [ ] uNexus Files competes functionally with mainstream file managers
 - [x] File operations do not block the UI
-- [ ] Preview works for images, videos and text
+- [x] Preview works for images, videos and text
 - [ ] Search returns results in under 2 seconds
 
 ---
@@ -205,7 +205,7 @@ Project website: <https://unexus-os.vercel.app>
 
 **Goal:** solve one of Linux gaming's biggest pain points: driver management.
 
-- [ ] **UI:** Add Hardware section in Settings with GPU, VRAM, active driver, kernel and Mesa versions
+- [x] **UI:** Add Hardware section in Settings with GPU, VRAM, active driver, kernel and Mesa versions
 - [ ] **Feature:** Detect GPU through `lspci` and map it to recommended drivers
 - [ ] **Innovation:** **uNexus Driver Wizard:** guided GPU driver switching with rollback if the next boot fails
 - [ ] **UI:** Add exportable Hardware Report as PDF or JSON

@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
+#include <QCryptographicHash>
 #include <QFileInfo>
 #include <QMetaObject>
 #include <QProcess>
@@ -192,6 +193,72 @@ QString readTextPreview(const QString &path)
 
     text.replace(QLatin1Char('\t'), QStringLiteral("    "));
     return text.trimmed();
+}
+
+QString previewCachePath(const QString &sourcePath, const QString &suffix)
+{
+    const QByteArray hash = QCryptographicHash::hash(sourcePath.toUtf8(), QCryptographicHash::Sha1).toHex();
+    const QString cacheRoot = QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
+        + QStringLiteral("/previews");
+    QDir().mkpath(cacheRoot);
+    return QDir(cacheRoot).filePath(QString::fromLatin1(hash) + suffix);
+}
+
+QString renderPdfPreview(const QString &path)
+{
+    const QString renderer = QStandardPaths::findExecutable(QStringLiteral("pdftoppm"));
+    if (renderer.isEmpty())
+        return QString();
+
+    const QString outputPrefix = previewCachePath(path, QString());
+    const QString outputPath = outputPrefix + QStringLiteral(".png");
+    if (QFileInfo::exists(outputPath))
+        return outputPath;
+
+    QProcess process;
+    process.start(renderer, {
+        QStringLiteral("-f"),
+        QStringLiteral("1"),
+        QStringLiteral("-singlefile"),
+        QStringLiteral("-png"),
+        QStringLiteral("-scale-to"),
+        QStringLiteral("512"),
+        path,
+        outputPrefix
+    });
+    if (!process.waitForFinished(2500) || process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+        return QString();
+
+    return QFileInfo::exists(outputPath) ? outputPath : QString();
+}
+
+QString renderVideoPreview(const QString &path)
+{
+    const QString renderer = QStandardPaths::findExecutable(QStringLiteral("ffmpeg"));
+    if (renderer.isEmpty())
+        return QString();
+
+    const QString outputPath = previewCachePath(path, QStringLiteral(".jpg"));
+    if (QFileInfo::exists(outputPath))
+        return outputPath;
+
+    QProcess process;
+    process.start(renderer, {
+        QStringLiteral("-y"),
+        QStringLiteral("-ss"),
+        QStringLiteral("00:00:01"),
+        QStringLiteral("-i"),
+        path,
+        QStringLiteral("-frames:v"),
+        QStringLiteral("1"),
+        QStringLiteral("-vf"),
+        QStringLiteral("scale=512:-1"),
+        outputPath
+    });
+    if (!process.waitForFinished(3000) || process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+        return QString();
+
+    return QFileInfo::exists(outputPath) ? outputPath : QString();
 }
 
 bool matchesTypeFilter(const QFileInfo &info, const QString &filter)
@@ -545,7 +612,22 @@ QVariantMap FileManager::previewInfo(const QString &path) const
     result.insert(QStringLiteral("extension"), info.suffix().isEmpty() ? QStringLiteral("-") : info.suffix().toUpper());
     result.insert(QStringLiteral("parent"), info.absolutePath());
     result.insert(QStringLiteral("previewMode"), previewModeForKind(kind));
-    result.insert(QStringLiteral("previewSource"), (kind == QStringLiteral("Image") || kind == QStringLiteral("Video") || kind == QStringLiteral("PDF")) ? QStringLiteral("file://") + info.absoluteFilePath() : QString());
+
+    QString previewSource;
+    QString previewStatus = QStringLiteral("ready");
+    if (kind == QStringLiteral("Image")) {
+        previewSource = info.absoluteFilePath();
+    } else if (kind == QStringLiteral("PDF")) {
+        previewSource = renderPdfPreview(info.absoluteFilePath());
+        if (previewSource.isEmpty())
+            previewStatus = QStringLiteral("missing-pdf-renderer");
+    } else if (kind == QStringLiteral("Video")) {
+        previewSource = renderVideoPreview(info.absoluteFilePath());
+        if (previewSource.isEmpty())
+            previewStatus = QStringLiteral("missing-video-renderer");
+    }
+    result.insert(QStringLiteral("previewSource"), previewSource.isEmpty() ? QString() : QStringLiteral("file://") + previewSource);
+    result.insert(QStringLiteral("previewStatus"), previewStatus);
 
     if (info.isDir()) {
         const QDir dir(info.absoluteFilePath());
@@ -568,9 +650,13 @@ QVariantMap FileManager::previewInfo(const QString &path) const
     if (kind == QStringLiteral("Text")) {
         result.insert(QStringLiteral("textPreview"), readTextPreview(info.absoluteFilePath()));
     } else if (kind == QStringLiteral("PDF")) {
-        result.insert(QStringLiteral("textPreview"), QStringLiteral("PDF document\n%1\n%2").arg(info.fileName(), formatSize(info.size())));
+        result.insert(QStringLiteral("textPreview"), previewSource.isEmpty()
+            ? QStringLiteral("PDF document\n%1\n%2\nInstall poppler for rendered thumbnails.").arg(info.fileName(), formatSize(info.size()))
+            : QStringLiteral("PDF page preview\n%1\n%2").arg(info.fileName(), formatSize(info.size())));
     } else if (kind == QStringLiteral("Video")) {
-        result.insert(QStringLiteral("textPreview"), QStringLiteral("Video preview\n%1").arg(info.fileName()));
+        result.insert(QStringLiteral("textPreview"), previewSource.isEmpty()
+            ? QStringLiteral("Video file\n%1\nInstall ffmpeg for frame thumbnails.").arg(info.fileName())
+            : QStringLiteral("Video frame preview\n%1").arg(info.fileName()));
     } else {
         result.insert(QStringLiteral("textPreview"), QString());
     }

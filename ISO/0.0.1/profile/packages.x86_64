@@ -12,6 +12,7 @@ desktop-file-utils
 dosfstools
 edk2-shell
 efibootmgr
+ffmpeg
 firefox
 fish
 flatpak
@@ -30,6 +31,7 @@ linux-firmware
 man-db
 mangohud
 mesa
+mesa-utils
 mkinitcpio
 mkinitcpio-archiso
 nano
@@ -41,6 +43,7 @@ noto-fonts-emoji
 openssh
 papirus-icon-theme
 parted
+pciutils
 pipewire
 pipewire-alsa
 pipewire-jack
@@ -48,6 +51,7 @@ pipewire-pulse
 plymouth
 polkit
 polkit-kde-agent
+poppler
 qt6-base
 qt6-declarative
 qt6-imageformats
