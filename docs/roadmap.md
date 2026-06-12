@@ -243,9 +243,9 @@ Project website: <https://unexus-os.vercel.app>
 
 **Goal:** create the first bootable USB image that opens into a uNexus session.
 
-- [ ] **UI:** Create Plymouth boot splash with animated uNexus logo
+- [x] **UI:** Create Plymouth boot splash with animated uNexus logo
 - [x] **Feature:** Create `archiso` profile with Hyprland, Qt6, unexus-shell, Flatpak, MangoHud, GameMode, Vulkan tools, terminal, browser layer and PipeWire
-- [ ] **Innovation:** **uNexus Recovery Shell:** automatic TUI recovery menu if the shell crashes
+- [x] **Innovation:** **uNexus Recovery Shell:** automatic TUI recovery menu if the shell crashes
 - [~] **UI:** Create first-boot welcome/readiness flow; First Setup opens on first login, while a pre-desktop readiness gate is still planned
 - [~] **Feature:** Define default Hyprland config optimized for uNexus and gaming; the session wrapper now generates the live config and starts the Polkit agent when available
 - [ ] **Innovation:** **Live Gaming Mode:** bootable ISO can run games directly from live environment with optimizations enabled
@@ -263,7 +263,7 @@ Project website: <https://unexus-os.vercel.app>
 
 **Goal:** turn the bootable prototype into something testers can install and report on.
 
-- [ ] **UI:** Create graphical installer in Qt6/QML or themed Calamares
+- [x] **UI:** Create graphical installer in Qt6/QML or themed Calamares
 - [ ] **Feature:** Installer configures user, bootloader, Hyprland session, Flatpak/Flathub, GameMode/MangoHud and default gaming launchers
 - [ ] **Innovation:** **uNexus Migration Tool:** detect existing Windows/Linux installs and import Steam saves, game lists and app settings where possible
 - [ ] **UI:** Create post-install welcome flow with quick action cards

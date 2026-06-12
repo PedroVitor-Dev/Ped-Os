@@ -289,8 +289,9 @@ The installed OS-facing layer is intentionally simple and shell-script based for
 
 | File | Purpose |
 |---|---|
-| `packaging/linux/unexus-session` | Normal Hyprland session wrapper that starts `unexus-shell` and logs failures |
-| `packaging/linux/unexus-recovery-session` | Terminal-only Hyprland recovery session |
+| `packaging/linux/unexus-session` | Normal Hyprland session wrapper that starts `unexus-shell`, logs failures and opens recovery after crashes |
+| `packaging/linux/unexus-recovery-session` | Safe Hyprland recovery session |
+| `packaging/linux/unexus-recovery-menu` | TUI recovery menu for shell restart, diagnostics, logs, reset, rollback and power actions |
 | `packaging/linux/unexus.desktop` | Display manager session entry |
 | `packaging/linux/unexus-recovery.desktop` | Display manager recovery session entry |
 | `scripts/unexus-doctor.sh` | Install and dependency validator |
@@ -308,7 +309,7 @@ Persistent logs live in:
 ~/.local/state/unexus/logs/
 ```
 
-The recovery session starts Hyprland with only a terminal and basic keybinds, giving a safe path back into the system if the shell breaks.
+The recovery session starts Hyprland with the same TUI recovery menu used after automatic shell crash fallback, giving a safe path back into the system if the shell breaks.
 
 ---
 

@@ -17,6 +17,10 @@ printf 'root:unexus\n%s:unexus\n' "$live_user" | chpasswd
 
 log "installing uNexus shell"
 PREFIX=/usr sh "$repo_root/scripts/setup.sh"
+log "configuring Plymouth boot splash"
+if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+    plymouth-set-default-theme unexus || true
+fi
 
 log "initializing live user state"
 if command -v unexusctl >/dev/null 2>&1; then

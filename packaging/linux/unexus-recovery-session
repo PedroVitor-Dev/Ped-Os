@@ -12,6 +12,20 @@ find_terminal() {
     return 1
 }
 
+terminal_exec_command() {
+    terminal="$1"
+    shift
+
+    case "$terminal" in
+        gnome-terminal)
+            printf '%s -- %s' "$terminal" "$*"
+            ;;
+        *)
+            printf '%s -e %s' "$terminal" "$*"
+            ;;
+    esac
+}
+
 if ! command -v Hyprland >/dev/null 2>&1; then
     echo "[uNexus recovery] Hyprland was not found in PATH." >&2
     exit 1
@@ -34,6 +48,11 @@ if [ -z "$terminal" ]; then
     exit 1
 fi
 
+recovery_command="$terminal"
+if command -v unexus-recovery-menu >/dev/null 2>&1; then
+    recovery_command="$(terminal_exec_command "$terminal" "unexus-recovery-menu --session")"
+fi
+
 runtime_root="${XDG_RUNTIME_DIR:-/tmp}/unexus"
 session_config="$runtime_root/recovery-hyprland.conf"
 mkdir -p "$runtime_root"
@@ -51,7 +70,7 @@ mkdir -p "$runtime_root"
     echo "env = XCURSOR_THEME,Adwaita"
     echo "env = XCURSOR_SIZE,24"
     echo "monitor=,preferred,auto,1"
-    echo "exec-once = $terminal"
+    echo "exec-once = $recovery_command"
     echo "bind = SUPER, RETURN, exec, $terminal"
     echo "bind = SUPER, Q, killactive"
     echo "bind = SUPER, M, exit"

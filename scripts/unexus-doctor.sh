@@ -99,6 +99,7 @@ fi
 
 need_file "${bindir}/unexus-session" "uNexus session launcher"
 need_file "${bindir}/unexus-recovery-session" "uNexus recovery launcher"
+need_file "${bindir}/unexus-recovery-menu" "uNexus recovery menu"
 need_file "${datadir}/wayland-sessions/unexus.desktop" "uNexus display-manager session"
 need_file "${datadir}/wayland-sessions/unexus-recovery.desktop" "uNexus recovery display-manager session"
 

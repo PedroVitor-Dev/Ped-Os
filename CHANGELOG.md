@@ -25,6 +25,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Extra uNexus Files keyboard shortcuts and blank-space context-menu behavior.
 - Installable `uNexus` and `uNexus Recovery` Wayland sessions.
 - `unexus-doctor` install validation command and `unexusctl` state/log/update helpers.
+- Animated Plymouth boot splash for the live ISO.
+- `uNexus Recovery Shell` TUI menu that opens automatically after shell crashes.
+- Graphical Qt/QML installer wizard with readiness checks, install options, progress steps and backend log view.
 
 ### Changed
 - Documentation now treats the bootable ISO as an existing 0.0.1 foundation instead of a purely future path.
@@ -38,6 +41,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Game Settings now starts supported Flatpak installs instead of only copying commands.
 - uNexus Files panel layout, context-click behavior and shortcut handling were tightened.
 - Shell session packaging now includes stronger logging/recovery behavior.
+- `uNexus Recovery` now starts the recovery TUI instead of a plain terminal-only fallback.
 - Visual language is now documented through tokenized spacing, typography, surfaces and motion.
 
 ### Removed

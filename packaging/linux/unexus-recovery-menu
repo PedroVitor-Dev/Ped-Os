@@ -1,0 +1,180 @@
+#!/usr/bin/env sh
+set -eu
+
+state_home="${XDG_STATE_HOME:-$HOME/.local/state}"
+log_dir="${state_home}/unexus/logs"
+session_log="${log_dir}/session.log"
+doctor_log="${log_dir}/doctor.log"
+mode="${1:-}"
+
+find_terminal() {
+    for terminal in foot kitty alacritty wezterm konsole gnome-terminal xterm; do
+        if command -v "$terminal" >/dev/null 2>&1; then
+            printf '%s\n' "$terminal"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+pause() {
+    printf '\nPress Enter to continue... '
+    # shellcheck disable=SC2034
+    read -r _answer || true
+}
+
+clear_screen() {
+    if command -v clear >/dev/null 2>&1; then
+        clear
+    else
+        printf '\033c'
+    fi
+}
+
+show_header() {
+    clear_screen
+    printf 'uNexus Recovery Shell\n'
+    printf '=====================\n\n'
+
+    case "$mode" in
+        --crash)
+            printf 'The uNexus shell stopped unexpectedly.\n'
+            printf 'Session log: %s\n\n' "$session_log"
+            ;;
+        --session)
+            printf 'Safe recovery session started.\n\n'
+            ;;
+        *)
+            printf 'Recovery tools for the current uNexus user.\n\n'
+            ;;
+    esac
+}
+
+run_doctor() {
+    mkdir -p "$log_dir"
+
+    if command -v unexusctl >/dev/null 2>&1; then
+        unexusctl doctor || true
+    elif command -v unexus-doctor >/dev/null 2>&1; then
+        unexus-doctor || true
+    else
+        printf 'unexus-doctor was not found in PATH.\n'
+    fi
+
+    pause
+}
+
+show_logs() {
+    mkdir -p "$log_dir"
+
+    if [ -f "$session_log" ]; then
+        printf '\nLast 80 lines from %s:\n\n' "$session_log"
+        tail -n 80 "$session_log" || true
+    else
+        printf 'Session log was not found: %s\n' "$session_log"
+    fi
+
+    if [ -f "$doctor_log" ]; then
+        printf '\nLast 40 lines from %s:\n\n' "$doctor_log"
+        tail -n 40 "$doctor_log" || true
+    fi
+
+    pause
+}
+
+reset_settings() {
+    if command -v unexusctl >/dev/null 2>&1; then
+        unexusctl reset-settings || true
+    else
+        printf 'unexusctl was not found in PATH.\n'
+    fi
+
+    pause
+}
+
+rollback_settings() {
+    if command -v unexusctl >/dev/null 2>&1; then
+        unexusctl rollback || true
+    else
+        printf 'unexusctl was not found in PATH.\n'
+    fi
+
+    pause
+}
+
+restart_shell() {
+    mkdir -p "$log_dir"
+
+    if command -v unexus-shell >/dev/null 2>&1; then
+        printf 'Starting uNexus shell. Return here if it exits again.\n\n'
+        unexus-shell >> "$session_log" 2>&1 || {
+            printf '\nuNexus shell exited with an error. See %s\n' "$session_log"
+            pause
+        }
+    else
+        printf 'unexus-shell was not found in PATH.\n'
+        pause
+    fi
+}
+
+open_terminal() {
+    terminal="$(find_terminal || true)"
+    if [ -z "$terminal" ]; then
+        printf 'No supported terminal was found.\n'
+        pause
+        return 0
+    fi
+
+    "$terminal" >/dev/null 2>&1 &
+}
+
+confirm_power_action() {
+    action="$1"
+    printf 'Type "%s" to confirm: ' "$action"
+    read -r answer || true
+    [ "$answer" = "$action" ]
+}
+
+while :; do
+    show_header
+    printf '1) Restart uNexus Shell\n'
+    printf '2) Run uNexus Doctor\n'
+    printf '3) Show recovery logs\n'
+    printf '4) Reset shell settings\n'
+    printf '5) Roll back settings backup\n'
+    printf '6) Open terminal\n'
+    printf '7) Exit Hyprland session\n'
+    printf '8) Reboot\n'
+    printf '9) Power off\n'
+    printf '0) Keep this menu open\n\n'
+    printf 'Select an option: '
+    read -r choice || choice=0
+
+    case "$choice" in
+        1) restart_shell ;;
+        2) run_doctor ;;
+        3) show_logs ;;
+        4) reset_settings ;;
+        5) rollback_settings ;;
+        6) open_terminal ;;
+        7)
+            if command -v hyprctl >/dev/null 2>&1; then
+                hyprctl dispatch exit >/dev/null 2>&1 || true
+            fi
+            exit 0
+            ;;
+        8)
+            if confirm_power_action reboot; then
+                systemctl reboot || reboot || true
+            fi
+            ;;
+        9)
+            if confirm_power_action poweroff; then
+                systemctl poweroff || poweroff || true
+            fi
+            ;;
+        0) sleep 1 ;;
+        *) printf 'Unknown option: %s\n' "$choice"; pause ;;
+    esac
+done

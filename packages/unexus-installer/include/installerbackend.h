@@ -3,6 +3,8 @@
 #include <QObject>
 #include <QProcess>
 #include <QString>
+#include <QVariantList>
+#include <QVariantMap>
 
 class InstallerBackend : public QObject
 {
@@ -16,6 +18,10 @@ class InstallerBackend : public QObject
     Q_PROPERTY(bool pkexecAvailable READ pkexecAvailable NOTIFY prerequisitesChanged)
     Q_PROPERTY(bool setupAvailable READ setupAvailable NOTIFY prerequisitesChanged)
     Q_PROPERTY(bool diagnosticsAvailable READ diagnosticsAvailable NOTIFY prerequisitesChanged)
+    Q_PROPERTY(bool canInstall READ canInstall NOTIFY prerequisitesChanged)
+    Q_PROPERTY(int progress READ progress NOTIFY progressChanged)
+    Q_PROPERTY(QVariantList readinessChecks READ readinessChecks NOTIFY prerequisitesChanged)
+    Q_PROPERTY(QVariantList installSteps READ installSteps NOTIFY installStepsChanged)
     Q_PROPERTY(QString repoRoot READ repoRoot CONSTANT)
 
 public:
@@ -30,6 +36,10 @@ public:
     bool pkexecAvailable() const;
     bool setupAvailable() const;
     bool diagnosticsAvailable() const;
+    bool canInstall() const;
+    int progress() const;
+    QVariantList readinessChecks() const;
+    QVariantList installSteps() const;
     QString repoRoot() const;
 
     Q_INVOKABLE void install();
@@ -46,6 +56,8 @@ signals:
     void logChanged();
     void installedChanged();
     void prerequisitesChanged();
+    void progressChanged();
+    void installStepsChanged();
 
 private slots:
     void readOutput();
@@ -59,11 +71,14 @@ private:
     void setStatus(const QString &title, const QString &detail);
     void appendLog(const QString &text);
     QString scriptPath(const QString &name) const;
+    QVariantMap checkItem(const QString &label, const QString &value, const QString &status) const;
+    QVariantMap stepItem(const QString &label, const QString &detail, const QString &status) const;
     static bool commandExists(const QString &command);
 
     QProcess m_process;
     bool m_busy = false;
     bool m_installed = false;
+    int m_progress = 0;
     QString m_currentAction;
     QString m_statusTitle;
     QString m_statusDetail;

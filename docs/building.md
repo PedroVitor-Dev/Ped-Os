@@ -320,7 +320,9 @@ Current logs:
 
 **Recover from a broken shell**
 
-Pick `uNexus Recovery` in the display manager. It starts Hyprland with a terminal only.
+If `unexus-shell` crashes during a normal `uNexus` session, the session wrapper opens the `uNexus Recovery Shell` TUI automatically inside the fallback terminal.
+
+You can also pick `uNexus Recovery` in the display manager. It starts Hyprland safely and opens the same TUI menu with options to restart the shell, run `unexusctl doctor`, inspect logs, reset settings, roll back a backup, open a terminal, exit the session, reboot or power off.
 
 **Reset settings**
 

@@ -16,6 +16,20 @@ find_terminal() {
     return 1
 }
 
+terminal_exec_command() {
+    terminal="$1"
+    shift
+
+    case "$terminal" in
+        gnome-terminal)
+            printf '%s -- %s' "$terminal" "$*"
+            ;;
+        *)
+            printf '%s -e %s' "$terminal" "$*"
+            ;;
+    esac
+}
+
 if ! command -v Hyprland >/dev/null 2>&1; then
     log "Hyprland was not found in PATH."
     exit 1
@@ -59,6 +73,13 @@ session_log="$log_root/session.log"
 user_config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hyprland.conf"
 fallback_terminal="$(find_terminal || true)"
 polkit_agent="/usr/lib/polkit-kde-authentication-agent-1"
+recovery_command="true"
+
+if command -v unexus-recovery-menu >/dev/null 2>&1 && [ -n "$fallback_terminal" ]; then
+    recovery_command="$(terminal_exec_command "$fallback_terminal" "unexus-recovery-menu --crash")"
+elif [ -n "$fallback_terminal" ]; then
+    recovery_command="$fallback_terminal"
+fi
 
 mkdir -p "$runtime_root"
 mkdir -p "$log_root"
@@ -99,7 +120,7 @@ mkdir -p "$log_root"
         printf 'exec-once = %s\n' "$polkit_agent"
     fi
     if command -v unexus-shell >/dev/null 2>&1; then
-        printf "exec-once = sh -lc 'unexus-shell >>\"%s\" 2>&1 || %s'\n" "$session_log" "${fallback_terminal:-true}"
+        printf "exec-once = sh -lc 'unexus-shell >>\"%s\" 2>&1 || exec %s'\n" "$session_log" "$recovery_command"
     elif [ -n "$fallback_terminal" ]; then
         printf 'exec-once = %s\n' "$fallback_terminal"
     fi

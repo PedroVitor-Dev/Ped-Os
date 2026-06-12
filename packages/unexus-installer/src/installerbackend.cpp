@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QProcessEnvironment>
 #include <QStandardPaths>
+#include <QVariantMap>
 
 InstallerBackend::InstallerBackend(QObject *parent)
     : QObject(parent)
@@ -65,6 +66,65 @@ bool InstallerBackend::diagnosticsAvailable() const
 {
     return !QStandardPaths::findExecutable(QStringLiteral("unexus-doctor")).isEmpty() ||
            QFileInfo::exists(scriptPath(QStringLiteral("unexus-doctor.sh")));
+}
+
+bool InstallerBackend::canInstall() const
+{
+    return pkexecAvailable() && setupAvailable();
+}
+
+int InstallerBackend::progress() const
+{
+    if (m_busy)
+        return m_progress;
+
+    if (m_installed)
+        return 100;
+
+    return setupAvailable() ? 20 : 0;
+}
+
+QVariantList InstallerBackend::readinessChecks() const
+{
+    QVariantList checks;
+    checks << checkItem(QStringLiteral("Repository"),
+                        setupAvailable() ? QStringLiteral("setup and uninstall scripts found")
+                                         : QStringLiteral("missing setup or uninstall scripts"),
+                        setupAvailable() ? QStringLiteral("ready") : QStringLiteral("blocked"));
+    checks << checkItem(QStringLiteral("Authorization"),
+                        pkexecAvailable() ? QStringLiteral("pkexec available")
+                                          : QStringLiteral("polkit pkexec is required for graphical install"),
+                        pkexecAvailable() ? QStringLiteral("ready") : QStringLiteral("blocked"));
+    checks << checkItem(QStringLiteral("Diagnostics"),
+                        diagnosticsAvailable() ? QStringLiteral("doctor command available")
+                                               : QStringLiteral("diagnostics will be available after install"),
+                        diagnosticsAvailable() ? QStringLiteral("ready") : QStringLiteral("warning"));
+    checks << checkItem(QStringLiteral("Current install"),
+                        installed() ? QStringLiteral("uNexus shell detected")
+                                    : QStringLiteral("not installed yet"),
+                        installed() ? QStringLiteral("ready") : QStringLiteral("warning"));
+    return checks;
+}
+
+QVariantList InstallerBackend::installSteps() const
+{
+    const bool installing = m_busy && (m_currentAction == QStringLiteral("install") ||
+                                      m_currentAction == QStringLiteral("repair"));
+
+    QVariantList steps;
+    steps << stepItem(QStringLiteral("Authorize"),
+                      QStringLiteral("Request administrator permission through pkexec."),
+                      installing ? QStringLiteral("running") : (m_installed ? QStringLiteral("done") : QStringLiteral("pending")));
+    steps << stepItem(QStringLiteral("Build"),
+                      QStringLiteral("Configure and compile the Qt/QML shell with CMake."),
+                      installing ? QStringLiteral("running") : (m_installed ? QStringLiteral("done") : QStringLiteral("pending")));
+    steps << stepItem(QStringLiteral("Install session"),
+                      QStringLiteral("Install session launchers, desktop entries and shell assets."),
+                      installing ? QStringLiteral("running") : (m_installed ? QStringLiteral("done") : QStringLiteral("pending")));
+    steps << stepItem(QStringLiteral("Validate"),
+                      QStringLiteral("Run uNexus Doctor and initialize user state."),
+                      m_busy ? QStringLiteral("pending") : (m_installed ? QStringLiteral("done") : QStringLiteral("pending")));
+    return steps;
 }
 
 QString InstallerBackend::repoRoot() const
@@ -131,6 +191,8 @@ void InstallerBackend::refresh()
         emit installedChanged();
 
     emit prerequisitesChanged();
+    emit progressChanged();
+    emit installStepsChanged();
 }
 
 void InstallerBackend::clearLog()
@@ -143,15 +205,24 @@ void InstallerBackend::readOutput()
 {
     appendLog(QString::fromLocal8Bit(m_process.readAllStandardOutput()));
     appendLog(QString::fromLocal8Bit(m_process.readAllStandardError()));
+
+    if (m_busy && m_progress < 92) {
+        m_progress += 3;
+        if (m_progress > 92)
+            m_progress = 92;
+        emit progressChanged();
+    }
 }
 
 void InstallerBackend::processFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     readOutput();
+    const bool ok = exitStatus == QProcess::NormalExit && exitCode == 0;
     setBusy(false);
+    m_progress = ok ? 100 : 0;
+    emit progressChanged();
 
     const QString finishedAction = m_currentAction;
-    const bool ok = exitStatus == QProcess::NormalExit && exitCode == 0;
     refresh();
 
     if (ok) {
@@ -174,6 +245,7 @@ void InstallerBackend::processFinished(int exitCode, QProcess::ExitStatus exitSt
     }
 
     setCurrentAction(QString());
+    emit installStepsChanged();
 }
 
 void InstallerBackend::processError(QProcess::ProcessError error)
@@ -184,6 +256,8 @@ void InstallerBackend::processError(QProcess::ProcessError error)
         return;
 
     setBusy(false);
+    m_progress = 0;
+    emit progressChanged();
     setStatus(QStringLiteral("Could not start action"),
               QStringLiteral("The installer backend process did not start."));
     setCurrentAction(QString());
@@ -217,6 +291,9 @@ void InstallerBackend::runAction(const QString &action, const QString &title, co
     clearLog();
     setCurrentAction(action);
     setStatus(title, QStringLiteral("Waiting for authorization and backend output."));
+    m_progress = action == QStringLiteral("diagnose") ? 35 : 45;
+    emit progressChanged();
+    emit installStepsChanged();
     setBusy(true);
 
     QProcessEnvironment environment = QProcessEnvironment::systemEnvironment();
@@ -228,9 +305,12 @@ void InstallerBackend::runAction(const QString &action, const QString &title, co
     if (!m_process.waitForStarted(3000)) {
         appendLog(m_process.errorString() + QStringLiteral("\n"));
         setBusy(false);
+        m_progress = 0;
+        emit progressChanged();
         setStatus(QStringLiteral("Could not start action"),
                   QStringLiteral("The installer backend process did not start."));
         setCurrentAction(QString());
+        emit installStepsChanged();
     }
 }
 
@@ -241,6 +321,7 @@ void InstallerBackend::setBusy(bool busy)
 
     m_busy = busy;
     emit busyChanged();
+    emit installStepsChanged();
 }
 
 void InstallerBackend::setCurrentAction(const QString &action)
@@ -250,6 +331,7 @@ void InstallerBackend::setCurrentAction(const QString &action)
 
     m_currentAction = action;
     emit currentActionChanged();
+    emit installStepsChanged();
 }
 
 void InstallerBackend::setStatus(const QString &title, const QString &detail)
@@ -274,6 +356,24 @@ void InstallerBackend::appendLog(const QString &text)
 QString InstallerBackend::scriptPath(const QString &name) const
 {
     return QDir(repoRoot()).filePath(QStringLiteral("scripts/") + name);
+}
+
+QVariantMap InstallerBackend::checkItem(const QString &label, const QString &value, const QString &status) const
+{
+    QVariantMap item;
+    item.insert(QStringLiteral("label"), label);
+    item.insert(QStringLiteral("value"), value);
+    item.insert(QStringLiteral("status"), status);
+    return item;
+}
+
+QVariantMap InstallerBackend::stepItem(const QString &label, const QString &detail, const QString &status) const
+{
+    QVariantMap item;
+    item.insert(QStringLiteral("label"), label);
+    item.insert(QStringLiteral("detail"), detail);
+    item.insert(QStringLiteral("status"), status);
+    return item;
 }
 
 bool InstallerBackend::commandExists(const QString &command)

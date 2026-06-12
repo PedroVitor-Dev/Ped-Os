@@ -119,8 +119,9 @@ The current prototype manages:
 - real app launch, focus, close, maximize, move and minimize/restore through C++ and `hyprctl`;
 - Windows-like global shortcuts for Launcher, Settings, Game Settings and stats overlay;
 - workspace indicators and compositor-ready window preview direction;
-- installable Hyprland session and recovery session;
+- installable Hyprland session, recovery session and automatic TUI recovery menu after shell crashes;
 - `unexusctl` for doctor, logs, backup, rollback, update and state management.
+- graphical Qt/QML installer wizard for local install, repair, diagnostics and removal flows.
 
 The shell can be installed as a Wayland session through `scripts/setup.sh`.
 The first live ISO profile can be built with `ISO/0.0.1/build-iso.sh`.
@@ -235,7 +236,8 @@ See [docs/installer-technology.md](docs/installer-technology.md).
 | First Setup | `qml/FirstSetupPanel.qml` | First-run checklist and dependency guidance |
 | uNexus Files | `qml/FilesPanel.qml`, `filemanager.cpp` | Local file navigation, multi-select, copy/cut/paste, open, create folder, rename, previews and trash |
 | Global shortcuts | `globalshortcuts.cpp`, `main.cpp` | Hyprland-triggered shortcut command bridge |
-| Session control | `packaging/linux/unexus-session`, `unexus-recovery-session` | Normal and recovery Hyprland sessions |
+| Session control | `packaging/linux/unexus-session`, `unexus-recovery-session`, `unexus-recovery-menu` | Normal session, recovery session and automatic TUI crash fallback |
+| Installer | `packages/unexus-installer` | Graphical Qt/QML installer wizard backed by setup, doctor and uninstall scripts |
 | CLI control | `scripts/unexusctl.sh`, `scripts/unexus-doctor.sh` | State management, diagnostics, update, rollback and logs |
 | System info | `systeminfo.cpp` | Battery and network data |
 | App launcher | `applauncher.cpp` | Launch, focus, close, Flatpak and MangoHud helpers |

@@ -126,6 +126,7 @@ install(TARGETS unexus-installer
 install(PROGRAMS
     "${CMAKE_CURRENT_SOURCE_DIR}/../../packaging/linux/unexus-session"
     "${CMAKE_CURRENT_SOURCE_DIR}/../../packaging/linux/unexus-recovery-session"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../packaging/linux/unexus-recovery-menu"
     DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
