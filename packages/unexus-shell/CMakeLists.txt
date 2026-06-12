@@ -155,6 +155,11 @@ install(FILES
 )
 
 install(FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../packaging/linux/unexus-driver-rollback.service"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/systemd/system
+)
+
+install(FILES
     "${CMAKE_CURRENT_SOURCE_DIR}/../../assets/logo/4.png"
     DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps
     RENAME unexus-shell.png

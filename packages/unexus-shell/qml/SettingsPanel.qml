@@ -10,6 +10,7 @@ Item {
     property string errorMessage: ""
     property string unavailableMessage: ""
     property string activeSection: "system"
+    property var driverWizardPlan: ({})
 
     function show() {
         hideAnim.stop()
@@ -19,6 +20,7 @@ Item {
         loading = false
         errorMessage = ""
         unavailableMessage = systemInfo.hasBattery ? "" : root.tr("Battery data is unavailable on this device.")
+        refreshDriverWizardPlan()
         opacity = 0.0
         panel.scale = 0.985
         panelSlide.y = 14
@@ -58,6 +60,31 @@ Item {
         } else {
             notifCenter.send(root.tr("Game Mode OFF"), root.tr("System back to normal."), "IDLE")
         }
+    }
+
+    function refreshDriverWizardPlan() {
+        driverWizardPlan = appLauncher.driverWizardPlan()
+    }
+
+    function applyDriverWizard() {
+        if (appLauncher.startDriverWizardApply())
+            notifCenter.send(root.tr("Driver Wizard"), root.tr("Driver switch started. Reboot after it finishes."), "SYS")
+        else
+            notifCenter.send(root.tr("Driver Wizard failed"), root.tr("Could not start privileged driver switch."), "SYS")
+    }
+
+    function confirmDriverWizard() {
+        if (appLauncher.confirmDriverWizard())
+            notifCenter.send(root.tr("Driver Wizard"), root.tr("Driver switch confirmation started."), "SYS")
+        else
+            notifCenter.send(root.tr("Driver Wizard failed"), root.tr("Could not start privileged confirmation."), "SYS")
+    }
+
+    function rollbackDriverWizard() {
+        if (appLauncher.rollbackDriverWizard())
+            notifCenter.send(root.tr("Driver Wizard"), root.tr("Driver rollback started."), "SYS")
+        else
+            notifCenter.send(root.tr("Driver Wizard failed"), root.tr("Could not start privileged rollback."), "SYS")
     }
 
     ParallelAnimation {
@@ -355,6 +382,39 @@ Item {
                         SettingsOptionRow { width: parent.width; label: root.tr("Recommended drivers"); value: systemInfo.recommendedGpuDrivers }
                         SettingsOptionRow { width: parent.width; label: root.tr("Kernel"); value: systemInfo.kernelVersion }
                         SettingsOptionRow { width: parent.width; label: root.tr("Mesa"); value: systemInfo.mesaVersion }
+
+                        SettingsSubheader { width: parent.width; label: root.tr("Driver Wizard") }
+                        SettingsHint {
+                            width: parent.width
+                            text: settingsPanel.driverWizardPlan && settingsPanel.driverWizardPlan.output
+                                  ? settingsPanel.driverWizardPlan.output
+                                  : root.tr("Driver plan is unavailable.")
+                        }
+
+                        Row {
+                            width: parent.width
+                            spacing: 8
+
+                            SettingsActionButton {
+                                width: Math.floor((parent.width - 16) / 3)
+                                label: root.tr("Apply")
+                                enabled: settingsPanel.driverWizardPlan && settingsPanel.driverWizardPlan.ready
+                                opacity: enabled ? 1.0 : 0.45
+                                onClicked: settingsPanel.applyDriverWizard()
+                            }
+
+                            SettingsActionButton {
+                                width: Math.floor((parent.width - 16) / 3)
+                                label: root.tr("Confirm")
+                                onClicked: settingsPanel.confirmDriverWizard()
+                            }
+
+                            SettingsActionButton {
+                                width: parent.width - Math.floor((parent.width - 16) / 3) * 2 - 16
+                                label: root.tr("Rollback")
+                                onClicked: settingsPanel.rollbackDriverWizard()
+                            }
+                        }
                     }
 
                     SettingsSection {

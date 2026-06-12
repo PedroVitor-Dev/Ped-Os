@@ -28,6 +28,10 @@ public:
     Q_INVOKABLE void copyToClipboard(const QString &text);
     Q_INVOKABLE QString findIcon(const QStringList &iconNames);
     Q_INVOKABLE QVariantMap prepareBugReport(const QString &updateChannel);
+    Q_INVOKABLE QVariantMap driverWizardPlan();
+    Q_INVOKABLE bool startDriverWizardApply();
+    Q_INVOKABLE bool confirmDriverWizard();
+    Q_INVOKABLE bool rollbackDriverWizard();
 
     Q_INVOKABLE bool focusWindow(const QStringList &windowClasses);
     Q_INVOKABLE bool focusOrLaunch(

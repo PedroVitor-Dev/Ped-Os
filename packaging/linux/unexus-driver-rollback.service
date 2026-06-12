@@ -1,0 +1,12 @@
+[Unit]
+Description=uNexus Driver Wizard rollback guard
+Documentation=https://github.com/PedroVitor-Dev/uNexus-OS
+After=multi-user.target display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/unexusctl driver-rollback --boot
+TimeoutStartSec=8min
+
+[Install]
+WantedBy=multi-user.target

@@ -110,6 +110,10 @@ Window {
     property int localeVersion: 0
     property bool captureMode: false
     property string captureScene: "login"
+    property bool startupLoading: true
+    property bool startupMinimumElapsed: false
+    property bool startupBackendsReady: false
+    property string startupStatus: "Starting uNexus"
 
     property var ptBr: ({
         "uNexus Files": "Arquivos uNexus",
@@ -150,6 +154,9 @@ Window {
         "{app} is not installed.": "{app} não está instalado.",
         "Welcome back!": "Bem-vindo de volta!",
         "uNexus is ready.": "uNexus está pronto.",
+        "Starting uNexus": "Iniciando uNexus",
+        "Preparing system backends": "Preparando backends do sistema",
+        "Loading desktop": "Carregando desktop",
         "Game Mode ON": "Modo Jogo ligado",
         "Performance optimized for gaming.": "Desempenho otimizado para jogos.",
         "MangoHud missing": "MangoHud ausente",
@@ -223,6 +230,17 @@ Window {
         "Driver": "Driver",
         "Active driver": "Driver ativo",
         "Recommended drivers": "Drivers recomendados",
+        "Driver Wizard": "Assistente de drivers",
+        "Driver Wizard failed": "Falha no assistente de drivers",
+        "Driver switch started. Reboot after it finishes.": "Troca de driver iniciada. Reinicie quando terminar.",
+        "Could not start privileged driver switch.": "Nao foi possivel iniciar a troca privilegiada de driver.",
+        "Driver switch confirmation started.": "Confirmacao da troca de driver iniciada.",
+        "Could not start privileged confirmation.": "Nao foi possivel iniciar a confirmacao privilegiada.",
+        "Driver rollback started.": "Rollback de driver iniciado.",
+        "Could not start privileged rollback.": "Nao foi possivel iniciar o rollback privilegiado.",
+        "Driver plan is unavailable.": "Plano de driver indisponivel.",
+        "Confirm": "Confirmar",
+        "Rollback": "Rollback",
         "Kernel": "Kernel",
         "Mesa": "Mesa",
         "Network": "Rede",
@@ -567,11 +585,55 @@ Window {
             userSettings.themeIndex = themeIndex
     }
     Component.onCompleted: {
+        startupStatus = "Preparing system backends"
         languageCode = userSettings.languageCode
         localeVersion++
         applyTheme(userSettings.themeIndex, false)
         setWallpaper(userSettings.wallpaperId, false)
         systemStats.visible = userSettings.statsOverlayVisible
+        startupBackendProbe.start()
+        startupMinimumTimer.start()
+    }
+
+    function updateStartupLoading() {
+        if (!startupLoading)
+            return
+
+        if (startupBackendsReady && startupMinimumElapsed) {
+            startupStatus = "Loading desktop"
+            startupHideTimer.start()
+        }
+    }
+
+    Timer {
+        id: startupBackendProbe
+        interval: 120
+        repeat: false
+        onTriggered: {
+            systemInfo.networkConnected
+            systemInfo.kernelVersion
+            systemStats.visible
+            appLauncher.isInstalled("unexusctl")
+            startupBackendsReady = true
+            root.updateStartupLoading()
+        }
+    }
+
+    Timer {
+        id: startupMinimumTimer
+        interval: 1200
+        repeat: false
+        onTriggered: {
+            startupMinimumElapsed = true
+            root.updateStartupLoading()
+        }
+    }
+
+    Timer {
+        id: startupHideTimer
+        interval: 260
+        repeat: false
+        onTriggered: root.startupLoading = false
     }
 
     Connections {
@@ -634,6 +696,7 @@ Window {
     function captureSetScene(scene) {
         captureMode = true
         captureScene = scene
+        startupLoading = false
         setWallpaper("unexus-core", false)
 
         dockActionMenu.hideMenu()
@@ -2175,6 +2238,130 @@ MouseArea {
         onDockActiveChanged: {
             root.panelStateVersion++
             root.dockStateVersion++
+        }
+    }
+
+    Rectangle {
+        id: startupScreen
+        anchors.fill: parent
+        z: 260
+        visible: opacity > 0.0
+        opacity: root.startupLoading ? 1.0 : 0.0
+        color: "#050810"
+
+        Behavior on opacity {
+            NumberAnimation { duration: 360; easing.type: Easing.InOutCubic }
+        }
+
+        Canvas {
+            id: startupGrid
+            anchors.fill: parent
+            opacity: 0.24
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+                ctx.strokeStyle = root.themeAccent
+                ctx.globalAlpha = 0.18
+                ctx.lineWidth = 1
+
+                var step = 56
+                for (var x = -step; x < width + step; x += step) {
+                    ctx.beginPath()
+                    ctx.moveTo(x, 0)
+                    ctx.lineTo(x + height * 0.45, height)
+                    ctx.stroke()
+                }
+
+                ctx.globalAlpha = 0.1
+                for (var y = 0; y < height; y += step) {
+                    ctx.beginPath()
+                    ctx.moveTo(0, y)
+                    ctx.lineTo(width, y)
+                    ctx.stroke()
+                }
+            }
+        }
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: Math.min(460, parent.width * 0.62)
+            height: width
+            radius: width / 2
+            color: "transparent"
+            border.color: root.themeAccent
+            border.width: 1
+            opacity: 0.22
+
+            NumberAnimation on rotation {
+                from: 0
+                to: 360
+                duration: 5200
+                loops: Animation.Infinite
+                running: startupScreen.visible
+            }
+        }
+
+        Column {
+            anchors.centerIn: parent
+            spacing: 18
+
+            Image {
+                id: startupLogo
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: Math.min(340, startupScreen.width * 0.34)
+                height: Math.max(104, width * 0.54)
+                source: root.brandLogoSource
+                fillMode: Image.PreserveAspectFit
+                smooth: true
+                opacity: 0.96
+                scale: 1.0
+
+                SequentialAnimation on scale {
+                    running: startupScreen.visible
+                    loops: Animation.Infinite
+                    NumberAnimation { from: 0.985; to: 1.035; duration: 920; easing.type: Easing.InOutSine }
+                    NumberAnimation { from: 1.035; to: 0.985; duration: 920; easing.type: Easing.InOutSine }
+                }
+            }
+
+            Rectangle {
+                id: startupProgressTrack
+                property real sweepX: -width * 0.36
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: Math.min(260, startupScreen.width * 0.36)
+                height: 3
+                radius: 2
+                color: "#172233"
+                clip: true
+
+                Rectangle {
+                    width: parent.width * 0.36
+                    height: parent.height
+                    radius: parent.radius
+                    color: root.themeAccent
+                    opacity: 0.9
+                    x: startupProgressTrack.sweepX
+                }
+
+                NumberAnimation on sweepX {
+                    from: -startupProgressTrack.width * 0.36
+                    to: startupProgressTrack.width
+                    duration: 1050
+                    loops: Animation.Infinite
+                    running: startupScreen.visible
+                }
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: root.tr(root.startupStatus)
+                color: root.textSecondary
+                font.pixelSize: root.textSmall
+                font.family: root.uiFont
+                font.bold: true
+                opacity: 0.82
+            }
         }
     }
 }

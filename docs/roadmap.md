@@ -207,7 +207,7 @@ Project website: <https://unexus-os.vercel.app>
 
 - [x] **UI:** Add Hardware section in Settings with GPU, VRAM, active driver, kernel and Mesa versions
 - [x] **Feature:** Detect GPU through `lspci` and map it to recommended drivers
-- [ ] **Innovation:** **uNexus Driver Wizard:** guided GPU driver switching with rollback if the next boot fails
+- [x] **Innovation:** **uNexus Driver Wizard:** guided GPU driver switching with rollback if the next boot fails
 - [ ] **UI:** Add exportable Hardware Report as PDF or JSON
 - [ ] **Feature:** Verify 32-bit gaming libraries and offer safe install paths
 - [ ] **Innovation:** **uNexus Benchmark Mode:** run `glmark2` or `vkmark` from Settings and show visual results
@@ -224,7 +224,7 @@ Project website: <https://unexus-os.vercel.app>
 
 **Goal:** stop treating uNexus Shell as a manual project and make it installable.
 
-- [ ] **UI:** Create a startup loading screen with uNexus logo animation while C++ backends initialize
+- [x] **UI:** Create a startup loading screen with uNexus logo animation while C++ backends initialize
 - [x] **Feature:** Create `PKGBUILD`, CMake install target, `.desktop`, Wayland session files and recovery session for reproducible installation
 - [ ] **Innovation:** **uNexus Update Manager:** Settings-integrated updater using GitHub Releases and package install progress
 - [ ] **UI:** Add clear failure screen for missing Qt/QML resources or backend startup errors

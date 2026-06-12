@@ -246,6 +246,75 @@ QVariantMap AppLauncher::prepareBugReport(const QString &updateChannel)
     return result;
 }
 
+QVariantMap AppLauncher::driverWizardPlan()
+{
+    QVariantMap result;
+    const QString output = commandOutput(QStringLiteral("unexusctl"), {QStringLiteral("driver-plan")}, 2000);
+    result.insert(QStringLiteral("available"), !output.contains(QStringLiteral("not found"), Qt::CaseInsensitive));
+    result.insert(QStringLiteral("output"), output.trimmed());
+
+    const QStringList lines = output.split(QLatin1Char('\n'));
+    for (const QString &line : lines) {
+        const int separator = line.indexOf(QLatin1Char(':'));
+        if (separator < 0)
+            continue;
+
+        const QString key = line.left(separator).trimmed().toLower().replace(QLatin1Char(' '), QLatin1Char('_'));
+        const QString value = line.mid(separator + 1).trimmed();
+        if (!key.isEmpty())
+            result.insert(key, value);
+    }
+
+    const QString packages = result.value(QStringLiteral("recommended_packages")).toString();
+    result.insert(QStringLiteral("ready"), result.value(QStringLiteral("available")).toBool() && !packages.isEmpty() && packages != QStringLiteral("unknown"));
+    return result;
+}
+
+bool AppLauncher::startDriverWizardApply()
+{
+    const QString unexusctl = QStandardPaths::findExecutable(QStringLiteral("unexusctl"));
+    if (unexusctl.isEmpty())
+        return false;
+
+    if (!QStandardPaths::findExecutable(QStringLiteral("pkexec")).isEmpty())
+        return QProcess::startDetached(QStringLiteral("pkexec"), {unexusctl, QStringLiteral("driver-apply"), QStringLiteral("--yes")});
+
+    if (!QStandardPaths::findExecutable(QStringLiteral("sudo")).isEmpty())
+        return QProcess::startDetached(QStringLiteral("sudo"), {unexusctl, QStringLiteral("driver-apply"), QStringLiteral("--yes")});
+
+    return false;
+}
+
+bool AppLauncher::confirmDriverWizard()
+{
+    const QString unexusctl = QStandardPaths::findExecutable(QStringLiteral("unexusctl"));
+    if (unexusctl.isEmpty())
+        return false;
+
+    if (!QStandardPaths::findExecutable(QStringLiteral("pkexec")).isEmpty())
+        return QProcess::startDetached(QStringLiteral("pkexec"), {unexusctl, QStringLiteral("driver-confirm")});
+
+    if (!QStandardPaths::findExecutable(QStringLiteral("sudo")).isEmpty())
+        return QProcess::startDetached(QStringLiteral("sudo"), {unexusctl, QStringLiteral("driver-confirm")});
+
+    return false;
+}
+
+bool AppLauncher::rollbackDriverWizard()
+{
+    const QString unexusctl = QStandardPaths::findExecutable(QStringLiteral("unexusctl"));
+    if (unexusctl.isEmpty())
+        return false;
+
+    if (!QStandardPaths::findExecutable(QStringLiteral("pkexec")).isEmpty())
+        return QProcess::startDetached(QStringLiteral("pkexec"), {unexusctl, QStringLiteral("driver-rollback")});
+
+    if (!QStandardPaths::findExecutable(QStringLiteral("sudo")).isEmpty())
+        return QProcess::startDetached(QStringLiteral("sudo"), {unexusctl, QStringLiteral("driver-rollback")});
+
+    return false;
+}
+
 QJsonArray AppLauncher::hyprctlJsonArray(const QStringList &arguments) const
 {
     if (QStandardPaths::findExecutable(QStringLiteral("hyprctl")).isEmpty())

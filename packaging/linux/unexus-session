@@ -121,7 +121,7 @@ mkdir -p "$log_root"
         printf 'exec-once = %s\n' "$polkit_agent"
     fi
     if command -v unexus-shell >/dev/null 2>&1; then
-        printf "exec-once = sh -lc 'unexus-shell >>\"%s\" 2>&1 || exec %s'\n" "$session_log" "$recovery_command"
+        printf "exec-once = sh -lc 'unexus-shell >>\"%s\" 2>&1 & shell_pid=\$!; (sleep 20; if kill -0 \"\$shell_pid\" 2>/dev/null && command -v unexusctl >/dev/null 2>&1; then unexusctl driver-confirm --boot >/dev/null 2>&1 || true; fi) & wait \"\$shell_pid\" || exec %s'\n" "$session_log" "$recovery_command"
     elif [ -n "$fallback_terminal" ]; then
         printf 'exec-once = %s\n' "$fallback_terminal"
     fi
