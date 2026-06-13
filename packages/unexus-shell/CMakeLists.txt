@@ -93,8 +93,10 @@ qt_add_resources(unexus-installer "unexus_installer_assets"
 target_include_directories(unexus-shell PRIVATE include)
 target_include_directories(unexus-installer PRIVATE ../unexus-installer/include)
 
+set(UNEXUS_INSTALLER_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../.." CACHE STRING "Repository path used by the packaged uNexus installer")
+
 target_compile_definitions(unexus-installer PRIVATE
-    UNEXUS_REPO_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/../.."
+    UNEXUS_REPO_ROOT="${UNEXUS_INSTALLER_REPO_ROOT}"
 )
 
 set_target_properties(unexus-installer PROPERTIES

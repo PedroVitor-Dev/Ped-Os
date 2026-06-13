@@ -5,7 +5,6 @@ log() {
     printf '[uNexus ISO customize] %s\n' "$*"
 }
 
-repo_root="/opt/unexus-os"
 live_user="unexus"
 
 log "creating live user"
@@ -15,8 +14,8 @@ fi
 
 printf 'root:unexus\n%s:unexus\n' "$live_user" | chpasswd
 
-log "installing uNexus shell"
-PREFIX=/usr sh "$repo_root/scripts/setup.sh"
+log "uNexus shell package is installed by pacstrap"
+sed -i '/^\[unexus-local\]/,$d' /etc/pacman.conf
 log "configuring Plymouth boot splash"
 if command -v plymouth-set-default-theme >/dev/null 2>&1; then
     plymouth-set-default-theme unexus || true
@@ -31,7 +30,7 @@ log "configuring live session autostart"
 install -d -m 0755 "/home/$live_user"
 cat > "/home/$live_user/.bash_profile" <<'EOF'
 if [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ] && [ "$(tty)" = "/dev/tty1" ]; then
-    exec unexus-session
+    exec unexus-live-boot-mode
 fi
 EOF
 chown "$live_user:$live_user" "/home/$live_user/.bash_profile"
@@ -47,6 +46,5 @@ if command -v flatpak >/dev/null 2>&1; then
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
 fi
 
-log "cleaning build caches"
-rm -rf /var/cache/pacman/pkg/*
+log "keeping pacman package cache for offline installation"
 rm -rf /tmp/*

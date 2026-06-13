@@ -181,7 +181,7 @@ The first bootable uNexus OS image profile lives in `ISO/0.0.1`.
 Install Archiso tools on the build host:
 
 ```bash
-sudo pacman -S archiso rsync
+sudo pacman -S archiso base-devel rsync
 ```
 
 Build the image:
@@ -196,6 +196,8 @@ The generated image is written to:
 ```text
 ISO/0.0.1/out/
 ```
+
+During ISO creation, `build-iso.sh` packages the current checkout into a local `unexus-shell` Arch package, creates a temporary local pacman repository and adds that repository to the generated Archiso profile. This keeps the live image install path package-based instead of compiling uNexus inside `customize_airootfs.sh`.
 
 Validate the generated ISO in QEMU:
 
@@ -214,6 +216,8 @@ Use `--bios-only` when OVMF is not installed yet.
 The live profile includes Hyprland, the uNexus shell/session, Qt6, PipeWire, NetworkManager, Flatpak, GameMode, MangoHud, Vulkan tools, graphical Polkit authentication, Papirus/Breeze/Adwaita/hicolor icons, Qt SVG/imageformat plugins, Noto/DejaVu/Liberation fallback fonts and recovery utilities.
 
 The normal session also writes GTK settings and exports Qt/GTK/cursor defaults so the first boot does not depend on a manually configured desktop theme.
+
+The ISO boot menu provides normal boot, safe graphics, text recovery, doctor and settings rollback entries. The recovery and doctor entries intentionally run on tty1 so they remain useful when the graphical session is broken.
 
 Write it to a USB disk:
 
@@ -237,6 +241,14 @@ sudo sh scripts/install-os.sh --target /dev/sdX --username pedro --timezone Amer
 ```
 
 This first disk installer backend targets UEFI systems with systemd-boot and creates a 1 GiB EFI system partition plus a root partition.
+
+The installer supports offline installs from the live ISO package cache:
+
+```bash
+sudo sh scripts/install-os.sh --target /dev/sdX --username pedro --timezone America/Fortaleza --offline --execute --confirm ERASE-AND-INSTALL
+```
+
+`--online` forces pacman repository downloads. Without either flag, the installer uses the local cache when package files are present and falls back to online repositories otherwise.
 
 ---
 

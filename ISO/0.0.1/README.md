@@ -15,6 +15,8 @@ cd ~/uNexus-OS
 sudo sh ISO/0.0.1/build-iso.sh
 ```
 
+The build script first creates a local `unexus-shell` Arch package from the current checkout, publishes it in a temporary local pacman repository and lets Archiso install that package through `packages.x86_64`. The live image still carries the repository under `/opt/unexus-os` for repair, development and disk installation scripts, but the shell is no longer compiled during `customize_airootfs.sh`.
+
 The generated image is written to:
 
 ```text
@@ -41,10 +43,20 @@ For quick BIOS-only validation:
 sh scripts/test-iso-vm.sh --bios-only
 ```
 
+## Boot Recovery Modes
+
+The ISO boot menu includes additional recovery entries:
+
+- `uNexus OS 0.0.1` boots the normal live session.
+- `Safe Graphics` keeps kernel modesetting available, avoids proprietary NVIDIA modules and starts uNexus with software rendering hints.
+- `Recovery` opens the text recovery menu on tty1 without depending on Hyprland.
+- `Doctor` runs `uNexus Doctor`, writes `~/.local/state/unexus/logs/live-doctor.log`, then opens the recovery menu.
+- `Rollback Settings` rolls back the latest uNexus settings backup, or resets settings when no backup can be restored, then opens the recovery menu.
+
 If the build host is missing archiso tools:
 
 ```sh
-sudo pacman -S archiso rsync
+sudo pacman -S archiso base-devel rsync
 ```
 
 ## Write to USB
@@ -79,6 +91,14 @@ sudo sh scripts/install-os.sh --target /dev/sdX --username pedro --timezone Amer
 
 The script creates a GPT UEFI install with a 1 GiB EFI system partition, a root partition, `pacstrap`, `fstab`, locale/timezone/hostname/user setup, systemd-boot and uNexus provisioning.
 
+The installer defaults to automatic package source selection. When the live ISO carries `/var/cache/pacman/pkg`, it installs from that cache without using network mirrors:
+
+```sh
+sudo sh scripts/install-os.sh --target /dev/sdX --username pedro --timezone America/Fortaleza --offline --execute --confirm ERASE-AND-INSTALL
+```
+
+Use `--online` to force repository downloads instead.
+
 ## What 0.0.1 Includes
 
 - Arch Linux live base
@@ -86,6 +106,8 @@ The script creates a GPT UEFI install with a 1 GiB EFI system partition, a root 
 - uNexus shell installed from this repository
 - Live `unexus` user with password `unexus`
 - Autologin on tty1
+- Normal, safe graphics, recovery, doctor and rollback boot modes
+- Pacman package cache retained for offline disk installs
 - NetworkManager, PipeWire, Polkit and XDG portals
 - Qt6 runtime/build stack
 - GameMode, MangoHud and Vulkan tools

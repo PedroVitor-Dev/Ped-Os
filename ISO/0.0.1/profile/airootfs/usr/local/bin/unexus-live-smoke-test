@@ -44,6 +44,7 @@ need_command unexus-installer
 need_command unexusctl
 need_command unexus-doctor
 need_command unexus-session
+need_command unexus-live-boot-mode
 need_command NetworkManager
 
 need_file /usr/share/wayland-sessions/unexus.desktop

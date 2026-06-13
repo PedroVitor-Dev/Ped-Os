@@ -13,8 +13,11 @@ confirm=""
 dry_run=1
 install_gaming_launchers=0
 configure_bootloader=1
+network_mode="auto"
+selected_network_mode=""
 work_mount="/mnt/unexus-install"
 log_file="/tmp/unexus-os-install.log"
+package_cache_dir="${UNEXUS_PACKAGE_CACHE_DIR:-/var/cache/pacman/pkg}"
 
 usage() {
     cat <<EOF
@@ -29,6 +32,8 @@ Options:
   --keymap KEYMAP        Console keymap (default: us)
   --filesystem TYPE      Root filesystem: btrfs or ext4 (default: btrfs)
   --gaming-launchers     Install Steam, Lutris, Heroic and Bottles Flatpaks after base install
+  --offline              Install from the live ISO package cache without network mirrors
+  --online               Install from configured pacman repositories
   --execute              Actually write to disk; without this the script only prints the plan
   --confirm TEXT         Required with --execute. Must match: ERASE-AND-INSTALL
   -h, --help             Show this help
@@ -132,6 +137,126 @@ cleanup_mounts() {
     fi
 }
 
+install_packages() {
+    cat <<'EOF'
+base
+linux
+linux-firmware
+sof-firmware
+amd-ucode
+intel-ucode
+sudo
+networkmanager
+sddm
+btrfs-progs
+dosfstools
+efibootmgr
+git
+cmake
+ninja
+base-devel
+rsync
+hyprland
+qt6-base
+qt6-declarative
+qt6-imageformats
+qt6-svg
+qt6-wayland
+mesa
+mesa-utils
+vulkan-intel
+vulkan-radeon
+vulkan-tools
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+wireplumber
+polkit
+polkit-kde-agent
+xdg-desktop-portal
+xdg-desktop-portal-hyprland
+xdg-utils
+flatpak
+gamemode
+mangohud
+ffmpeg
+poppler
+pciutils
+kitty
+alacritty
+firefox
+fish
+zsh
+nano
+neovim
+btop
+htop
+less
+man-db
+noto-fonts
+noto-fonts-emoji
+ttf-dejavu
+ttf-liberation
+adwaita-icon-theme
+breeze-icons
+hicolor-icon-theme
+papirus-icon-theme
+plymouth
+EOF
+}
+
+cache_has_packages() {
+    [ -d "$package_cache_dir" ] || return 1
+    find "$package_cache_dir" -maxdepth 1 -type f -name '*.pkg.tar.*' ! -name '*.sig' | grep -q .
+}
+
+cache_has_package() {
+    package="$1"
+    [ -d "$package_cache_dir" ] || return 1
+    find "$package_cache_dir" -maxdepth 1 -type f -name "${package}-*.pkg.tar.*" ! -name '*.sig' | grep -q .
+}
+
+cache_has_offline_install_set() {
+    cache_has_package base &&
+        cache_has_package linux &&
+        cache_has_package unexus-shell
+}
+
+cached_package_files() {
+    find "$package_cache_dir" -maxdepth 1 -type f -name '*.pkg.tar.*' ! -name '*.sig' | sort
+}
+
+choose_network_mode() {
+    case "$network_mode" in
+        offline|online) printf '%s\n' "$network_mode" ;;
+        auto)
+            if cache_has_offline_install_set; then
+                printf 'offline\n'
+            else
+                printf 'online\n'
+            fi
+            ;;
+        *) die "invalid network mode: $network_mode" ;;
+    esac
+}
+
+pacstrap_online() {
+    packages="$(install_packages | tr '\n' ' ')"
+    # shellcheck disable=SC2086
+    run pacstrap -K "$work_mount" $packages
+}
+
+pacstrap_offline() {
+    cache_has_packages || die "offline install requested, but no package files were found in $package_cache_dir"
+    cache_has_offline_install_set || die "offline install requires cached base, linux and unexus-shell packages in $package_cache_dir"
+    package_files="$(cached_package_files | tr '\n' ' ')"
+    [ -n "$package_files" ] || die "offline install requested, but package cache is empty"
+
+    # shellcheck disable=SC2086
+    run pacstrap -K -U "$work_mount" $package_files
+}
+
 write_chroot_script() {
     root_part="$1"
     esp_part="$2"
@@ -189,11 +314,19 @@ initrd  /initramfs-linux.img
 options root=UUID=\$root_uuid rw quiet splash loglevel=3 rd.udev.log_level=3 vt.global_cursor_default=0
 ENTRY
 
-UNEXUS_TARGET_USER='$target_user' \\
-UNEXUS_INSTALL_GAMING_LAUNCHERS='$install_gaming_launchers' \\
-UNEXUS_CONFIGURE_BOOTLOADER='$configure_bootloader' \\
-PREFIX=/usr \\
-sh /opt/unexus-os/scripts/install-system.sh
+if command -v unexus-shell >/dev/null 2>&1; then
+    UNEXUS_TARGET_USER='$target_user' \\
+    UNEXUS_INSTALL_GAMING_LAUNCHERS='$install_gaming_launchers' \\
+    UNEXUS_CONFIGURE_BOOTLOADER='$configure_bootloader' \\
+    PREFIX=/usr \\
+    sh /opt/unexus-os/scripts/provision-system.sh
+else
+    UNEXUS_TARGET_USER='$target_user' \\
+    UNEXUS_INSTALL_GAMING_LAUNCHERS='$install_gaming_launchers' \\
+    UNEXUS_CONFIGURE_BOOTLOADER='$configure_bootloader' \\
+    PREFIX=/usr \\
+    sh /opt/unexus-os/scripts/install-system.sh
+fi
 EOF
 
     chmod 0700 "$script_path"
@@ -244,18 +377,12 @@ install_system() {
     run mkdir -p "$work_mount/boot"
     run mount "$esp_part" "$work_mount/boot"
 
-    run pacstrap -K "$work_mount" \
-        base linux linux-firmware sof-firmware amd-ucode intel-ucode sudo networkmanager sddm \
-        btrfs-progs dosfstools efibootmgr git cmake ninja base-devel rsync \
-        hyprland qt6-base qt6-declarative qt6-imageformats qt6-svg qt6-wayland \
-        mesa mesa-utils vulkan-intel vulkan-radeon vulkan-tools \
-        pipewire pipewire-alsa pipewire-jack pipewire-pulse wireplumber \
-        polkit polkit-kde-agent xdg-desktop-portal xdg-desktop-portal-hyprland xdg-utils \
-        flatpak gamemode mangohud ffmpeg poppler pciutils \
-        kitty alacritty firefox fish zsh nano neovim btop htop less man-db \
-        noto-fonts noto-fonts-emoji ttf-dejavu ttf-liberation \
-        adwaita-icon-theme breeze-icons hicolor-icon-theme papirus-icon-theme \
-        plymouth
+    log "package source: $selected_network_mode"
+    if [ "$selected_network_mode" = "offline" ]; then
+        pacstrap_offline
+    else
+        pacstrap_online
+    fi
 
     genfstab -U "$work_mount" >> "$work_mount/etc/fstab"
     run mkdir -p "$work_mount/opt/unexus-os"
@@ -318,6 +445,14 @@ while [ "$#" -gt 0 ]; do
             install_gaming_launchers=1
             shift
             ;;
+        --offline)
+            network_mode="offline"
+            shift
+            ;;
+        --online)
+            network_mode="online"
+            shift
+            ;;
         --execute)
             dry_run=0
             shift
@@ -351,6 +486,11 @@ case "$filesystem" in
     *) die "--filesystem must be btrfs or ext4" ;;
 esac
 
+selected_network_mode="$(choose_network_mode)"
+if [ "$selected_network_mode" = "offline" ]; then
+    cache_has_offline_install_set || die "offline install requires cached base, linux and unexus-shell packages in $package_cache_dir"
+fi
+
 log "install plan"
 log "  disk:       $target_disk"
 log "  user:       $target_user"
@@ -360,6 +500,7 @@ log "  locale:     $target_locale"
 log "  keymap:     $target_keymap"
 log "  filesystem: $filesystem"
 log "  launchers:  $install_gaming_launchers"
+log "  packages:   $selected_network_mode"
 log "  mountpoint: $work_mount"
 log "  log file:   $log_file"
 
